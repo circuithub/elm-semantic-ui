@@ -1,42 +1,130 @@
-module SemanticUI.Elements.Icon exposing (..)
+module SemanticUI.Elements.Icon exposing (Icon(..), init, Config, size, icon)
+
+{-|
+
+An icon is a glyph used to represent something else.
+
+# Viewing icons
+
+@docs Icon, icon
+
+# Icon properties
+
+@docs Config, init
+
+## Size
+
+An icon can vary in size.
+
+@docs size
+
+-}
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import SemanticUI exposing (..)
+import SemanticUI exposing (Size(..))
 
 
+{-| The name of the icon. See
+[https://semantic-ui.com/elements/icon.html](https://semantic-ui.com/elements/icon.html) for a table
+of options.
+-}
 type Icon
-    = Dropbox
+    = ArrowLeft
+    | ArrowRight
+    | Dropbox
+    | Plus
+    | Search
+    | Warning
+    | WarningSign
 
 
-type alias Model msg =
+{-| Custom sizeClass that doesn't render medium (as the "medium" class is
+Medium.com's icon)
+-}
+sizeClass : Size -> Attribute msg
+sizeClass size =
+    case size of
+        Mini ->
+            class "mini"
+
+        Tiny ->
+            class "tiny"
+
+        Small ->
+            class "small"
+
+        Medium ->
+            class ""
+
+        Large ->
+            class "large"
+
+        Big ->
+            class "big"
+
+        Huge ->
+            class "huge"
+
+        Massive ->
+            class "massive"
+
+
+{-| Configuration of an icon.
+-}
+type alias Config msg =
     { size : Size
     , attributes : List (Attribute msg)
     }
 
 
-size : Size -> Model msg -> Model msg
+{-| Specify the size of an icon.
+-}
+size : Size -> Config msg -> Config msg
 size size model =
     { model | size = size }
 
 
-init : Model msg
+{-| The most basic configuration of an icon.
+-}
+init : Config msg
 init =
     { size = Medium
     , attributes = []
     }
 
 
-icon : Model msg -> Icon -> Html msg
+{-| View an icon with a particular configuration.
+-}
+icon : Config msg -> Icon -> Html msg
 icon { size, attributes } icon =
     i
         (List.concat
             [ attributes
             , [ class "ui icon"
               , sizeClass size
-              , classList
-                    [ ( "dropbox", icon == Dropbox )
-                    ]
+              , class <|
+                    case icon of
+                        Dropbox ->
+                            "dropbox"
+
+                        Warning ->
+                            "warning"
+
+                        WarningSign ->
+                            "warning sign"
+
+                        ArrowRight ->
+                            "arrow right"
+
+                        ArrowLeft ->
+                            "left arrow"
+
+                        Search ->
+                            "search"
+
+                        Plus ->
+                            "plus"
               ]
             ]
         )
