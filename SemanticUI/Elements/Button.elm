@@ -1,10 +1,44 @@
-module SemanticUI.Elements.Button exposing (..)
+module SemanticUI.Elements.Button exposing (button, link, viewAs, Model, Emphasis(..), emphasis, primary, secondary)
+
+{-|
+
+Provides the [button](https://semantic-ui.com/elements/button.html) element
+from Semantic UI.
+
+Usage example:
+
+    import SemanticUI.Elements.Button as Button
+    import SemanticUI.Elements.Icon as Icon
+
+    -- In your view function:
+    ...
+      Button.button
+        (Button.init
+          |> Button.primary
+          |> Button.icon (Just Icon.Search))
+        [ text "Search" ]
+
+# Viewing buttons
+
+@docs button, link, viewAs
+
+# Button properties
+
+@docs Model
+
+## Emphasis
+
+@docs primary, secondary, Emphasis, emphasis
+
+-}
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import SemanticUI exposing (..)
 
 
+{-| Enumeration of possible types of emphasis
+-}
 type Emphasis
     = Primary
     | Secondary
@@ -22,6 +56,8 @@ type alias HiddenContent msg =
     }
 
 
+{-| All properties of a button
+-}
 type alias Model msg =
     { emphasis : Maybe Emphasis
     , hiddenContent : Maybe (HiddenContent msg)
@@ -77,9 +113,25 @@ inverted inverted model =
     { model | inverted = inverted }
 
 
+{-| Set (or clear) the emphasis on a button.
+-}
 emphasis : Maybe Emphasis -> Model msg -> Model msg
 emphasis emphasis model =
     { model | emphasis = emphasis }
+
+
+{-| Set the emphasis of a button to Primary.
+-}
+primary : Model msg -> Model msg
+primary model =
+    { model | emphasis = Just Primary }
+
+
+{-| Set the emphasis of a button to Secondary.
+-}
+secondary : Model msg -> Model msg
+secondary model =
+    { model | emphasis = Just Secondary }
 
 
 hiddenContent :
@@ -89,10 +141,33 @@ hiddenContent :
 hiddenContent hiddenContent model =
     { model | hiddenContent = hiddenContent }
 
-button = viewAs Html.button
 
-link = viewAs a
+{-| View as a `<button>` element
+-}
+button : Model msg -> List (Html msg) -> Html msg
+button =
+    viewAs Html.button
 
+
+{-| View as a `<a>` element
+-}
+link : Model msg -> List (Html msg) -> Html msg
+link =
+    viewAs a
+
+
+{-| In Semantic UI, *any* element can be a button. This generalised view
+ function allows you to supply an element and use it as a button. For example,
+
+    Button.viewAs Html.input
+      (Button.init |> Button.attributes [ Html.type_ "submit"])
+      [ text "Submit" ]
+-}
+viewAs :
+    (List (Attribute msg) -> List (Html msg) -> Html msg)
+    -> Model msg
+    -> List (Html msg)
+    -> Html msg
 viewAs element { emphasis, hiddenContent, basic, inverted, loading, fluid, attributes, size } label =
     element
         (List.concat
