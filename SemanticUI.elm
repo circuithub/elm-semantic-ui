@@ -1,20 +1,23 @@
 module SemanticUI
     exposing
-        ( Alignment(..)
-        , Color(..)
+        ( Color(..)
         , Size(..)
         , Floated(..)
+        , TextAlignment(..)
+        , Attached(..)
+        , attachedClass
         , sizeClass
         , floatedClass
+        , textAlignmentClass
         )
 
 {-|
 
 # Common properties
-@docs Alignment, Color, Floated, Size
+@docs Attached, Color, Floated, Size, TextAlignment
 
 # Forming Attributes
-@docs floatedClass, sizeClass
+@docs attachedClass, floatedClass, sizeClass, textAlignmentClass
 
 -}
 
@@ -42,12 +45,6 @@ type Size
     | Big
     | Massive
     | Huge
-
-
-{-| Text alignment
--}
-type Alignment
-    = Centered
 
 
 {-| Convert a `Size` into its corresponding `class` `Attribute`.
@@ -80,3 +77,46 @@ floatedClass floated =
         case floated of
             FloatedRight ->
                 "right floated"
+
+
+{-| Specify how text is to be aligned.
+-}
+type TextAlignment
+    = LeftAligned
+    | Centered
+
+
+{-| Convert a `TextAlignment` into its corresponding `class` `Attribute`.
+-}
+textAlignmentClass : TextAlignment -> Attribute msg
+textAlignmentClass textAlignment =
+    case textAlignment of
+        LeftAligned ->
+            class ""
+
+        Centered ->
+            class "center aligned"
+
+
+{-| How content should attach to its adjacent content.
+-}
+type Attached
+    = AttachTop
+    | AttachMiddle
+    | AttachBottom
+
+
+{-| Convert `Attached` into a correspodning `class` `Attribute`.
+-}
+attachedClass : Attached -> Attribute msg
+attachedClass side =
+    class <|
+        case side of
+            AttachTop ->
+                "top attached"
+
+            AttachMiddle ->
+                "middle attached"
+
+            AttachBottom ->
+                "bottom attached"
