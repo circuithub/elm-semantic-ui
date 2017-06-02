@@ -1,6 +1,7 @@
 module SemanticUI
     exposing
         ( Color(..)
+        , ColumnCount(..)
         , Size(..)
         , Floated(..)
         , TextAlignment(..)
@@ -14,7 +15,7 @@ module SemanticUI
 {-|
 
 # Common properties
-@docs Attached, Color, Floated, Size, TextAlignment
+@docs Attached, Color, ColumnCount, Floated, Size, TextAlignment
 
 # Forming Attributes
 @docs attachedClass, floatedClass, sizeClass, textAlignmentClass
@@ -120,3 +121,25 @@ attachedClass side =
 
             AttachBottom ->
                 "bottom attached"
+
+
+{-| Column counts, used to specify how wide a column is, or how many columns
+a grid contains.
+-}
+type ColumnCount
+    = OneColumn
+    | TwoColumns
+    | ThreeColumns
+    | FourColumns
+    | FiveColumns
+    | SixColumns
+    | SevenColumns
+    | EightColumns
+    | NineColumns
+    | TenColumns
+    | ElevenColumns
+    | TwelveColumns
+    | ThirteenColumns
+    | FourteenColumns
+    | FifteenColumns
+    | SixteenColumns

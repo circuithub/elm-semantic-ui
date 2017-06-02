@@ -18,7 +18,9 @@
         "SemanticUI.Elements.List",
         "SemanticUI.Elements.Loader",
         "SemanticUI.Elements.Segment",
-        "SemanticUI.Collections.Form"
+        "SemanticUI.Collections.Form",
+        "SemanticUI.Collections.Grid",
+        "SemanticUI.Collections.Grid.Column"
     ],
     "dependencies": {
         "elm-lang/core": "5.1.1 <= v < 6.0.0",
