@@ -12,7 +12,8 @@
         "SemanticUI.Elements.Container",
         "SemanticUI.Elements.Divider",
         "SemanticUI.Elements.Header",
-        "SemanticUI.Elements.Icon"
+        "SemanticUI.Elements.Icon",
+        "SemanticUI.Elements.Image"
     ],
     "dependencies": {
         "elm-lang/core": "5.1.1 <= v < 6.0.0",

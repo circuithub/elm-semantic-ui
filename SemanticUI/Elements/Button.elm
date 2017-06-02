@@ -138,7 +138,7 @@ type alias HiddenContent msg =
     }
 
 
-{-| All properties of a button
+{-| All properties of a button.
 -}
 type alias Config msg =
     { emphasis : Maybe Emphasis
