@@ -1,4 +1,24 @@
-module SemanticUI.Elements.Button exposing (button, link, viewAs, Config, Emphasis(..), emphasis, primary, secondary)
+module SemanticUI.Elements.Button
+    exposing
+        ( button
+        , link
+        , viewAs
+        , Config
+        , Emphasis(..)
+        , emphasis
+        , primary
+        , secondary
+        , hiddenContent
+        , HiddenContent
+        , Animation
+        , fluid
+        , size
+        , attributes
+        , init
+        , basic
+        , loading
+        , inverted
+        )
 
 {-|
 
@@ -24,11 +44,50 @@ Usage example:
 
 # Button properties
 
-@docs Config
+@docs Config, init, attributes
 
 ## Emphasis
 
+A button can be formatted to show different levels of emphasis.
+
 @docs primary, secondary, Emphasis, emphasis
+
+## Animated buttons and hidden content
+
+A button can animate to show hidden content.
+
+@docs hiddenContent, HiddenContent, Animation
+
+## Fluid
+
+A button can take the width of its container.
+
+@docs fluid
+
+## Size
+
+A button can have different sizes.
+
+@docs size
+
+## Basic
+
+A basic button is less pronounced
+
+@docs basic
+
+## Loading
+
+A button can show a loading indicator
+
+@docs loading
+
+## Inverted
+
+A button can be formatted to appear on dark backgrounds.
+
+@docs inverted
+
 
 -}
 
@@ -44,12 +103,16 @@ type Emphasis
     | Secondary
 
 
+{-| How hidden content should be revealed.
+-}
 type Animation
     = DefaultAnimation
     | VerticalAnimation
     | FadeAnimation
 
 
+{-| Hidden content along with its `Animation`
+-}
 type alias HiddenContent msg =
     { hiddenContent : List (Html msg)
     , animation : Animation
@@ -70,21 +133,30 @@ type alias Config msg =
     }
 
 
+{-| Whether or not this button is fluid
+-}
 fluid : Bool -> Config msg -> Config msg
 fluid fluid model =
     { model | fluid = fluid }
 
 
+{-| The size of a button.
+-}
 size : Size -> Config msg -> Config msg
 size size model =
     { model | size = size }
 
 
+{-| Any other custom `Attribute`s to add to this button. Custom attributes
+ will be added before `elm-semantic-ui` attributes.
+-}
 attributes : List (Attribute msg) -> Config msg -> Config msg
 attributes attrs model =
     { model | attributes = attrs }
 
 
+{-| The initial config of a button. Corresponds to just using `class="ui button"` in Semantic UI.
+-}
 init : Config msg
 init =
     { emphasis = Nothing
@@ -98,16 +170,22 @@ init =
     }
 
 
+{-| Whether or not a button is basic.
+-}
 basic : Bool -> Config msg -> Config msg
 basic basic model =
     { model | basic = basic }
 
 
+{-| Whether or not this button should display a loading spinner.
+-}
 loading : Bool -> Config msg -> Config msg
 loading loading model =
     { model | loading = loading }
 
 
+{-| Whether or not this button should display with inverted colours.
+-}
 inverted : Bool -> Config msg -> Config msg
 inverted inverted model =
     { model | inverted = inverted }
@@ -134,8 +212,10 @@ secondary model =
     { model | emphasis = Just Secondary }
 
 
+{-| Add hidden content to a button.
+-}
 hiddenContent :
-    Maybe { animation : Animation, hiddenContent : List (Html msg) }
+    Maybe (HiddenContent msg)
     -> Config msg
     -> Config msg
 hiddenContent hiddenContent model =
