@@ -16,7 +16,8 @@
         "SemanticUI.Elements.Image",
         "SemanticUI.Elements.Label",
         "SemanticUI.Elements.List",
-        "SemanticUI.Elements.Loader"
+        "SemanticUI.Elements.Loader",
+        "SemanticUI.Elements.Segment"
     ],
     "dependencies": {
         "elm-lang/core": "5.1.1 <= v < 6.0.0",

@@ -25,6 +25,8 @@ A header provides a short summary of content.
 
 ## Attachment
 
+A header can be attached to other content, like a segment.
+
 @docs attached
 
 -}
@@ -53,7 +55,7 @@ init =
     }
 
 
-{-| A header can be attached to other content, like a segment.
+{-| How a header should attach to surrounding content.
 -}
 attached : Maybe Attached -> Config msg -> Config msg
 attached attached model =
