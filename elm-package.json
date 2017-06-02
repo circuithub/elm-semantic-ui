@@ -21,7 +21,8 @@
         "SemanticUI.Collections.Form",
         "SemanticUI.Collections.Grid",
         "SemanticUI.Collections.Grid.Column",
-        "SemanticUI.Collections.Message"
+        "SemanticUI.Collections.Message",
+        "SemanticUI.Views.Cards.Card"
     ],
     "dependencies": {
         "elm-lang/core": "5.1.1 <= v < 6.0.0",
