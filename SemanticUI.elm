@@ -1,12 +1,20 @@
-module SemanticUI exposing (Alignment(..), Color(..), Size(..), sizeClass)
+module SemanticUI
+    exposing
+        ( Alignment(..)
+        , Color(..)
+        , Size(..)
+        , Floated(..)
+        , sizeClass
+        , floatedClass
+        )
 
 {-|
 
 # Common properties
-@docs Alignment, Color, Size
+@docs Alignment, Color, Floated, Size
 
 # Forming Attributes
-@docs sizeClass
+@docs floatedClass, sizeClass
 
 -}
 
@@ -56,3 +64,19 @@ sizeClass size =
         , ( "huge", size == Huge )
         , ( "massive", size == Massive )
         ]
+
+
+{-| Some content can be floated.
+-}
+type Floated
+    = FloatedRight
+
+
+{-| Convert a `Floated` into its corresponding `class` `Attribute` .
+-}
+floatedClass : Floated -> Attribute msg
+floatedClass floated =
+    class <|
+        case floated of
+            FloatedRight ->
+                "right floated"

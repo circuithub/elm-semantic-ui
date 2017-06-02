@@ -18,6 +18,10 @@ module SemanticUI.Elements.Button
         , basic
         , loading
         , inverted
+        , IconSide
+        , iconSide
+        , floated
+        , icon
         )
 
 {-|
@@ -88,12 +92,26 @@ A button can be formatted to appear on dark backgrounds.
 
 @docs inverted
 
+## Floated
+
+A button can be aligned to the left or right of its container.
+
+@docs floated
+
+## Icons
+
+Buttons can have icons associated with them. If a button has icon and no content,
+it will be formatted as an icon button. If a button has icon and content, it
+will be displayed as a labelled button.
+
+@docs icon, iconSide, IconSide
 
 -}
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import SemanticUI exposing (..)
+import SemanticUI.Elements.Icon as Icon
 
 
 {-| Enumeration of possible types of emphasis
@@ -101,6 +119,7 @@ import SemanticUI exposing (..)
 type Emphasis
     = Primary
     | Secondary
+    | Negative
 
 
 {-| How hidden content should be revealed.
@@ -130,6 +149,9 @@ type alias Config msg =
     , fluid : Bool
     , attributes : List (Attribute msg)
     , size : Size
+    , iconSide : IconSide
+    , icon : Maybe Icon.Icon
+    , floated : Maybe Floated
     }
 
 
@@ -167,6 +189,9 @@ init =
     , loading = False
     , attributes = []
     , size = Medium
+    , iconSide = IconLeft
+    , floated = Nothing
+    , icon = Nothing
     }
 
 
@@ -248,47 +273,113 @@ viewAs :
     -> Config msg
     -> List (Html msg)
     -> Html msg
-viewAs element { emphasis, hiddenContent, basic, inverted, loading, fluid, attributes, size } label =
-    element
-        (List.concat
-            [ attributes
-            , [ class "ui button"
-              , classList
-                    [ ( "primary", emphasis == Just Primary )
-                    , ( "secondary", emphasis == Just Secondary )
-                    , ( "basic", basic )
-                    , ( "inverted", inverted )
-                    , ( "loading", loading )
-                    , ( "fluid", fluid )
-                    , ( "inverted", inverted )
-                    ]
-              , sizeClass size
-              ]
-            , case hiddenContent of
-                Nothing ->
-                    []
+viewAs element { emphasis, hiddenContent, basic, inverted, loading, fluid, attributes, size, icon, iconSide, floated } label =
+    let
+        contentWithIcon =
+            List.concat
+                [ case icon of
+                    Just icon ->
+                        [ Icon.icon Icon.init icon ]
 
-                Just { animation } ->
-                    List.concat
-                        [ [ class "animated" ]
-                        , case animation of
-                            DefaultAnimation ->
-                                []
-
-                            VerticalAnimation ->
-                                [ class "vertical" ]
-
-                            FadeAnimation ->
-                                [ class "fade" ]
-                        ]
-            ]
-        )
-    <|
-        case hiddenContent of
-            Nothing ->
-                label
-
-            Just { hiddenContent } ->
-                [ div [ class "visible content" ] label
-                , div [ class "hidden content" ] hiddenContent
+                    Nothing ->
+                        []
+                , label
                 ]
+
+        labelled =
+            icon /= Nothing && not (List.isEmpty label)
+    in
+        element
+            (List.concat
+                [ attributes
+                , [ class "ui button"
+                  , classList
+                        [ ( "basic", basic )
+                        , ( "inverted", inverted )
+                        , ( "loading", loading )
+                        , ( "fluid", fluid )
+                        , ( "inverted", inverted )
+                        , ( "right", labelled && iconSide == IconRight )
+                        , ( "labeled", labelled )
+                        , ( "icon", icon /= Nothing )
+                        ]
+                  , sizeClass size
+                  ]
+                , case emphasis of
+                    Nothing ->
+                        []
+
+                    Just emphasis ->
+                        case emphasis of
+                            Primary ->
+                                [ class "primary" ]
+
+                            Secondary ->
+                                [ class "secondary" ]
+
+                            Negative ->
+                                [ class "negative" ]
+                , case floated of
+                    Nothing ->
+                        []
+
+                    Just floated ->
+                        [ floatedClass floated ]
+                , case hiddenContent of
+                    Nothing ->
+                        []
+
+                    Just { animation } ->
+                        List.concat
+                            [ [ class "animated" ]
+                            , case animation of
+                                DefaultAnimation ->
+                                    []
+
+                                VerticalAnimation ->
+                                    [ class "vertical" ]
+
+                                FadeAnimation ->
+                                    [ class "fade" ]
+                            ]
+                ]
+            )
+        <|
+            case hiddenContent of
+                Nothing ->
+                    contentWithIcon
+
+                Just { hiddenContent } ->
+                    [ div [ class "visible content" ] contentWithIcon
+                    , div [ class "hidden content" ] hiddenContent
+                    ]
+
+
+{-| Which side an icon should be displayed at.
+-}
+type IconSide
+    = IconLeft
+    | IconRight
+
+
+{-| Specify which side of a button its icon should be displayed at.
+
+This has no effect unless an icon has been associated with a button (see `icon`).
+-}
+iconSide : IconSide -> Config msg -> Config msg
+iconSide iconSide model =
+    { model | iconSide = iconSide }
+
+
+{-| Specify whether on not a button should be floated.
+-}
+floated : Maybe Floated -> Config msg -> Config msg
+floated floated model =
+    { model | floated = floated }
+
+
+{-| Associate an icon with a button.
+-}
+icon : Maybe Icon.Icon -> Config msg -> Config msg
+icon icon model =
+    { model | icon = icon }
