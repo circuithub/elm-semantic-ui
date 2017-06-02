@@ -20,7 +20,8 @@
         "SemanticUI.Elements.Segment",
         "SemanticUI.Collections.Form",
         "SemanticUI.Collections.Grid",
-        "SemanticUI.Collections.Grid.Column"
+        "SemanticUI.Collections.Grid.Column",
+        "SemanticUI.Collections.Message"
     ],
     "dependencies": {
         "elm-lang/core": "5.1.1 <= v < 6.0.0",
