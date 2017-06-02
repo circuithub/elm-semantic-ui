@@ -1,11 +1,88 @@
-module SemanticUI.Elements.Label exposing (..)
+module SemanticUI.Elements.Label
+    exposing
+        ( init
+        , Config
+        , label
+        , size
+        , pointing
+        , Pointing
+        , image
+        , detail
+        , color
+        , circular
+        , basic
+        )
+
+{-|
+A label displays content classification.
+
+# Viewing labels
+
+@docs label
+
+# Label properties
+
+@docs init, Config
+
+## Image
+
+A label can be formatted to emphasize an image.
+
+@docs image
+
+## Color
+
+A label can have different colors.
+
+@docs color
+
+## Detail
+
+A label can contain extra detail.
+
+@docs detail
+
+## Pointing
+
+A label can point to content next to it.
+
+@docs pointing, Pointing
+
+## Basic
+
+A label can reduce its complexity.
+
+@docs basic
+
+## Tag
+
+A label can appear as a tag.
+
+## Horizontal
+
+A horizontal label is formatted to label content along-side it horizontally.
+
+## Circular
+
+A label can be circular.
+
+@docs circular
+
+## Size
+
+A label can be small or large.
+
+@docs size
+-}
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import SemanticUI exposing (..)
 
 
-type alias Model msg =
+{-| The configuration of a label.
+-}
+type alias Config =
     { image : Maybe String
     , color : Maybe Color
     , detail : Maybe String
@@ -18,6 +95,8 @@ type alias Model msg =
     }
 
 
+{-| Which direction a label can point.
+-}
 type Pointing
     = PointAbove
     | PointBelow
@@ -25,52 +104,68 @@ type Pointing
     | PointRight
 
 
-size : Size -> Model msg -> Model msg
+{-| Specify the size of a label.
+-}
+size : Size -> Config -> Config
 size size model =
     { model | size = size }
 
 
-circular : Bool -> Model msg -> Model msg
+{-| Specify whether or not a label is circular.
+-}
+circular : Bool -> Config -> Config
 circular circular model =
     { model | circular = circular }
 
 
-tag : Bool -> Model msg -> Model msg
+tag : Bool -> Config -> Config
 tag tag model =
     { model | tag = tag }
 
 
-basic : Bool -> Model msg -> Model msg
+{-| Specify whether or not a label is basic.
+-}
+basic : Bool -> Config -> Config
 basic basic model =
     { model | basic = basic }
 
 
-pointing : Maybe Pointing -> Model msg -> Model msg
+{-| Specify whether a label should point to surrounding content.
+-}
+pointing : Maybe Pointing -> Config -> Config
 pointing pointing model =
     { model | pointing = pointing }
 
 
-color : Maybe Color -> Model msg -> Model msg
+{-| Specify the colour of a label.
+-}
+color : Maybe Color -> Config -> Config
 color color model =
     { model | color = color }
 
 
-detail : Maybe String -> Model msg -> Model msg
+{-| Specify extra detail to display in this label.
+-}
+detail : Maybe String -> Config -> Config
 detail detail model =
     { model | detail = detail }
 
 
-image : Maybe String -> Model msg -> Model msg
+{-| Specify the URL to an image to display in this label.
+-}
+image : Maybe String -> Config -> Config
 image image model =
     { model | image = image }
 
 
-horizontal : Bool -> Model msg -> Model msg
+horizontal : Bool -> Config -> Config
 horizontal horizontal model =
     { model | horizontal = horizontal }
 
 
-init : Model msg
+{-| A label with the simplest configuration. Corresponds to just `class="ui label"`.
+-}
+init : Config
 init =
     { image = Nothing
     , color = Nothing
@@ -84,69 +179,75 @@ init =
     }
 
 
-label : Model msg -> List (Html msg) -> Html msg
-label { image, color, detail, pointing, basic, tag, circular, horizontal, size } content =
-    div
-        (List.concat
-            [ [ class "ui label"
-              , classList
-                    [ ( "image", image /= Nothing )
-                    , ( "basic", basic )
-                    , ( "tag", tag )
-                    , ( "horizontal", horizontal )
-                    , ( "circular", circular )
-                    ]
-              , sizeClass size
-              ]
-            , case pointing of
-                Just PointAbove ->
-                    [ class "pointing" ]
+{-| View a label with a specific configuration.
+-}
+label : Config -> String -> Html msg
+label { image, color, detail, pointing, basic, tag, circular, horizontal, size } message =
+    let
+        content =
+            [ text message ]
+    in
+        div
+            (List.concat
+                [ [ class "ui label"
+                  , classList
+                        [ ( "image", image /= Nothing )
+                        , ( "basic", basic )
+                        , ( "tag", tag )
+                        , ( "horizontal", horizontal )
+                        , ( "circular", circular )
+                        ]
+                  , sizeClass size
+                  ]
+                , case pointing of
+                    Just PointAbove ->
+                        [ class "pointing" ]
 
-                Just PointBelow ->
-                    [ class "pointing below" ]
+                    Just PointBelow ->
+                        [ class "pointing below" ]
 
-                Just PointLeft ->
-                    [ class "left pointing" ]
+                    Just PointLeft ->
+                        [ class "left pointing" ]
 
-                Just PointRight ->
-                    [ class "right pointing" ]
+                    Just PointRight ->
+                        [ class "right pointing" ]
 
-                Nothing ->
-                    []
-            , case color of
-                Just color ->
-                    [ class <|
-                        case color of
-                            Blue ->
-                                "blue"
+                    Nothing ->
+                        []
+                , case color of
+                    Just color ->
+                        [ class <|
+                            case color of
+                                Blue ->
+                                    "blue"
 
-                            Teal ->
-                                "teal"
+                                Teal ->
+                                    "teal"
 
-                            Yellow ->
-                                "yellow"
+                                Yellow ->
+                                    "yellow"
 
-                            Red ->
-                                "red"
-                    ]
+                                Red ->
+                                    "red"
+                        ]
 
-                Nothing ->
-                    []
-            ]
-        )
-    <|
-        List.concat
-            [ case image of
-                Just url ->
-                    [ img [ src url ] [] ]
+                    Nothing ->
+                        []
+                ]
+            )
+        <|
+            List.concat
+                [ case image of
+                    Just url ->
+                        [ img [ src url ] [] ]
 
-                Nothing ->
-                    []
-            , content
-            , case detail of
-                Just detail ->
-                    [ div [ class "detail" ] [ Html.text detail ] ]
+                    Nothing ->
+                        []
+                , content
+                , case detail of
+                    Just detail ->
+                        [ div [ class "detail" ] [ Html.text detail ] ]
 
-                _ ->
-                    []
-            ]
+                    _ ->
+                        []
+                ]
