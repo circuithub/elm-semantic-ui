@@ -1,4 +1,4 @@
-module SemanticUI.Elements.Button exposing (button, link, viewAs, Model, Emphasis(..), emphasis, primary, secondary)
+module SemanticUI.Elements.Button exposing (button, link, viewAs, Config, Emphasis(..), emphasis, primary, secondary)
 
 {-|
 
@@ -24,7 +24,7 @@ Usage example:
 
 # Button properties
 
-@docs Model
+@docs Config
 
 ## Emphasis
 
@@ -58,7 +58,7 @@ type alias HiddenContent msg =
 
 {-| All properties of a button
 -}
-type alias Model msg =
+type alias Config msg =
     { emphasis : Maybe Emphasis
     , hiddenContent : Maybe (HiddenContent msg)
     , basic : Bool
@@ -70,22 +70,22 @@ type alias Model msg =
     }
 
 
-fluid : Bool -> Model msg -> Model msg
+fluid : Bool -> Config msg -> Config msg
 fluid fluid model =
     { model | fluid = fluid }
 
 
-size : Size -> Model msg -> Model msg
+size : Size -> Config msg -> Config msg
 size size model =
     { model | size = size }
 
 
-attributes : List (Attribute msg) -> Model msg -> Model msg
+attributes : List (Attribute msg) -> Config msg -> Config msg
 attributes attrs model =
     { model | attributes = attrs }
 
 
-init : Model msg
+init : Config msg
 init =
     { emphasis = Nothing
     , hiddenContent = Nothing
@@ -98,60 +98,60 @@ init =
     }
 
 
-basic : Bool -> Model msg -> Model msg
+basic : Bool -> Config msg -> Config msg
 basic basic model =
     { model | basic = basic }
 
 
-loading : Bool -> Model msg -> Model msg
+loading : Bool -> Config msg -> Config msg
 loading loading model =
     { model | loading = loading }
 
 
-inverted : Bool -> Model msg -> Model msg
+inverted : Bool -> Config msg -> Config msg
 inverted inverted model =
     { model | inverted = inverted }
 
 
 {-| Set (or clear) the emphasis on a button.
 -}
-emphasis : Maybe Emphasis -> Model msg -> Model msg
+emphasis : Maybe Emphasis -> Config msg -> Config msg
 emphasis emphasis model =
     { model | emphasis = emphasis }
 
 
 {-| Set the emphasis of a button to Primary.
 -}
-primary : Model msg -> Model msg
+primary : Config msg -> Config msg
 primary model =
     { model | emphasis = Just Primary }
 
 
 {-| Set the emphasis of a button to Secondary.
 -}
-secondary : Model msg -> Model msg
+secondary : Config msg -> Config msg
 secondary model =
     { model | emphasis = Just Secondary }
 
 
 hiddenContent :
     Maybe { animation : Animation, hiddenContent : List (Html msg) }
-    -> Model msg
-    -> Model msg
+    -> Config msg
+    -> Config msg
 hiddenContent hiddenContent model =
     { model | hiddenContent = hiddenContent }
 
 
 {-| View as a `<button>` element
 -}
-button : Model msg -> List (Html msg) -> Html msg
+button : Config msg -> List (Html msg) -> Html msg
 button =
     viewAs Html.button
 
 
 {-| View as a `<a>` element
 -}
-link : Model msg -> List (Html msg) -> Html msg
+link : Config msg -> List (Html msg) -> Html msg
 link =
     viewAs a
 
@@ -165,7 +165,7 @@ link =
 -}
 viewAs :
     (List (Attribute msg) -> List (Html msg) -> Html msg)
-    -> Model msg
+    -> Config msg
     -> List (Html msg)
     -> Html msg
 viewAs element { emphasis, hiddenContent, basic, inverted, loading, fluid, attributes, size } label =
