@@ -14,6 +14,7 @@
         "SemanticUI.Elements.Header",
         "SemanticUI.Elements.Icon",
         "SemanticUI.Elements.Image",
+        "SemanticUI.Elements.Input",
         "SemanticUI.Elements.Label",
         "SemanticUI.Elements.List",
         "SemanticUI.Elements.Loader",
