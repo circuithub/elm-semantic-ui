@@ -18,6 +18,7 @@
         "SemanticUI.Elements.Label",
         "SemanticUI.Elements.List",
         "SemanticUI.Elements.Loader",
+        "SemanticUI.Elements.Rail",
         "SemanticUI.Elements.Segment",
         "SemanticUI.Collections.Form",
         "SemanticUI.Collections.Grid",
