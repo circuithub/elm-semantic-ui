@@ -20,3 +20,18 @@ import Html.Attributes exposing (..)
 container : List (Html msg) -> Html msg
 container =
     div [ class "ui container" ]
+
+
+{-| View Html elements in a narrow container, suitable for text.
+-}
+textContainer : List (Html msg) -> Html msg
+textContainer =
+    div [ class "ui text container" ]
+
+
+{-| View Html elements in a fluid container, taking up the width of the parent
+element.
+-}
+fluidContainer : List (Html msg) -> Html msg
+fluidContainer =
+    div [ class "ui fluid container" ]
