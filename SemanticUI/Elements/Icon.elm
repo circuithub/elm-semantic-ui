@@ -33,8 +33,10 @@ type Icon
     = ArrowLeft
     | ArrowRight
     | Dropbox
+    | Info
     | Plus
     | Search
+    | User
     | Warning
     | WarningSign
 
@@ -125,6 +127,12 @@ icon { size, attributes } icon =
 
                         Plus ->
                             "plus"
+
+                        Info ->
+                            "info"
+
+                        User ->
+                            "user"
               ]
             ]
         )

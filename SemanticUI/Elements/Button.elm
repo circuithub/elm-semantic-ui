@@ -18,10 +18,11 @@ module SemanticUI.Elements.Button
         , basic
         , loading
         , inverted
-        , IconSide
+        , IconSide(..)
         , iconSide
         , floated
         , icon
+        , active
         )
 
 {-|
@@ -106,6 +107,12 @@ will be displayed as a labelled button.
 
 @docs icon, iconSide, IconSide
 
+## Active
+
+A button can show it is currently the active user selection.
+
+@docs active
+
 -}
 
 import Html exposing (..)
@@ -152,6 +159,7 @@ type alias Config msg =
     , iconSide : IconSide
     , icon : Maybe Icon.Icon
     , floated : Maybe Floated
+    , active : Bool
     }
 
 
@@ -160,6 +168,13 @@ type alias Config msg =
 fluid : Bool -> Config msg -> Config msg
 fluid fluid model =
     { model | fluid = fluid }
+
+
+{-| Whether or not this button is the current active user selection
+-}
+active : Bool -> Config msg -> Config msg
+active active model =
+    { model | active = active }
 
 
 {-| The size of a button.
@@ -192,6 +207,7 @@ init =
     , iconSide = IconLeft
     , floated = Nothing
     , icon = Nothing
+    , active = False
     }
 
 
@@ -273,7 +289,7 @@ viewAs :
     -> Config msg
     -> List (Html msg)
     -> Html msg
-viewAs element { emphasis, hiddenContent, basic, inverted, loading, fluid, attributes, size, icon, iconSide, floated } label =
+viewAs element { emphasis, hiddenContent, basic, inverted, loading, fluid, attributes, size, icon, iconSide, floated, active } label =
     let
         contentWithIcon =
             List.concat
@@ -302,6 +318,7 @@ viewAs element { emphasis, hiddenContent, basic, inverted, loading, fluid, attri
                         , ( "right", labelled && iconSide == IconRight )
                         , ( "labeled", labelled )
                         , ( "icon", icon /= Nothing )
+                        , ( "active", active )
                         ]
                   , sizeClass size
                   ]
