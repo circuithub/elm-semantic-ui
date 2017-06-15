@@ -32,6 +32,7 @@ of options.
 type Icon
     = ArrowLeft
     | ArrowRight
+    | CheckCircleOutline
     | Dropbox
     | Info
     | Plus
@@ -133,6 +134,9 @@ icon { size, attributes } icon =
 
                         User ->
                             "user"
+
+                        CheckCircleOutline ->
+                            "check circle outline"
               ]
             ]
         )
