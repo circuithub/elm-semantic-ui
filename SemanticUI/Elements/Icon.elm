@@ -41,6 +41,7 @@ type Icon
     | Warning
     | WarningSign
     | Help
+    | ChevronUp
 
 
 {-| Custom sizeClass that doesn't render medium (as the "medium" class is
@@ -141,6 +142,9 @@ icon { size, attributes } icon =
 
                         Help ->
                             "help"
+
+                        ChevronUp ->
+                            "chevron up"
               ]
             ]
         )
