@@ -40,6 +40,7 @@ type Icon
     | User
     | Warning
     | WarningSign
+    | Help
 
 
 {-| Custom sizeClass that doesn't render medium (as the "medium" class is
@@ -137,6 +138,9 @@ icon { size, attributes } icon =
 
                         CheckCircleOutline ->
                             "check circle outline"
+
+                        Help ->
+                            "help"
               ]
             ]
         )
