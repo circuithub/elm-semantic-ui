@@ -121,7 +121,7 @@ viewAs element { attached, textAlignment, attributes, icon, text, subheader } =
                         []
 
                     Just text ->
-                        [ div [ class "subheader" ] [ text ] ]
+                        [ div [ class "sub header" ] [ text ] ]
                 ]
     in
         element
