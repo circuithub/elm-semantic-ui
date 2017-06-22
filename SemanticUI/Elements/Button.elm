@@ -23,6 +23,7 @@ module SemanticUI.Elements.Button
         , floated
         , icon
         , active
+        , attached
         )
 
 {-|
@@ -160,7 +161,13 @@ type alias Config msg =
     , icon : Maybe Icon.Icon
     , floated : Maybe Floated
     , active : Bool
+    , attached : Maybe Attached
     }
+
+
+attached : Maybe Attached -> Config msg -> Config msg
+attached attached model =
+    { model | attached = attached }
 
 
 {-| Whether or not this button is fluid
@@ -208,6 +215,7 @@ init =
     , floated = Nothing
     , icon = Nothing
     , active = False
+    , attached = Nothing
     }
 
 
@@ -289,7 +297,7 @@ viewAs :
     -> Config msg
     -> List (Html msg)
     -> Html msg
-viewAs element { emphasis, hiddenContent, basic, inverted, loading, fluid, attributes, size, icon, iconSide, floated, active } label =
+viewAs element { emphasis, hiddenContent, basic, inverted, loading, fluid, attributes, size, icon, iconSide, floated, active, attached } label =
     let
         contentWithIcon =
             List.concat
@@ -322,6 +330,12 @@ viewAs element { emphasis, hiddenContent, basic, inverted, loading, fluid, attri
                         ]
                   , sizeClass size
                   ]
+                , case attached of
+                    Nothing ->
+                        []
+
+                    Just attached ->
+                        [ attachedClass attached ]
                 , case emphasis of
                     Nothing ->
                         []
