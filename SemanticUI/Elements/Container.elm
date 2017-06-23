@@ -1,4 +1,4 @@
-module SemanticUI.Elements.Container exposing (container)
+module SemanticUI.Elements.Container exposing (container, textContainer, fluidContainer)
 
 {-|
 A container is an element designed to contain page elements to a reasonable
