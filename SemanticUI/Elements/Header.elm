@@ -13,6 +13,7 @@ module SemanticUI.Elements.Header
         , text
         , subheader
         , icon
+        , inverted
         )
 
 {-|
@@ -56,6 +57,7 @@ type alias Config msg =
     , icon : Maybe Icon.Icon
     , text : Html msg
     , subheader : Maybe (Html msg)
+    , inverted : Bool
     }
 
 
@@ -69,6 +71,7 @@ init =
     , icon = Nothing
     , text = Html.text ""
     , subheader = Nothing
+    , inverted = False
     }
 
 
@@ -77,6 +80,11 @@ init =
 attached : Maybe Attached -> Config msg -> Config msg
 attached attached model =
     { model | attached = attached }
+
+
+inverted : Bool -> Config msg -> Config msg
+inverted inverted model =
+    { model | inverted = inverted }
 
 
 textAlignment : TextAlignment -> Config msg -> Config msg
@@ -111,7 +119,7 @@ viewAs :
     (List (Attribute msg) -> List (Html msg) -> Html msg)
     -> Config msg
     -> Html msg
-viewAs element { attached, textAlignment, attributes, icon, text, subheader } =
+viewAs element { attached, textAlignment, attributes, icon, text, subheader, inverted } =
     let
         content =
             List.concat
@@ -129,6 +137,7 @@ viewAs element { attached, textAlignment, attributes, icon, text, subheader } =
                 [ attributes
                 , [ class "ui header"
                   , textAlignmentClass textAlignment
+                  , classList [ ( "inverted", inverted ) ]
                   ]
                 , case attached of
                     Just attached ->
