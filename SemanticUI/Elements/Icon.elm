@@ -33,15 +33,16 @@ type Icon
     = ArrowLeft
     | ArrowRight
     | CheckCircleOutline
+    | ChevronUp
     | Dropbox
+    | Help
     | Info
     | Plus
     | Search
+    | Trash
     | User
     | Warning
     | WarningSign
-    | Help
-    | ChevronUp
 
 
 {-| Custom sizeClass that doesn't render medium (as the "medium" class is
@@ -145,6 +146,9 @@ icon { size, attributes } icon =
 
                         ChevronUp ->
                             "chevron up"
+
+                        Trash ->
+                            "trash"
               ]
             ]
         )
