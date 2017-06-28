@@ -74,26 +74,13 @@ linkCard { fluid, attributes } { image, content, extraContent } =
             ]
         )
         (List.concat
-            [ [ div
-                    [ class "image"
-                    , style [ ( "overflow", "hidden" ), ( "height", "200px" ) ]
-                    ]
+            [ [ div [ class "image" ]
                     (case image of
                         Nothing ->
                             []
 
                         Just image ->
-                            [ img
-                                [ style
-                                    [ ( "top", "50%" )
-                                    , ( "left", "50%" )
-                                    , ( "transform", "translate(-50%, -50%)" )
-                                    , ( "position", "absolute" )
-                                    ]
-                                , src image
-                                ]
-                                []
-                            ]
+                            [ img [ src image ] [] ]
                     )
               ]
             , case content of
