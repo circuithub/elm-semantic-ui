@@ -15,6 +15,7 @@ module SemanticUI.Elements.Header
         , icon
         , inverted
         , block
+        , dividing
         )
 
 {-|
@@ -60,6 +61,7 @@ type alias Config msg =
     , subheader : Maybe (Html msg)
     , inverted : Bool
     , block : Bool
+    , dividing : Bool
     }
 
 
@@ -75,6 +77,7 @@ init =
     , subheader = Nothing
     , inverted = False
     , block = False
+    , dividing = False
     }
 
 
@@ -115,6 +118,11 @@ subheader subheader model =
     { model | subheader = subheader }
 
 
+dividing : Bool -> Config msg -> Config msg
+dividing dividing model =
+    { model | dividing = dividing }
+
+
 {-| Any other custom `Attribute`s to add to this header. Custom attributes
  will be added before `elm-semantic-ui` attributes.
 -}
@@ -127,7 +135,7 @@ viewAs :
     (List (Attribute msg) -> List (Html msg) -> Html msg)
     -> Config msg
     -> Html msg
-viewAs element { attached, textAlignment, attributes, icon, text, subheader, inverted, block } =
+viewAs element { attached, textAlignment, attributes, icon, text, subheader, inverted, block, dividing } =
     let
         content =
             List.concat
@@ -148,6 +156,7 @@ viewAs element { attached, textAlignment, attributes, icon, text, subheader, inv
                   , classList
                         [ ( "inverted", inverted )
                         , ( "block", block )
+                        , ( "dividing", dividing )
                         ]
                   ]
                 , case attached of
