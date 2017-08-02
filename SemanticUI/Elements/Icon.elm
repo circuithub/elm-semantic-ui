@@ -44,6 +44,9 @@ type Icon
     | Warning
     | WarningSign
     | Upload
+    | Fork
+    | Download
+    | Star
 
 
 {-| Custom sizeClass that doesn't render medium (as the "medium" class is
@@ -153,6 +156,15 @@ icon { size, attributes } icon =
 
                         Upload ->
                             "upload"
+
+                        Download ->
+                            "download"
+
+                        Fork ->
+                            "fork"
+
+                        Star ->
+                            "star"
               ]
             ]
         )
