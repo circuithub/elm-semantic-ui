@@ -47,6 +47,7 @@ type Icon
     | Fork
     | Download
     | Star
+    | GitHub
 
 
 {-| Custom sizeClass that doesn't render medium (as the "medium" class is
@@ -165,6 +166,9 @@ icon { size, attributes } icon =
 
                         Star ->
                             "star"
+
+                        GitHub ->
+                            "github"
               ]
             ]
         )
