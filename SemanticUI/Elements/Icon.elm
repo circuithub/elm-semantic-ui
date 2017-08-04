@@ -48,6 +48,7 @@ type Icon
     | Download
     | Star
     | GitHub
+    | Legal
 
 
 {-| Custom sizeClass that doesn't render medium (as the "medium" class is
@@ -169,6 +170,9 @@ icon { size, attributes } icon =
 
                         GitHub ->
                             "github"
+
+                        Legal ->
+                            "legal"
               ]
             ]
         )
