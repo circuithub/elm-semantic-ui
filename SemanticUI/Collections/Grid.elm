@@ -54,6 +54,7 @@ type alias Config msg =
     { padded : Bool
     , columnsPerRow : ColumnCount
     , attributes : List (Attribute msg)
+    , equalWidth : Bool
     }
 
 
@@ -72,6 +73,7 @@ init =
     { padded = False
     , columnsPerRow = SixteenColumns
     , attributes = []
+    , equalWidth = False
     }
 
 
@@ -80,6 +82,13 @@ init =
 padded : Bool -> Config msg -> Config msg
 padded padded model =
     { model | padded = padded }
+
+
+{-| Whether or not to display all columns as the same width.
+-}
+equalWidth : Bool -> Config msg -> Config msg
+equalWidth equalWidth model =
+    { model | equalWidth = equalWidth }
 
 
 {-| Indicate how many columns make up a row.
@@ -92,7 +101,7 @@ columnsPerRow columnsPerRow model =
 {-| View a list of columns as a grid with a particular configuration.
 -}
 grid : Config msg -> List (Column msg) -> Html msg
-grid { padded, columnsPerRow, attributes } columns =
+grid { padded, columnsPerRow, attributes, equalWidth } columns =
     div
         (List.concat
             [ attributes
@@ -148,6 +157,7 @@ grid { padded, columnsPerRow, attributes } columns =
                             "sixteen column"
               , classList
                     [ ( "padded", padded )
+                    , ( "equal width", equalWidth )
                     ]
               ]
             ]
