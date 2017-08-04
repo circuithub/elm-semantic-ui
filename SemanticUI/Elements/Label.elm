@@ -3,6 +3,7 @@ module SemanticUI.Elements.Label
         ( init
         , Config
         , label
+        , link
         , size
         , pointing
         , Pointing
@@ -11,6 +12,7 @@ module SemanticUI.Elements.Label
         , color
         , circular
         , basic
+        , icon
         )
 
 {-|
@@ -78,6 +80,7 @@ A label can be small or large.
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import SemanticUI exposing (..)
+import SemanticUI.Elements.Icon as Icon
 
 
 {-| The configuration of a label.
@@ -92,6 +95,7 @@ type alias Config =
     , horizontal : Bool
     , circular : Bool
     , size : Size
+    , icon : Maybe Icon.Icon
     }
 
 
@@ -163,6 +167,11 @@ horizontal horizontal model =
     { model | horizontal = horizontal }
 
 
+icon : Maybe Icon.Icon -> Config -> Config
+icon icon model =
+    { model | icon = icon }
+
+
 {-| A label with the simplest configuration. Corresponds to just `class="ui label"`.
 -}
 init : Config
@@ -176,18 +185,28 @@ init =
     , horizontal = False
     , circular = False
     , size = Medium
+    , icon = Nothing
     }
+
+
+link : Config -> String -> String -> Html msg
+link cfg url =
+    viewAs (\attrs -> a (href url :: attrs)) cfg
+
+
+label : Config -> String -> Html msg
+label =
+    viewAs div
 
 
 {-| View a label with a specific configuration.
 -}
-label : Config -> String -> Html msg
-label { image, color, detail, pointing, basic, tag, circular, horizontal, size } message =
+viewAs el { image, color, detail, pointing, basic, tag, circular, horizontal, size, icon } message =
     let
         content =
             [ text message ]
     in
-        div
+        el
             (List.concat
                 [ [ class "ui label"
                   , classList
@@ -240,6 +259,12 @@ label { image, color, detail, pointing, basic, tag, circular, horizontal, size }
                 [ case image of
                     Just url ->
                         [ img [ src url ] [] ]
+
+                    Nothing ->
+                        []
+                , case icon of
+                    Just icon ->
+                        [ Icon.icon Icon.init icon ]
 
                     Nothing ->
                         []
