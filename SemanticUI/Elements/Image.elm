@@ -6,6 +6,7 @@ module SemanticUI.Elements.Image
         , centered
         , size
         , inline
+        , spaced
         , VerticalAlignment(..)
         )
 
@@ -59,6 +60,7 @@ type alias Config =
     , size : Maybe Size
     , centered : Bool
     , inline : Maybe VerticalAlignment
+    , spaced : Bool
     }
 
 
@@ -70,6 +72,7 @@ init =
     , size = Nothing
     , centered = False
     , inline = Nothing
+    , spaced = False
     }
 
 
@@ -95,6 +98,11 @@ inline inline model =
     { model | inline = inline }
 
 
+spaced : Bool -> Config -> Config
+spaced spaced model =
+    { model | spaced = spaced }
+
+
 {-| View an `<img>` element with a particular `src` (the url of the image to display).
 -}
 image : Config -> String -> Html msg
@@ -105,6 +113,7 @@ image { size, centered, inline } src =
               , class "ui image"
               , classList
                     [ ( "centered", centered )
+                    , ( "spaced", spaced )
                     ]
               ]
             , case size of
