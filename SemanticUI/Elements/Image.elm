@@ -106,7 +106,7 @@ spaced spaced model =
 {-| View an `<img>` element with a particular `src` (the url of the image to display).
 -}
 image : Config -> String -> Html msg
-image { size, centered, inline } src =
+image { size, centered, inline, spaced } src =
     img
         (List.concat
             [ [ Html.Attributes.src src
