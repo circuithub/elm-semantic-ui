@@ -30,26 +30,27 @@ import SemanticUI exposing (Size(..))
 of options.
 -}
 type Icon
-    = ArrowLeft
+    = Alarm
+    | ArrowLeft
     | ArrowRight
     | CheckCircleOutline
     | ChevronUp
+    | Download
     | Dropbox
+    | Fork
+    | GitHub
     | Help
+    | Hide
     | Info
+    | Legal
     | Plus
     | Search
+    | Star
     | Trash
+    | Upload
     | User
     | Warning
     | WarningSign
-    | Upload
-    | Fork
-    | Download
-    | Star
-    | GitHub
-    | Legal
-    | Hide
 
 
 {-| Custom sizeClass that doesn't render medium (as the "medium" class is
@@ -177,6 +178,9 @@ icon { size, attributes } icon =
 
                         Hide ->
                             "hide"
+
+                        Alarm ->
+                            "alarm"
               ]
             ]
         )
