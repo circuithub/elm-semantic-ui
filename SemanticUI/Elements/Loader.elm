@@ -5,6 +5,7 @@ module SemanticUI.Elements.Loader
         , active
         , inline
         , inlineCentered
+        , text
         )
 
 {-|
@@ -34,6 +35,7 @@ import Html.Attributes exposing (..)
 -}
 type alias Config =
     { active : Bool
+    , text : Maybe String
     }
 
 
@@ -45,7 +47,9 @@ extend this configuration with `Loader.init |> Loader.active False`.
 -}
 init : Config
 init =
-    { active = True }
+    { active = True
+    , text = Nothing
+    }
 
 
 {-| Specify whether or not a loader is active.
@@ -58,24 +62,36 @@ active active model =
 {-| View a loader inline with other content.
 -}
 inline : Config -> Html msg
-inline { active } =
-    view { active = active, inline = True, centered = False }
+inline { active, text } =
+    view { active = active, inline = True, centered = False, text = text }
+
+
+text : Maybe String -> Config -> Config
+text t model =
+    { model | text = t }
 
 
 {-| View a loader inline centered with content.
 -}
 inlineCentered : Config -> Html msg
-inlineCentered { active } =
-    view { active = active, inline = True, centered = True }
+inlineCentered { active, text } =
+    view { active = active, inline = True, centered = True, text = text }
 
 
-view { active, inline, centered } =
+view { active, inline, centered, text } =
     div
         [ class "ui loader"
         , classList
             [ ( "active", active )
             , ( "inline", inline )
             , ( "centered", centered )
+            , ( "text", text /= Nothing )
             ]
         ]
-        []
+        (case text of
+            Nothing ->
+                []
+
+            Just t ->
+                [ Html.text t ]
+        )
