@@ -31,12 +31,14 @@ of options.
 -}
 type Icon
     = Alarm
+    | AlignJustify
     | ArrowLeft
     | ArrowRight
     | CheckCircleOutline
     | ChevronUp
     | Download
     | Dropbox
+    | FileOutline
     | Fork
     | GitHub
     | Help
@@ -44,7 +46,9 @@ type Icon
     | Info
     | Legal
     | Plus
+    | Retweet
     | Search
+    | Settings
     | Star
     | Trash
     | Upload
@@ -181,6 +185,18 @@ icon { size, attributes } icon =
 
                         Alarm ->
                             "alarm"
+
+                        AlignJustify ->
+                            "align justify"
+
+                        Settings ->
+                            "settings"
+
+                        Retweet ->
+                            "retweet"
+
+                        FileOutline ->
+                            "file outline"
               ]
             ]
         )
