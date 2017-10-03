@@ -48,6 +48,7 @@ type Icon
     | Plus
     | Retweet
     | Search
+    | Print
     | Settings
     | Star
     | Trash
@@ -194,6 +195,9 @@ icon { size, attributes } icon =
 
                         Retweet ->
                             "retweet"
+
+                        Print ->
+                            "print"
 
                         FileOutline ->
                             "file outline"
