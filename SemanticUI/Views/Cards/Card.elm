@@ -64,8 +64,23 @@ linkCard :
        , extraContent : List (Html msg)
        }
     -> Html msg
-linkCard { fluid, attributes } { image, content, extraContent } =
-    a
+linkCard =
+    viewCard a
+
+
+divCard :
+    Config msg
+    -> { image : Maybe String
+       , content : List (Html msg)
+       , extraContent : List (Html msg)
+       }
+    -> Html msg
+divCard =
+    viewCard div
+
+
+viewCard el { fluid, attributes } { image, content, extraContent } =
+    el
         (List.concat
             [ [ class "ui card"
               , classList [ ( "fluid", fluid ) ]
