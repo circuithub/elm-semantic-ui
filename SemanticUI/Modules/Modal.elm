@@ -34,7 +34,7 @@ view { fullscreen } body =
             div [ class "ui page dimmer transition" ] []
 
         Just { header, content, close, actions } ->
-            div [ class "ui active page dimmer transition" ]
+            div [ class "ui active page dimmer transition scrolling" ]
                 [ div [ class "ui active visible modal transition"
                       , classList [("fullscreen", fullscreen)]]
                     (List.concat
