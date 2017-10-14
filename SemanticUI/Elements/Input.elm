@@ -8,7 +8,7 @@ module SemanticUI.Elements.Input exposing (..)
 
 # Input properties
 
-@docs Config
+@docs Config, init
 
 -}
 
@@ -28,6 +28,21 @@ type alias Config msg =
     , inverted : Bool
     , fluid : Bool
     , size : Size
+    }
+
+
+{-| The initial config of an input field. Corresponds to just using `class="ui input"` in Semantic UI.
+-}
+init : Config msg
+init =
+    { attributes = []
+    , focus = False
+    , loading = False
+    , error = False
+    , transparent = False
+    , inverted = False
+    , fluid = False
+    , size = Medium
     }
 
 
