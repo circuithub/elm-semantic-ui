@@ -53,6 +53,12 @@ Usage example:
 
 @docs Config, init, attributes
 
+## Attached
+
+A button can be attached to the top or bottom of other content.
+
+@docs attached
+
 ## Emphasis
 
 A button can be formatted to show different levels of emphasis.
@@ -173,6 +179,8 @@ type alias Config msg =
     }
 
 
+{-| Whether or not this button is attached to the top or bottom of other content
+-}
 attached : Maybe Attached -> Config msg -> Config msg
 attached attached model =
     { model | attached = attached }
