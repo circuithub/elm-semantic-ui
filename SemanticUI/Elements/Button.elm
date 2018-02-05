@@ -24,6 +24,7 @@ module SemanticUI.Elements.Button
         , icon
         , active
         , attached
+        , disabled
         )
 
 {-|
@@ -114,6 +115,12 @@ A button can show it is currently the active user selection.
 
 @docs active
 
+## Disabled
+
+A button can show it is currently unable to be interacted with
+
+@docs disabled
+
 -}
 
 import Html exposing (..)
@@ -162,12 +169,20 @@ type alias Config msg =
     , floated : Maybe Floated
     , active : Bool
     , attached : Maybe Attached
+    , disabled : Bool
     }
 
 
 attached : Maybe Attached -> Config msg -> Config msg
 attached attached model =
     { model | attached = attached }
+
+
+{-| Whether or not this button is disabled
+-}
+disabled : Bool -> Config msg -> Config msg
+disabled disabled model =
+    { model | disabled = disabled }
 
 
 {-| Whether or not this button is fluid
@@ -216,6 +231,7 @@ init =
     , icon = Nothing
     , active = False
     , attached = Nothing
+    , disabled = False
     }
 
 
@@ -297,7 +313,7 @@ viewAs :
     -> Config msg
     -> List (Html msg)
     -> Html msg
-viewAs element { emphasis, hiddenContent, basic, inverted, loading, fluid, attributes, size, icon, iconSide, floated, active, attached } label =
+viewAs element { emphasis, hiddenContent, basic, inverted, loading, fluid, attributes, size, icon, iconSide, floated, active, attached, disabled } label =
     let
         contentWithIcon =
             List.concat
@@ -327,6 +343,7 @@ viewAs element { emphasis, hiddenContent, basic, inverted, loading, fluid, attri
                         , ( "labeled", labelled )
                         , ( "icon", icon /= Nothing )
                         , ( "active", active )
+                        , ( "disabled", disabled )
                         ]
                   , sizeClass size
                   ]
@@ -373,6 +390,7 @@ viewAs element { emphasis, hiddenContent, basic, inverted, loading, fluid, attri
                                 FadeAnimation ->
                                     [ class "fade" ]
                             ]
+                , [ Html.Attributes.disabled disabled ]
                 ]
             )
         <|
