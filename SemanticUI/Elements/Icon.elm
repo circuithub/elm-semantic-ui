@@ -1,16 +1,17 @@
-module SemanticUI.Elements.Icon exposing (Icon(..), init, Config, size, icon)
+module SemanticUI.Elements.Icon exposing (Config, Icon(..), icon, init, size)
 
-{-|
+{-| An icon is a glyph used to represent something else.
 
-An icon is a glyph used to represent something else.
 
 # Viewing icons
 
 @docs Icon, icon
 
+
 # Icon properties
 
 @docs Config, init
+
 
 ## Size
 
@@ -26,7 +27,7 @@ import SemanticUI exposing (Size(..))
 
 
 {-| The name of the icon. See
-[https://semantic-ui.com/elements/icon.html](https://semantic-ui.com/elements/icon.html) for a table
+[<https://semantic-ui.com/elements/icon.html>](https://semantic-ui.com/elements/icon.html) for a table
 of options.
 -}
 type Icon
@@ -56,6 +57,7 @@ type Icon
     | User
     | Warning
     | WarningSign
+    | CaretDown
 
 
 {-| Custom sizeClass that doesn't render medium (as the "medium" class is
@@ -201,6 +203,9 @@ icon { size, attributes } icon =
 
                         FileOutline ->
                             "file outline"
+
+                        CaretDown ->
+                            "caret down"
               ]
             ]
         )
