@@ -6,6 +6,7 @@ module SemanticUI.Elements.Label
         , circular
         , color
         , detail
+        , horizontal
         , icon
         , image
         , init
