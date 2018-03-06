@@ -1,23 +1,28 @@
 module SemanticUI
     exposing
-        ( Color(..)
+        ( Attached(..)
+        , Color(..)
         , ColumnCount(..)
-        , Size(..)
         , Floated(..)
+        , Size(..)
         , TextAlignment(..)
-        , Attached(..)
         , attachedClass
-        , sizeClass
+        , colorClass
         , floatedClass
+        , sizeClass
         , textAlignmentClass
         )
 
 {-|
 
+
 # Common properties
+
 @docs Attached, Color, ColumnCount, Floated, Size, TextAlignment
 
+
 # Forming Attributes
+
 @docs attachedClass, floatedClass, sizeClass, textAlignmentClass
 
 -}
@@ -33,6 +38,35 @@ type Color
     | Teal
     | Yellow
     | Red
+    | Green
+    | Orange
+    | Grey
+
+
+colorClass : Color -> Attribute msg
+colorClass color =
+    class <|
+        case color of
+            Blue ->
+                "blue"
+
+            Teal ->
+                "teal"
+
+            Yellow ->
+                "yellow"
+
+            Red ->
+                "red"
+
+            Green ->
+                "green"
+
+            Orange ->
+                "orange"
+
+            Grey ->
+                "grey"
 
 
 {-| The standard sizes that most components use in SemanticUI.

@@ -1,30 +1,32 @@
 module SemanticUI.Elements.Label
     exposing
-        ( init
-        , Config
+        ( Config
+        , Pointing
+        , basic
+        , circular
+        , color
+        , detail
+        , icon
+        , image
+        , init
         , label
         , link
-        , size
         , pointing
-        , Pointing
-        , image
-        , detail
-        , color
-        , circular
-        , basic
-        , icon
+        , size
         )
 
-{-|
-A label displays content classification.
+{-| A label displays content classification.
+
 
 # Viewing labels
 
 @docs label
 
+
 # Label properties
 
 @docs init, Config
+
 
 ## Image
 
@@ -32,11 +34,13 @@ A label can be formatted to emphasize an image.
 
 @docs image
 
+
 ## Color
 
 A label can have different colors.
 
 @docs color
+
 
 ## Detail
 
@@ -44,11 +48,13 @@ A label can contain extra detail.
 
 @docs detail
 
+
 ## Pointing
 
 A label can point to content next to it.
 
 @docs pointing, Pointing
+
 
 ## Basic
 
@@ -56,13 +62,16 @@ A label can reduce its complexity.
 
 @docs basic
 
+
 ## Tag
 
 A label can appear as a tag.
 
+
 ## Horizontal
 
 A horizontal label is formatted to label content along-side it horizontally.
+
 
 ## Circular
 
@@ -70,11 +79,13 @@ A label can be circular.
 
 @docs circular
 
+
 ## Size
 
 A label can be small or large.
 
 @docs size
+
 -}
 
 import Html exposing (..)
@@ -206,73 +217,60 @@ viewAs el { image, color, detail, pointing, basic, tag, circular, horizontal, si
         content =
             [ text message ]
     in
-        el
-            (List.concat
-                [ [ class "ui label"
-                  , classList
-                        [ ( "image", image /= Nothing )
-                        , ( "basic", basic )
-                        , ( "tag", tag )
-                        , ( "horizontal", horizontal )
-                        , ( "circular", circular )
-                        ]
-                  , sizeClass size
-                  ]
-                , case pointing of
-                    Just PointAbove ->
-                        [ class "pointing" ]
+    el
+        (List.concat
+            [ [ class "ui label"
+              , classList
+                    [ ( "image", image /= Nothing )
+                    , ( "basic", basic )
+                    , ( "tag", tag )
+                    , ( "horizontal", horizontal )
+                    , ( "circular", circular )
+                    ]
+              , sizeClass size
+              ]
+            , case pointing of
+                Just PointAbove ->
+                    [ class "pointing" ]
 
-                    Just PointBelow ->
-                        [ class "pointing below" ]
+                Just PointBelow ->
+                    [ class "pointing below" ]
 
-                    Just PointLeft ->
-                        [ class "left pointing" ]
+                Just PointLeft ->
+                    [ class "left pointing" ]
 
-                    Just PointRight ->
-                        [ class "right pointing" ]
+                Just PointRight ->
+                    [ class "right pointing" ]
 
-                    Nothing ->
-                        []
-                , case color of
-                    Just color ->
-                        [ class <|
-                            case color of
-                                Blue ->
-                                    "blue"
+                Nothing ->
+                    []
+            , case color of
+                Just color ->
+                    [ SemanticUI.colorClass color ]
 
-                                Teal ->
-                                    "teal"
+                Nothing ->
+                    []
+            ]
+        )
+    <|
+        List.concat
+            [ case image of
+                Just url ->
+                    [ img [ src url ] [] ]
 
-                                Yellow ->
-                                    "yellow"
+                Nothing ->
+                    []
+            , case icon of
+                Just icon ->
+                    [ Icon.icon Icon.init icon ]
 
-                                Red ->
-                                    "red"
-                        ]
+                Nothing ->
+                    []
+            , content
+            , case detail of
+                Just detail ->
+                    [ div [ class "detail" ] [ Html.text detail ] ]
 
-                    Nothing ->
-                        []
-                ]
-            )
-        <|
-            List.concat
-                [ case image of
-                    Just url ->
-                        [ img [ src url ] [] ]
-
-                    Nothing ->
-                        []
-                , case icon of
-                    Just icon ->
-                        [ Icon.icon Icon.init icon ]
-
-                    Nothing ->
-                        []
-                , content
-                , case detail of
-                    Just detail ->
-                        [ div [ class "detail" ] [ Html.text detail ] ]
-
-                    _ ->
-                        []
-                ]
+                _ ->
+                    []
+            ]

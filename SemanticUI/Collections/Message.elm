@@ -1,29 +1,34 @@
 module SemanticUI.Collections.Message
     exposing
-        ( message
+        ( Config
         , error
-        , warning
-        , init
-        , Config
         , header
         , icon
+        , info
+        , init
+        , message
+        , warning
         )
 
 {-| A message displays information that explains nearby content.
+
 
 # Viewing messages
 
 @docs message, error, warning
 
+
 # Message properties
 
 @docs init, Config
+
 
 ## Header
 
 A message can have a header.
 
 @docs header
+
 
 ## Icon
 
@@ -81,25 +86,25 @@ view extraAttributes { icon, header } contents =
                     div [ class "header" ] [ text header ]
                         :: contents
     in
-        div
-            (List.concat
-                [ [ class "ui message"
-                  , classList
-                        [ ( "icon", icon /= Nothing )
-                        ]
-                  ]
-                , extraAttributes
-                ]
-            )
-            (case icon of
-                Nothing ->
-                    contentWithHeader
-
-                Just icon ->
-                    [ Icon.icon Icon.init icon
-                    , div [ class "contents" ] contentWithHeader
+    div
+        (List.concat
+            [ [ class "ui message"
+              , classList
+                    [ ( "icon", icon /= Nothing )
                     ]
-            )
+              ]
+            , extraAttributes
+            ]
+        )
+        (case icon of
+            Nothing ->
+                contentWithHeader
+
+            Just icon ->
+                [ Icon.icon Icon.init icon
+                , div [ class "contents" ] contentWithHeader
+                ]
+        )
 
 
 {-| View a message with a particular configuration.
@@ -121,3 +126,10 @@ error =
 warning : Config -> List (Html msg) -> Html msg
 warning =
     view [ class "warning" ]
+
+
+{-| View a message as information.
+-}
+info : Config -> List (Html msg) -> Html msg
+info =
+    view [ class "info" ]

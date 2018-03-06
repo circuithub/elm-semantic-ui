@@ -1,18 +1,19 @@
 module SemanticUI.Elements.List
     exposing
-        ( ul
-        , item
+        ( Config
         , ListItem
-        , Config
-        , init
-        , relaxed
-        , divided
-        , div
         , attributes
+        , div
+        , divided
+        , horizontal
+        , init
+        , item
+        , relaxed
+        , ul
         )
 
-{-|
-A list is used to group related content.
+{-| A list is used to group related content.
+
 
 # List items
 
@@ -22,9 +23,11 @@ list items with `item`.
 
 @docs ListItem, item
 
+
 # Viewing lists
 
 @docs ul
+
 -}
 
 import Html exposing (..)
@@ -41,6 +44,7 @@ type alias Config msg =
     { relaxed : Bool
     , divided : Bool
     , attributes : List (Attribute msg)
+    , horizontal : Bool
     }
 
 
@@ -49,7 +53,13 @@ init =
     { relaxed = False
     , divided = False
     , attributes = []
+    , horizontal = False
     }
+
+
+horizontal : Bool -> Config msg -> Config msg
+horizontal horizontal config =
+    { config | horizontal = horizontal }
 
 
 relaxed : Bool -> Config msg -> Config msg
@@ -88,7 +98,7 @@ div =
     view Html.div
 
 
-view element { attributes, relaxed, divided } items =
+view element { attributes, relaxed, divided, horizontal } items =
     element
         (List.concat
             [ attributes
@@ -96,6 +106,7 @@ view element { attributes, relaxed, divided } items =
               , classList
                     [ ( "relaxed", relaxed )
                     , ( "divided", divided )
+                    , ( "horizontal", horizontal )
                     ]
               ]
             ]

@@ -1,15 +1,17 @@
 module SemanticUI.Elements.Segment exposing (..)
 
-{-|
-A segment is used to create a grouping of related content.
+{-| A segment is used to create a grouping of related content.
+
 
 # Viewing segments
 
 @docs segment, raised
 
+
 # Segment properties
 
 @docs init, Config, attributes
+
 
 ## Raised
 
@@ -17,11 +19,13 @@ A segment may be formatted to raise above the page.
 
 @docs raised
 
+
 ## Attached
 
 A segment can be attached to other content on a page.
 
 @docs attached
+
 
 ## Text alignment
 
@@ -43,6 +47,7 @@ type alias Config msg =
     , attributes : List (Attribute msg)
     , attached : Maybe Attached
     , textAlignment : TextAlignment
+    , clearing : Bool
     }
 
 
@@ -54,6 +59,7 @@ init =
     , attributes = []
     , attached = Nothing
     , textAlignment = LeftAligned
+    , clearing = False
     }
 
 
@@ -79,22 +85,30 @@ attached attached model =
 
 
 {-| Any other custom `Attribute`s to add to a segment. Custom attributes
- will be added before `elm-semantic-ui` attributes.
+will be added before `elm-semantic-ui` attributes.
 -}
 attributes : List (Attribute msg) -> Config msg -> Config msg
 attributes attributes model =
     { model | attributes = attributes }
 
 
+clearing : Bool -> Config msg -> Config msg
+clearing c model =
+    { model | clearing = c }
+
+
 {-| View a segment with a particular configuration.
 -}
 segment : Config msg -> List (Html msg) -> Html msg
-segment { raised, attributes, attached, textAlignment } =
+segment { raised, attributes, attached, textAlignment, clearing } =
     div
         (List.concat
             [ attributes
             , [ class "ui segment"
-              , classList [ ( "raised", raised ) ]
+              , classList
+                    [ ( "raised", raised )
+                    , ( "clearing", clearing )
+                    ]
               ]
             , case textAlignment of
                 LeftAligned ->
