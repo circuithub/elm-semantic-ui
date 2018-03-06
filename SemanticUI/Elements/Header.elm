@@ -1,40 +1,43 @@
 module SemanticUI.Elements.Header
     exposing
-        ( h1
+        ( Config
+        , attached
+        , attributes
+        , block
+        , div
+        , dividing
+        , h1
         , h2
         , h3
         , h4
         , h5
-        , init
-        , Config
-        , attached
-        , attributes
-        , textAlignment
-        , text
-        , subheader
         , icon
+        , init
         , inverted
-        , block
-        , dividing
+        , subheader
+        , text
+        , textAlignment
         )
 
-{-|
+{-| A header provides a short summary of content.
 
-A header provides a short summary of content.
 
 # Viewing headers
 
 @docs h1, h2, h3, h4, h5
 
+
 # Header properties
 
 @docs Config, init, attributes
+
 
 ## Attachment
 
 A header can be attached to other content, like a segment.
 
 @docs attached
+
 
 ## Text alignment
 
@@ -124,7 +127,7 @@ dividing dividing model =
 
 
 {-| Any other custom `Attribute`s to add to this header. Custom attributes
- will be added before `elm-semantic-ui` attributes.
+will be added before `elm-semantic-ui` attributes.
 -}
 attributes : List (Attribute msg) -> Config msg -> Config msg
 attributes attrs model =
@@ -145,44 +148,44 @@ viewAs element { attached, textAlignment, attributes, icon, text, subheader, inv
                         []
 
                     Just text ->
-                        [ div [ class "sub header" ] [ text ] ]
+                        [ Html.div [ class "sub header" ] [ text ] ]
                 ]
     in
-        element
-            (List.concat
-                [ attributes
-                , [ class "ui header"
-                  , textAlignmentClass textAlignment
-                  , classList
-                        [ ( "inverted", inverted )
-                        , ( "block", block )
-                        , ( "dividing", dividing )
-                        ]
-                  ]
-                , case attached of
-                    Just attached ->
-                        [ attachedClass attached ]
-
-                    Nothing ->
-                        []
-                ]
-            )
-            (case icon of
-                Nothing ->
-                    content
-
-                Just icon ->
-                    [ Icon.icon Icon.init icon
-                    , div [ class "content" ] content
+    element
+        (List.concat
+            [ attributes
+            , [ class "ui header"
+              , textAlignmentClass textAlignment
+              , classList
+                    [ ( "inverted", inverted )
+                    , ( "block", block )
+                    , ( "dividing", dividing )
                     ]
-            )
+              ]
+            , case attached of
+                Just attached ->
+                    [ attachedClass attached ]
+
+                Nothing ->
+                    []
+            ]
+        )
+        (case icon of
+            Nothing ->
+                content
+
+            Just icon ->
+                [ Icon.icon Icon.init icon
+                , Html.div [ class "content" ] content
+                ]
+        )
 
 
-type HeaderContent
-    = HeaderContent
-        { headerText : String
-        , subheading : Maybe String
-        }
+{-| View a header as a `<div>` element.
+-}
+div : Config msg -> Html msg
+div =
+    viewAs Html.div
 
 
 {-| View a header as a `<h1>` element.
