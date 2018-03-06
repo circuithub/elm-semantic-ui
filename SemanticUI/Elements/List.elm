@@ -9,6 +9,7 @@ module SemanticUI.Elements.List
         , init
         , item
         , relaxed
+        , size
         , ul
         )
 
@@ -32,6 +33,7 @@ list items with `item`.
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import SemanticUI exposing (..)
 
 
 {-| An item in a list.
@@ -45,6 +47,7 @@ type alias Config msg =
     , divided : Bool
     , attributes : List (Attribute msg)
     , horizontal : Bool
+    , size : Size
     }
 
 
@@ -54,6 +57,7 @@ init =
     , divided = False
     , attributes = []
     , horizontal = False
+    , size = Medium
     }
 
 
@@ -77,6 +81,11 @@ attributes attributes config =
     { config | attributes = attributes }
 
 
+size : Size -> Config msg -> Config msg
+size size config =
+    { config | size = size }
+
+
 {-| Wrap Html as a list item.
 -}
 item : List (Html msg) -> ListItem msg
@@ -98,7 +107,7 @@ div =
     view Html.div
 
 
-view element { attributes, relaxed, divided, horizontal } items =
+view element { attributes, relaxed, divided, horizontal, size } items =
     element
         (List.concat
             [ attributes
@@ -108,6 +117,7 @@ view element { attributes, relaxed, divided, horizontal } items =
                     , ( "divided", divided )
                     , ( "horizontal", horizontal )
                     ]
+              , sizeClass size
               ]
             ]
         )
