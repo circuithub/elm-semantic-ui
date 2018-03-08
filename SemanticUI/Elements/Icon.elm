@@ -35,10 +35,12 @@ type Icon
     | AlignJustify
     | ArrowLeft
     | ArrowRight
+    | CaretDown
     | CheckCircleOutline
     | ChevronUp
     | Download
     | Dropbox
+    | Dropdown
     | FileOutline
     | Fork
     | GitHub
@@ -47,17 +49,19 @@ type Icon
     | Info
     | Legal
     | Plus
+    | Print
     | Retweet
     | Search
-    | Print
     | Settings
+    | Sort
+    | SortDown
+    | SortUp
     | Star
     | Trash
     | Upload
     | User
     | Warning
     | WarningSign
-    | CaretDown
 
 
 {-| Custom sizeClass that doesn't render medium (as the "medium" class is
@@ -206,6 +210,18 @@ icon { size, attributes } icon =
 
                         CaretDown ->
                             "caret down"
+
+                        Dropdown ->
+                            "dropdown"
+
+                        SortUp ->
+                            "sort up"
+
+                        SortDown ->
+                            "sort down"
+
+                        Sort ->
+                            "sort"
               ]
             ]
         )

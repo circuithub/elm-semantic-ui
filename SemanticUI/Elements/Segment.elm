@@ -48,6 +48,7 @@ type alias Config msg =
     , attached : Maybe Attached
     , textAlignment : TextAlignment
     , clearing : Bool
+    , loading : Bool
     }
 
 
@@ -60,6 +61,7 @@ init =
     , attached = Nothing
     , textAlignment = LeftAligned
     , clearing = False
+    , loading = False
     }
 
 
@@ -97,10 +99,15 @@ clearing c model =
     { model | clearing = c }
 
 
+loading : Bool -> Config msg -> Config msg
+loading c model =
+    { model | loading = c }
+
+
 {-| View a segment with a particular configuration.
 -}
 segment : Config msg -> List (Html msg) -> Html msg
-segment { raised, attributes, attached, textAlignment, clearing } =
+segment { raised, attributes, attached, textAlignment, clearing, loading } =
     div
         (List.concat
             [ attributes
@@ -108,6 +115,7 @@ segment { raised, attributes, attached, textAlignment, clearing } =
               , classList
                     [ ( "raised", raised )
                     , ( "clearing", clearing )
+                    , ( "loading", loading )
                     ]
               ]
             , case textAlignment of
