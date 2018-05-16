@@ -3,15 +3,20 @@ module SemanticUI.Modules.Modal exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import SemanticUI exposing (Size(..), sizeClass)
 
 
 type alias Config =
-    { fullscreen : Bool }
+    { fullscreen : Bool
+    , size : Size
+    }
 
 
 init : Config
 init =
-    { fullscreen = False }
+    { fullscreen = False
+    , size = Medium
+    }
 
 
 fullscreen : Bool -> Config -> Config
@@ -21,14 +26,15 @@ fullscreen fullscreen config =
 
 view :
     Config
-    -> Maybe
-        { header : Maybe String
-        , close : Maybe msg
-        , content : List (Html msg)
-        , actions : List (Html msg)
-        }
+    ->
+        Maybe
+            { header : Maybe String
+            , close : Maybe msg
+            , content : List (Html msg)
+            , actions : List (Html msg)
+            }
     -> Html msg
-view { fullscreen } body =
+view { fullscreen, size } body =
     case body of
         Nothing ->
             div [ class "ui page dimmer transition" ] []
@@ -37,6 +43,7 @@ view { fullscreen } body =
             div [ class "ui active page dimmer transition" ]
                 [ div
                     [ class "ui active visible modal transition"
+                    , sizeClass size
                     , classList [ ( "fullscreen", fullscreen ) ]
                     ]
                     (List.concat
