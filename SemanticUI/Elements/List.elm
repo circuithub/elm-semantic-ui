@@ -3,6 +3,7 @@ module SemanticUI.Elements.List
         ( Config
         , ListItem
         , attributes
+        , bulleted
         , div
         , divided
         , horizontal
@@ -47,6 +48,7 @@ type alias Config msg =
     , divided : Bool
     , attributes : List (Attribute msg)
     , horizontal : Bool
+    , bulleted : Bool
     , size : Size
     }
 
@@ -57,6 +59,7 @@ init =
     , divided = False
     , attributes = []
     , horizontal = False
+    , bulleted = False
     , size = Medium
     }
 
@@ -64,6 +67,11 @@ init =
 horizontal : Bool -> Config msg -> Config msg
 horizontal horizontal config =
     { config | horizontal = horizontal }
+
+
+bulleted : Bool -> Config msg -> Config msg
+bulleted bulleted config =
+    { config | bulleted = bulleted }
 
 
 relaxed : Bool -> Config msg -> Config msg
@@ -107,7 +115,14 @@ div =
     view Html.div
 
 
-view element { attributes, relaxed, divided, horizontal, size } items =
+view element { attributes, relaxed, divided, horizontal, bulleted, size } items =
+    let
+        listItemTag =
+            if bulleted then
+                Html.li
+            else
+                Html.div
+    in
     element
         (List.concat
             [ attributes
@@ -121,4 +136,4 @@ view element { attributes, relaxed, divided, horizontal, size } items =
               ]
             ]
         )
-        (List.map (\(ListItem i) -> Html.div [ class "item" ] i) items)
+        (List.map (\(ListItem i) -> listItemTag [ class "item" ] i) items)
