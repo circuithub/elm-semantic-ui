@@ -56,6 +56,8 @@ type alias Config msg =
     , attributes : List (Attribute msg)
     , equalWidth : Bool
     , divided : Bool
+    , stackable : Bool
+    , doubling : Bool
     }
 
 
@@ -76,6 +78,8 @@ init =
     , attributes = []
     , equalWidth = False
     , divided = False
+    , stackable = False
+    , doubling = False
     }
 
 
@@ -91,6 +95,20 @@ padded padded model =
 divided : Bool -> Config msg -> Config msg
 divided divided model =
     { model | divided = divided }
+
+
+{-| Whether or not this grid is doubles column widths for each device jump.
+-}
+doubling : Bool -> Config msg -> Config msg
+doubling doubling model =
+    { model | doubling = doubling }
+
+
+{-| Whether or not this grid automatically stacks rows to a single column on mobile devices.
+-}
+stackable : Bool -> Config msg -> Config msg
+stackable stackable model =
+    { model | stackable = stackable }
 
 
 {-| Whether or not to display all columns as the same width.
@@ -110,7 +128,7 @@ columnsPerRow columnsPerRow model =
 {-| View a list of columns as a grid with a particular configuration.
 -}
 grid : Config msg -> List (Column msg) -> Html msg
-grid { padded, columnsPerRow, attributes, equalWidth, divided } columns =
+grid { padded, columnsPerRow, attributes, equalWidth, divided, doubling, stackable } columns =
     div
         (List.concat
             [ attributes
@@ -168,6 +186,8 @@ grid { padded, columnsPerRow, attributes, equalWidth, divided } columns =
                     [ ( "padded", padded )
                     , ( "equal width", equalWidth )
                     , ( "divided", divided )
+                    , ( "doubling", doubling )
+                    , ( "stackable", stackable )
                     ]
               ]
             ]
