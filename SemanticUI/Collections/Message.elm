@@ -1,6 +1,7 @@
 module SemanticUI.Collections.Message
     exposing
         ( Config
+        , color
         , error
         , header
         , icon
@@ -40,6 +41,7 @@ A message can contain an icon.
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import SemanticUI exposing (Color)
 import SemanticUI.Elements.Icon as Icon
 
 
@@ -48,6 +50,7 @@ import SemanticUI.Elements.Icon as Icon
 type alias Config =
     { header : Maybe String
     , icon : Maybe Icon.Icon
+    , color : Maybe Color
     }
 
 
@@ -57,6 +60,7 @@ init : Config
 init =
     { icon = Nothing
     , header = Nothing
+    , color = Nothing
     }
 
 
@@ -75,7 +79,7 @@ icon icon model =
 
 
 view : List (Attribute msg) -> Config -> List (Html msg) -> Html msg
-view extraAttributes { icon, header } contents =
+view extraAttributes { icon, header, color } contents =
     let
         contentWithHeader =
             case header of
@@ -93,6 +97,12 @@ view extraAttributes { icon, header } contents =
                     [ ( "icon", icon /= Nothing )
                     ]
               ]
+            , case color of
+                Just color ->
+                    [ SemanticUI.colorClass color ]
+
+                Nothing ->
+                    []
             , extraAttributes
             ]
         )
@@ -112,6 +122,13 @@ view extraAttributes { icon, header } contents =
 message : Config -> List (Html msg) -> Html msg
 message =
     view []
+
+
+{-| Specify the colour of a message.
+-}
+color : Maybe Color -> Config -> Config
+color color model =
+    { model | color = color }
 
 
 {-| View a message as an error.
