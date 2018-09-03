@@ -1,4 +1,13 @@
-module SemanticUI.Elements.Icon exposing (Config, Icon(..), icon, init, size)
+module SemanticUI.Elements.Icon
+    exposing
+        ( Config
+        , Icon(..)
+        , attributes
+        , icon
+        , init
+        , link
+        , size
+        )
 
 {-| An icon is a glyph used to represent something else.
 
@@ -48,6 +57,7 @@ type Icon
     | Hide
     | Info
     | Legal
+    | Pencil
     | Plus
     | Print
     | Retweet
@@ -62,6 +72,11 @@ type Icon
     | User
     | Warning
     | WarningSign
+
+
+attributes : List (Attribute msg) -> Config msg -> Config msg
+attributes attrs model =
+    { model | attributes = attrs }
 
 
 {-| Custom sizeClass that doesn't render medium (as the "medium" class is
@@ -100,6 +115,7 @@ sizeClass size =
 type alias Config msg =
     { size : Size
     , attributes : List (Attribute msg)
+    , link : Bool
     }
 
 
@@ -110,23 +126,35 @@ size size model =
     { model | size = size }
 
 
+{-| Specify whether or not this is a link icon.
+-}
+link : Bool -> Config msg -> Config msg
+link link model =
+    { model | link = link }
+
+
 {-| The most basic configuration of an icon.
 -}
 init : Config msg
 init =
     { size = Medium
     , attributes = []
+    , link = False
     }
 
 
 {-| View an icon with a particular configuration.
 -}
 icon : Config msg -> Icon -> Html msg
-icon { size, attributes } icon =
+icon { size, attributes, link } icon =
     i
         (List.concat
             [ attributes
-            , [ class "ui icon"
+            , [ classList
+                    [ ( "ui", True )
+                    , ( "link", link )
+                    , ( "icon", True )
+                    ]
               , sizeClass size
               , class <|
                     case icon of
@@ -222,6 +250,9 @@ icon { size, attributes } icon =
 
                         Sort ->
                             "sort"
+
+                        Pencil ->
+                            "pencil alternative"
               ]
             ]
         )
