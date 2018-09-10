@@ -21,7 +21,7 @@ A column can vary in width taking up more than a single grid column.
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import SemanticUI exposing (ColumnCount(..), TextAlignment(..), textAlignmentClass)
+import SemanticUI exposing (TextAlignment(..), ColumnCount(..), textAlignmentClass)
 
 
 {-| The configuration of a column.
