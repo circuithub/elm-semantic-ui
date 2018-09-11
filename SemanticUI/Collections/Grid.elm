@@ -199,8 +199,8 @@ grid { padded, columnsPerRow, attributes, equalWidth, divided, doubling, stackab
 
 {-| Wrap Html as a grid column.
 -}
-column : Column.Config -> List (Html msg) -> Column msg
-column { textAlignment, width } =
+column : Column.Config msg -> List (Html msg) -> Column msg
+column { textAlignment, width, attributes } =
     Column
         << div
             (List.concat
@@ -256,5 +256,6 @@ column { textAlignment, width } =
                                 "sixteen wide"
                   , textAlignmentClass textAlignment
                   ]
+                  , attributes
                 ]
             )
