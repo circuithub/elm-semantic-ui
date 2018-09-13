@@ -51,6 +51,7 @@ type Icon
     | Dropbox
     | Dropdown
     | FileOutline
+    | Filter
     | Fork
     | GitHub
     | Help
@@ -253,6 +254,9 @@ icon { size, attributes, link } icon =
 
                         Pencil ->
                             "pencil alternative"
+
+                        Filter ->
+                            "filter"
               ]
             ]
         )
