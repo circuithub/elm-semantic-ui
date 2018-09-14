@@ -1,24 +1,29 @@
 module SemanticUI.Elements.Image
     exposing
         ( Config
-        , init
-        , image
-        , centered
-        , size
-        , inline
-        , spaced
         , VerticalAlignment(..)
+        , bordered
+        , centered
+        , image
+        , init
+        , inline
+        , rounded
+        , size
+        , spaced
         )
 
 {-| An image is a graphic representation of something.
+
 
 # Viewing images
 
 @docs image
 
+
 # Image properties
 
 @docs init, Config
+
 
 ## Size
 
@@ -26,11 +31,13 @@ An image may appear at different sizes.
 
 @docs size
 
+
 ## Centered
 
 An image can appear centered in a content block.
 
 @docs centered
+
 
 ## Inline
 
@@ -61,6 +68,8 @@ type alias Config =
     , centered : Bool
     , inline : Maybe VerticalAlignment
     , spaced : Bool
+    , rounded : Bool
+    , bordered : Bool
     }
 
 
@@ -73,6 +82,8 @@ init =
     , centered = False
     , inline = Nothing
     , spaced = False
+    , rounded = False
+    , bordered = False
     }
 
 
@@ -103,10 +114,20 @@ spaced spaced model =
     { model | spaced = spaced }
 
 
+rounded : Bool -> Config -> Config
+rounded rounded model =
+    { model | rounded = rounded }
+
+
+bordered : Bool -> Config -> Config
+bordered bordered model =
+    { model | bordered = bordered }
+
+
 {-| View an `<img>` element with a particular `src` (the url of the image to display).
 -}
 image : Config -> String -> Html msg
-image { size, centered, inline, spaced } src =
+image { size, centered, inline, spaced, rounded, bordered } src =
     img
         (List.concat
             [ [ Html.Attributes.src src
@@ -114,6 +135,8 @@ image { size, centered, inline, spaced } src =
               , classList
                     [ ( "centered", centered )
                     , ( "spaced", spaced )
+                    , ( "rounded", rounded )
+                    , ( "bordered", bordered )
                     ]
               ]
             , case size of
