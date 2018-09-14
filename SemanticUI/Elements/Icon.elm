@@ -56,6 +56,7 @@ type Icon
     | GitHub
     | Help
     | Hide
+    | ImageOutline
     | Info
     | Legal
     | Pencil
@@ -152,8 +153,7 @@ icon { size, attributes, link } icon =
         (List.concat
             [ attributes
             , [ classList
-                    [ ( "ui", True )
-                    , ( "link", link )
+                    [ ( "link", link )
                     , ( "icon", True )
                     ]
               , sizeClass size
@@ -257,6 +257,9 @@ icon { size, attributes, link } icon =
 
                         Filter ->
                             "filter"
+
+                        ImageOutline ->
+                            "image outline"
               ]
             ]
         )
