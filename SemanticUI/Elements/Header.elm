@@ -87,95 +87,95 @@ init =
 {-| How a header should attach to surrounding content.
 -}
 attached : Maybe Attached -> Config msg -> Config msg
-attached attached model =
-    { model | attached = attached }
+attached a model =
+    { model | attached = a }
 
 
 inverted : Bool -> Config msg -> Config msg
-inverted inverted model =
-    { model | inverted = inverted }
+inverted a model =
+    { model | inverted = a }
 
 
 block : Bool -> Config msg -> Config msg
-block block model =
-    { model | block = block }
+block a model =
+    { model | block = a }
 
 
 textAlignment : TextAlignment -> Config msg -> Config msg
-textAlignment textAlignment model =
-    { model | textAlignment = textAlignment }
+textAlignment a model =
+    { model | textAlignment = a }
 
 
 icon : Maybe Icon.Icon -> Config msg -> Config msg
-icon icon model =
-    { model | icon = icon }
+icon a model =
+    { model | icon = a }
 
 
 text : Html msg -> Config msg -> Config msg
-text text model =
-    { model | text = text }
+text a model =
+    { model | text = a }
 
 
 subheader : Maybe (Html msg) -> Config msg -> Config msg
-subheader subheader model =
-    { model | subheader = subheader }
+subheader a model =
+    { model | subheader = a }
 
 
 dividing : Bool -> Config msg -> Config msg
-dividing dividing model =
-    { model | dividing = dividing }
+dividing a model =
+    { model | dividing = a }
 
 
 {-| Any other custom `Attribute`s to add to this header. Custom attributes
 will be added before `elm-semantic-ui` attributes.
 -}
 attributes : List (Attribute msg) -> Config msg -> Config msg
-attributes attrs model =
-    { model | attributes = attrs }
+attributes a model =
+    { model | attributes = a }
 
 
 viewAs :
     (List (Attribute msg) -> List (Html msg) -> Html msg)
     -> Config msg
     -> Html msg
-viewAs element { attached, textAlignment, attributes, icon, text, subheader, inverted, block, dividing } =
+viewAs element cfg =
     let
         content =
             List.concat
-                [ [ text ]
-                , case subheader of
+                [ [ cfg.text ]
+                , case cfg.subheader of
                     Nothing ->
                         []
 
-                    Just text ->
-                        [ Html.div [ class "sub header" ] [ text ] ]
+                    Just sub ->
+                        [ Html.div [ class "sub header" ] [ sub ] ]
                 ]
     in
     element
         (List.concat
-            [ attributes
+            [ cfg.attributes
             , [ class "ui header"
-              , textAlignmentClass textAlignment
+              , textAlignmentClass cfg.textAlignment
               , classList
-                    [ ( "inverted", inverted )
-                    , ( "block", block )
-                    , ( "dividing", dividing )
+                    [ ( "inverted", cfg.inverted )
+                    , ( "block", cfg.block )
+                    , ( "dividing", cfg.dividing )
                     ]
               ]
-            , case attached of
-                Just attached ->
-                    [ attachedClass attached ]
+            , case cfg.attached of
+                Just a ->
+                    [ attachedClass a ]
 
                 Nothing ->
                     []
             ]
         )
-        (case icon of
+        (case cfg.icon of
             Nothing ->
                 content
 
-            Just icon ->
-                [ Icon.icon Icon.init icon
+            Just a ->
+                [ Icon.icon Icon.init a
                 , Html.div [ class "content" ] content
                 ]
         )

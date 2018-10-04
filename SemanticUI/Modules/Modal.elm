@@ -20,8 +20,8 @@ init =
 
 
 fullscreen : Bool -> Config -> Config
-fullscreen fullscreen config =
-    { config | fullscreen = fullscreen }
+fullscreen a config =
+    { config | fullscreen = a }
 
 
 view :
@@ -34,7 +34,7 @@ view :
             , actions : List (Html msg)
             }
     -> Html msg
-view { fullscreen, size } body =
+view cfg body =
     case body of
         Nothing ->
             div [ class "ui page dimmer transition" ] []
@@ -43,8 +43,8 @@ view { fullscreen, size } body =
             div [ class "ui active page dimmer transition" ]
                 [ div
                     [ class "ui active visible modal transition"
-                    , sizeClass size
-                    , classList [ ( "fullscreen", fullscreen ) ]
+                    , sizeClass cfg.size
+                    , classList [ ( "fullscreen", cfg.fullscreen ) ]
                     ]
                     (List.concat
                         [ case close of
@@ -62,24 +62,24 @@ view { fullscreen, size } body =
                             Nothing ->
                                 []
 
-                            Just header ->
-                                [ div [ class "header" ] [ text header ] ]
+                            Just a ->
+                                [ div [ class "header" ] [ text a ] ]
                         , case content of
                             [] ->
                                 []
 
-                            content ->
+                            a ->
                                 [ div
                                     [ class "scrolling content"
                                     ]
-                                    content
+                                    a
                                 ]
                         , case actions of
                             [] ->
                                 []
 
-                            actions ->
-                                [ div [ class "actions" ] actions ]
+                            a ->
+                                [ div [ class "actions" ] a ]
                         ]
                     )
                 ]

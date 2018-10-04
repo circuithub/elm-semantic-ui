@@ -67,51 +67,51 @@ init =
 {-| Specify the header for a message.
 -}
 header : Maybe String -> Config -> Config
-header header model =
-    { model | header = header }
+header a model =
+    { model | header = a }
 
 
 {-| Specify the icon for a message.
 -}
 icon : Icon.Icon -> Config -> Config
-icon icon model =
-    { model | icon = Just icon }
+icon a model =
+    { model | icon = Just a }
 
 
 view : List (Attribute msg) -> Config -> List (Html msg) -> Html msg
-view extraAttributes { icon, header, color } contents =
+view extraAttributes cfg contents =
     let
         contentWithHeader =
-            case header of
+            case cfg.header of
                 Nothing ->
                     contents
 
-                Just header ->
-                    div [ class "header" ] [ text header ]
+                Just h ->
+                    div [ class "header" ] [ text h ]
                         :: contents
     in
     div
         (List.concat
             [ [ class "ui message"
               , classList
-                    [ ( "icon", icon /= Nothing )
+                    [ ( "icon", cfg.icon /= Nothing )
                     ]
               ]
-            , case color of
-                Just color ->
-                    [ SemanticUI.colorClass color ]
+            , case cfg.color of
+                Just a ->
+                    [ SemanticUI.colorClass a ]
 
                 Nothing ->
                     []
             , extraAttributes
             ]
         )
-        (case icon of
+        (case cfg.icon of
             Nothing ->
                 contentWithHeader
 
-            Just icon ->
-                [ Icon.icon Icon.init icon
+            Just a ->
+                [ Icon.icon Icon.init a
                 , div [ class "contents" ] contentWithHeader
                 ]
         )
@@ -127,8 +127,8 @@ message =
 {-| Specify the colour of a message.
 -}
 color : Maybe Color -> Config -> Config
-color color model =
-    { model | color = color }
+color a model =
+    { model | color = a }
 
 
 {-| View a message as an error.

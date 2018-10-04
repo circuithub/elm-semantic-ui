@@ -2,6 +2,7 @@ module SemanticUI.Collections.Grid exposing (..)
 
 {-| A grid is used to harmonize negative space in a layout.
 
+
 # Grid API
 
 The grid API adds a little more type safety by using the `Column` type.
@@ -10,13 +11,16 @@ use the `column` smart constructor.
 
 @docs Column, column
 
+
 # Viewing grids
 
 @docs grid
 
+
 # Grid properties
 
 @docs init, Config, attributes
+
 
 ## Padded grids
 
@@ -28,6 +32,7 @@ negative margins. You can do this by using a padded grid variation.
 
 @docs padded
 
+
 ## Columns per row
 
 By default, grids expect 16 columns per row, but this can be changed.
@@ -38,8 +43,8 @@ By default, grids expect 16 columns per row, but this can be changed.
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import SemanticUI.Collections.Grid.Column as Column
 import SemanticUI exposing (ColumnCount(..), textAlignmentClass)
+import SemanticUI.Collections.Grid.Column as Column
 
 
 {-| A column in a grid.
@@ -62,7 +67,7 @@ type alias Config msg =
 
 
 {-| Any other custom `Attribute`s to add to this grid. Custom attributes
- will be added before `elm-semantic-ui` attributes.
+will be added before `elm-semantic-ui` attributes.
 -}
 attributes : List (Attribute msg) -> Config msg -> Config msg
 attributes attrs model =
@@ -86,55 +91,55 @@ init =
 {-| Whether or not this grid is padded.
 -}
 padded : Bool -> Config msg -> Config msg
-padded padded model =
-    { model | padded = padded }
+padded a model =
+    { model | padded = a }
 
 
 {-| Whether or not this grid is divided.
 -}
 divided : Bool -> Config msg -> Config msg
-divided divided model =
-    { model | divided = divided }
+divided a model =
+    { model | divided = a }
 
 
 {-| Whether or not this grid is doubles column widths for each device jump.
 -}
 doubling : Bool -> Config msg -> Config msg
-doubling doubling model =
-    { model | doubling = doubling }
+doubling a model =
+    { model | doubling = a }
 
 
 {-| Whether or not this grid automatically stacks rows to a single column on mobile devices.
 -}
 stackable : Bool -> Config msg -> Config msg
-stackable stackable model =
-    { model | stackable = stackable }
+stackable a model =
+    { model | stackable = a }
 
 
 {-| Whether or not to display all columns as the same width.
 -}
 equalWidth : Bool -> Config msg -> Config msg
-equalWidth equalWidth model =
-    { model | equalWidth = equalWidth }
+equalWidth a model =
+    { model | equalWidth = a }
 
 
 {-| Indicate how many columns make up a row.
 -}
 columnsPerRow : ColumnCount -> Config msg -> Config msg
-columnsPerRow columnsPerRow model =
-    { model | columnsPerRow = columnsPerRow }
+columnsPerRow a model =
+    { model | columnsPerRow = a }
 
 
 {-| View a list of columns as a grid with a particular configuration.
 -}
 grid : Config msg -> List (Column msg) -> Html msg
-grid { padded, columnsPerRow, attributes, equalWidth, divided, doubling, stackable } columns =
+grid cfg columns =
     div
         (List.concat
-            [ attributes
+            [ cfg.attributes
             , [ class "ui grid"
               , class <|
-                    case columnsPerRow of
+                    case cfg.columnsPerRow of
                         OneColumn ->
                             "one column"
 
@@ -183,11 +188,11 @@ grid { padded, columnsPerRow, attributes, equalWidth, divided, doubling, stackab
                         SixteenColumns ->
                             "sixteen column"
               , classList
-                    [ ( "padded", padded )
-                    , ( "equal width", equalWidth )
-                    , ( "divided", divided )
-                    , ( "doubling", doubling )
-                    , ( "stackable", stackable )
+                    [ ( "padded", cfg.padded )
+                    , ( "equal width", cfg.equalWidth )
+                    , ( "divided", cfg.divided )
+                    , ( "doubling", cfg.doubling )
+                    , ( "stackable", cfg.stackable )
                     ]
               ]
             ]
@@ -200,13 +205,13 @@ grid { padded, columnsPerRow, attributes, equalWidth, divided, doubling, stackab
 {-| Wrap Html as a grid column.
 -}
 column : Column.Config msg -> List (Html msg) -> Column msg
-column { textAlignment, width, attributes } =
+column cfg =
     Column
         << div
             (List.concat
                 [ [ class "column"
                   , class <|
-                        case width of
+                        case cfg.width of
                             OneColumn ->
                                 ""
 
@@ -254,8 +259,8 @@ column { textAlignment, width, attributes } =
 
                             SixteenColumns ->
                                 "sixteen wide"
-                  , textAlignmentClass textAlignment
+                  , textAlignmentClass cfg.textAlignment
                   ]
-                  , attributes
+                , cfg.attributes
                 ]
             )

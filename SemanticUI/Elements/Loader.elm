@@ -1,23 +1,25 @@
 module SemanticUI.Elements.Loader
     exposing
         ( Config
-        , init
         , active
+        , init
         , inline
         , inlineCentered
         , text
         )
 
-{-|
-A loader alerts a user to wait for an activity to complete.
+{-| A loader alerts a user to wait for an activity to complete.
+
 
 # Viewing loaders
 
 @docs inline, inlineCentered
 
+
 # Loader properties
 
 @docs init, Config
+
 
 ## Active
 
@@ -55,15 +57,15 @@ init =
 {-| Specify whether or not a loader is active.
 -}
 active : Bool -> Config -> Config
-active active model =
-    { model | active = active }
+active a model =
+    { model | active = a }
 
 
 {-| View a loader inline with other content.
 -}
 inline : Config -> Html msg
-inline { active, text } =
-    view { active = active, inline = True, centered = False, text = text }
+inline cfg =
+    view { active = cfg.active, text = cfg.text, inline = True, centered = False }
 
 
 text : Maybe String -> Config -> Config
@@ -74,21 +76,21 @@ text t model =
 {-| View a loader inline centered with content.
 -}
 inlineCentered : Config -> Html msg
-inlineCentered { active, text } =
-    view { active = active, inline = True, centered = True, text = text }
+inlineCentered cfg =
+    view { active = cfg.active, text = cfg.text, inline = True, centered = True }
 
 
-view { active, inline, centered, text } =
+view cfg =
     div
         [ class "ui loader"
         , classList
-            [ ( "active", active )
-            , ( "inline", inline )
-            , ( "centered", centered )
-            , ( "text", text /= Nothing )
+            [ ( "active", cfg.active )
+            , ( "inline", cfg.inline )
+            , ( "centered", cfg.centered )
+            , ( "text", cfg.text /= Nothing )
             ]
         ]
-        (case text of
+        (case cfg.text of
             Nothing ->
                 []
 

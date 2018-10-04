@@ -85,8 +85,8 @@ attributes attrs model =
 Medium.com's icon)
 -}
 sizeClass : Size -> Attribute msg
-sizeClass size =
-    case size of
+sizeClass a =
+    case a of
         Mini ->
             class "mini"
 
@@ -124,15 +124,15 @@ type alias Config msg =
 {-| Specify the size of an icon.
 -}
 size : Size -> Config msg -> Config msg
-size size model =
-    { model | size = size }
+size a model =
+    { model | size = a }
 
 
 {-| Specify whether or not this is a link icon.
 -}
 link : Bool -> Config msg -> Config msg
-link link model =
-    { model | link = link }
+link a model =
+    { model | link = a }
 
 
 {-| The most basic configuration of an icon.
@@ -148,17 +148,17 @@ init =
 {-| View an icon with a particular configuration.
 -}
 icon : Config msg -> Icon -> Html msg
-icon { size, attributes, link } icon =
+icon cfg theIcon =
     i
         (List.concat
-            [ attributes
+            [ cfg.attributes
             , [ classList
-                    [ ( "link", link )
+                    [ ( "link", cfg.link )
                     , ( "icon", True )
                     ]
-              , sizeClass size
+              , sizeClass cfg.size
               , class <|
-                    case icon of
+                    case theIcon of
                         Dropbox ->
                             "dropbox"
 

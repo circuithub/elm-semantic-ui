@@ -68,30 +68,30 @@ init =
 {-| Specify how text should be aligned in a segment.
 -}
 textAlignment : TextAlignment -> Config msg -> Config msg
-textAlignment textAlignment model =
-    { model | textAlignment = textAlignment }
+textAlignment a model =
+    { model | textAlignment = a }
 
 
 {-| Specify whether or not a segment should appear raised.
 -}
 raised : Bool -> Config msg -> Config msg
-raised raised model =
-    { model | raised = raised }
+raised a model =
+    { model | raised = a }
 
 
 {-| How to attach to surrounding content.
 -}
 attached : Maybe Attached -> Config msg -> Config msg
-attached attached model =
-    { model | attached = attached }
+attached a model =
+    { model | attached = a }
 
 
 {-| Any other custom `Attribute`s to add to a segment. Custom attributes
 will be added before `elm-semantic-ui` attributes.
 -}
 attributes : List (Attribute msg) -> Config msg -> Config msg
-attributes attributes model =
-    { model | attributes = attributes }
+attributes a model =
+    { model | attributes = a }
 
 
 clearing : Bool -> Config msg -> Config msg
@@ -107,26 +107,26 @@ loading c model =
 {-| View a segment with a particular configuration.
 -}
 segment : Config msg -> List (Html msg) -> Html msg
-segment { raised, attributes, attached, textAlignment, clearing, loading } =
+segment cfg =
     div
         (List.concat
-            [ attributes
+            [ cfg.attributes
             , [ class "ui segment"
               , classList
-                    [ ( "raised", raised )
-                    , ( "clearing", clearing )
-                    , ( "loading", loading )
+                    [ ( "raised", cfg.raised )
+                    , ( "clearing", cfg.clearing )
+                    , ( "loading", cfg.loading )
                     ]
               ]
-            , case textAlignment of
+            , case cfg.textAlignment of
                 LeftAligned ->
                     []
 
                 Centered ->
                     [ class "center aligned" ]
-            , case attached of
-                Just attached ->
-                    [ attachedClass attached ]
+            , case cfg.attached of
+                Just a ->
+                    [ attachedClass a ]
 
                 Nothing ->
                     []

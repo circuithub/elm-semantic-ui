@@ -65,33 +65,33 @@ init =
 
 
 horizontal : Bool -> Config msg -> Config msg
-horizontal horizontal config =
-    { config | horizontal = horizontal }
+horizontal a config =
+    { config | horizontal = a }
 
 
 bulleted : Bool -> Config msg -> Config msg
-bulleted bulleted config =
-    { config | bulleted = bulleted }
+bulleted a config =
+    { config | bulleted = a }
 
 
 relaxed : Bool -> Config msg -> Config msg
-relaxed relaxed config =
-    { config | relaxed = relaxed }
+relaxed a config =
+    { config | relaxed = a }
 
 
 divided : Bool -> Config msg -> Config msg
-divided divided config =
-    { config | divided = divided }
+divided a config =
+    { config | divided = a }
 
 
 attributes : List (Attribute msg) -> Config msg -> Config msg
-attributes attributes config =
-    { config | attributes = attributes }
+attributes a config =
+    { config | attributes = a }
 
 
 size : Size -> Config msg -> Config msg
-size size config =
-    { config | size = size }
+size a config =
+    { config | size = a }
 
 
 {-| Wrap Html as a list item.
@@ -115,24 +115,24 @@ div =
     view Html.div
 
 
-view element { attributes, relaxed, divided, horizontal, bulleted, size } items =
+view element cfg items =
     let
         listItemTag =
-            if bulleted then
+            if cfg.bulleted then
                 Html.li
             else
                 Html.div
     in
     element
         (List.concat
-            [ attributes
+            [ cfg.attributes
             , [ class "ui list"
               , classList
-                    [ ( "relaxed", relaxed )
-                    , ( "divided", divided )
-                    , ( "horizontal", horizontal )
+                    [ ( "relaxed", cfg.relaxed )
+                    , ( "divided", cfg.divided )
+                    , ( "horizontal", cfg.horizontal )
                     ]
-              , sizeClass size
+              , sizeClass cfg.size
               ]
             ]
         )

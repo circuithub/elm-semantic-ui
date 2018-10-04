@@ -1,11 +1,12 @@
 module SemanticUI.Elements.Divider exposing (divider, hidden)
 
-{-|
-A divider visually segments content into groups.
+{-| A divider visually segments content into groups.
+
 
 # Viewing dividers
 
 @docs divider
+
 -}
 
 import Html exposing (..)
@@ -24,8 +25,8 @@ divider text =
             Nothing ->
                 []
 
-            Just text ->
-                [ Html.text text ]
+            Just t ->
+                [ Html.text t ]
         )
 
 

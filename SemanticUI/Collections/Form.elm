@@ -1,27 +1,31 @@
 module SemanticUI.Collections.Form
     exposing
         ( Config
-        , init
         , attributes
         , error
         , form
+        , init
         )
 
 {-| A form displays a set of related user input fields in a structured way.
+
 
 # Viewing forms
 
 @docs form
 
+
 # Form properties
 
 @docs init, Config, attributes
+
 
 ## Errors
 
 If a form is in an error state, it will automatically show any error message blocks.
 
 @docs error
+
 -}
 
 import Html exposing (..)
@@ -46,29 +50,29 @@ init =
 
 
 {-| Any other custom `Attribute`s to add to this form. Custom attributes
- will be added before `elm-semantic-ui` attributes.
+will be added before `elm-semantic-ui` attributes.
 -}
 attributes : List (Attribute msg) -> Config msg -> Config msg
-attributes attributes model =
-    { model | attributes = attributes }
+attributes attrs model =
+    { model | attributes = attrs }
 
 
 {-| Flag whether or not this form contains errors.
 -}
 error : Bool -> Config msg -> Config msg
-error error model =
-    { model | error = error }
+error e model =
+    { model | error = e }
 
 
 {-| View a form as a `<form>` tag.
 -}
 form : Config msg -> List (Html msg) -> Html msg
-form { attributes, error } contents =
+form cfg contents =
     Html.form
         (List.concat
-            [ attributes
+            [ cfg.attributes
             , [ class "ui form"
-              , classList [ ( "error", error ) ]
+              , classList [ ( "error", cfg.error ) ]
               ]
             ]
         )

@@ -1,26 +1,30 @@
 module SemanticUI.Elements.Step
     exposing
-        ( StepCount(..)
-        , StepConfig
+        ( Config
         , Step
-        , Config
-        , steps
+        , StepConfig
+        , StepCount(..)
         , step
+        , steps
         )
 
 {-| A step shows the completion status of an activity in a series of activities.
+
 
 # Viewing steps
 
 @docs Config, steps
 
+
 ## Evenly divided steps
 
 @docs StepCount
 
+
 # Steps
 
 @docs step, StepConfig, Step
+
 -}
 
 import Html exposing (..)
@@ -55,22 +59,22 @@ type alias Config =
 {-| Render a list of steps as HTML.
 -}
 steps : Config -> List (Step msg) -> Html msg
-steps { attached, stepCount, ordered, vertical } steps =
+steps cfg theSteps =
     div
         (List.concat
             [ [ class "ui steps"
               , classList
-                    [ ( "ordered", ordered )
-                    , ( "vertical", vertical )
+                    [ ( "ordered", cfg.ordered )
+                    , ( "vertical", cfg.vertical )
                     ]
               ]
-            , case attached of
+            , case cfg.attached of
                 Nothing ->
                     []
 
-                Just attached ->
-                    [ attachedClass attached ]
-            , case stepCount of
+                Just a ->
+                    [ attachedClass a ]
+            , case cfg.stepCount of
                 Nothing ->
                     []
 
@@ -103,7 +107,7 @@ steps { attached, stepCount, ordered, vertical } steps =
                     ]
             ]
         )
-        (List.map (\(Step a) -> a) steps)
+        (List.map (\(Step a) -> a) theSteps)
 
 
 
@@ -139,15 +143,15 @@ step { icon, title, completed } content =
                     Nothing ->
                         []
 
-                    Just icon ->
-                        [ Icon.icon Icon.init icon ]
+                    Just i ->
+                        [ Icon.icon Icon.init i ]
                 , [ div [ class "content" ] <|
                         case title of
                             Nothing ->
                                 content
 
-                            Just title ->
-                                [ div [ class "title" ] [ text title ]
+                            Just t ->
+                                [ div [ class "title" ] [ text t ]
                                 , div [ class "description" ] content
                                 ]
                   ]

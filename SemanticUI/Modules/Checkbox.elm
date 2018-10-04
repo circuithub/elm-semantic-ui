@@ -25,11 +25,11 @@ label lbl config =
 
 
 checkbox : Config msg -> { r | checked : Bool } -> Html msg
-checkbox { onClick, label } { checked } =
+checkbox cfg { checked } =
     div
         [ class "ui checkbox"
         , classList [ ( "checked", checked ) ]
-        , Html.Events.onClick onClick
+        , Html.Events.onClick cfg.onClick
         ]
         [ input
             [ type_ "checkbox"
@@ -38,7 +38,7 @@ checkbox { onClick, label } { checked } =
             ]
             []
         , Html.label []
-            (label
+            (cfg.label
                 |> Maybe.map text
                 |> Maybe.toList
             )

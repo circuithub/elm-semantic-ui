@@ -123,65 +123,65 @@ type Pointing
 {-| Specify the size of a label.
 -}
 size : Size -> Config -> Config
-size size model =
-    { model | size = size }
+size a model =
+    { model | size = a }
 
 
 {-| Specify whether or not a label is circular.
 -}
 circular : Bool -> Config -> Config
-circular circular model =
-    { model | circular = circular }
+circular a model =
+    { model | circular = a }
 
 
 tag : Bool -> Config -> Config
-tag tag model =
-    { model | tag = tag }
+tag a model =
+    { model | tag = a }
 
 
 {-| Specify whether or not a label is basic.
 -}
 basic : Bool -> Config -> Config
-basic basic model =
-    { model | basic = basic }
+basic a model =
+    { model | basic = a }
 
 
 {-| Specify whether a label should point to surrounding content.
 -}
 pointing : Maybe Pointing -> Config -> Config
-pointing pointing model =
-    { model | pointing = pointing }
+pointing a model =
+    { model | pointing = a }
 
 
 {-| Specify the colour of a label.
 -}
 color : Maybe Color -> Config -> Config
-color color model =
-    { model | color = color }
+color a model =
+    { model | color = a }
 
 
 {-| Specify extra detail to display in this label.
 -}
 detail : Maybe String -> Config -> Config
-detail detail model =
-    { model | detail = detail }
+detail a model =
+    { model | detail = a }
 
 
 {-| Specify the URL to an image to display in this label.
 -}
 image : Maybe String -> Config -> Config
-image image model =
-    { model | image = image }
+image a model =
+    { model | image = a }
 
 
 horizontal : Bool -> Config -> Config
-horizontal horizontal model =
-    { model | horizontal = horizontal }
+horizontal a model =
+    { model | horizontal = a }
 
 
 icon : Maybe Icon.Icon -> Config -> Config
-icon icon model =
-    { model | icon = icon }
+icon a model =
+    { model | icon = a }
 
 
 {-| A label with the simplest configuration. Corresponds to just `class="ui label"`.
@@ -213,7 +213,7 @@ label =
 
 {-| View a label with a specific configuration.
 -}
-viewAs el { image, color, detail, pointing, basic, tag, circular, horizontal, size, icon } message =
+viewAs el cfg message =
     let
         content =
             [ text message ]
@@ -222,15 +222,15 @@ viewAs el { image, color, detail, pointing, basic, tag, circular, horizontal, si
         (List.concat
             [ [ class "ui label"
               , classList
-                    [ ( "image", image /= Nothing )
-                    , ( "basic", basic )
-                    , ( "tag", tag )
-                    , ( "horizontal", horizontal )
-                    , ( "circular", circular )
+                    [ ( "image", cfg.image /= Nothing )
+                    , ( "basic", cfg.basic )
+                    , ( "tag", cfg.tag )
+                    , ( "horizontal", cfg.horizontal )
+                    , ( "circular", cfg.circular )
                     ]
-              , sizeClass size
+              , sizeClass cfg.size
               ]
-            , case pointing of
+            , case cfg.pointing of
                 Just PointAbove ->
                     [ class "pointing" ]
 
@@ -245,9 +245,9 @@ viewAs el { image, color, detail, pointing, basic, tag, circular, horizontal, si
 
                 Nothing ->
                     []
-            , case color of
-                Just color ->
-                    [ SemanticUI.colorClass color ]
+            , case cfg.color of
+                Just a ->
+                    [ SemanticUI.colorClass a ]
 
                 Nothing ->
                     []
@@ -255,22 +255,22 @@ viewAs el { image, color, detail, pointing, basic, tag, circular, horizontal, si
         )
     <|
         List.concat
-            [ case image of
+            [ case cfg.image of
                 Just url ->
                     [ img [ src url ] [] ]
 
                 Nothing ->
                     []
-            , case icon of
-                Just icon ->
-                    [ Icon.icon Icon.init icon ]
+            , case cfg.icon of
+                Just a ->
+                    [ Icon.icon Icon.init a ]
 
                 Nothing ->
                     []
             , content
-            , case detail of
-                Just detail ->
-                    [ div [ class "detail" ] [ Html.text detail ] ]
+            , case cfg.detail of
+                Just a ->
+                    [ div [ class "detail" ] [ Html.text a ] ]
 
                 _ ->
                     []

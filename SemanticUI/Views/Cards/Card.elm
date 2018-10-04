@@ -2,13 +2,16 @@ module SemanticUI.Views.Cards.Card exposing (..)
 
 {-| View a single card.
 
+
 # Viewing cards
 
 @docs linkCard
 
+
 # Card properties
 
 @docs init, Config, attributes
+
 
 ## Fluid
 
@@ -33,15 +36,15 @@ type alias Config msg =
 {-| Specify whether or not a card is fluid.
 -}
 fluid : Bool -> Config msg -> Config msg
-fluid fluid model =
-    { model | fluid = fluid }
+fluid a model =
+    { model | fluid = a }
 
 
 {-| Custom attributes for a card.
 -}
 attributes : List (Attribute msg) -> Config msg -> Config msg
-attributes attrs model =
-    { model | attributes = attrs }
+attributes a model =
+    { model | attributes = a }
 
 
 {-| The simplest configuration of a card. Corresponds to `class="ui card"`.
@@ -59,10 +62,11 @@ omitted entirely.
 -}
 linkCard :
     Config msg
-    -> { image : Maybe String
-       , content : List (Html msg)
-       , extraContent : List (Html msg)
-       }
+    ->
+        { image : Maybe String
+        , content : List (Html msg)
+        , extraContent : List (Html msg)
+        }
     -> Html msg
 linkCard =
     viewCard a
@@ -70,45 +74,46 @@ linkCard =
 
 divCard :
     Config msg
-    -> { image : Maybe String
-       , content : List (Html msg)
-       , extraContent : List (Html msg)
-       }
+    ->
+        { image : Maybe String
+        , content : List (Html msg)
+        , extraContent : List (Html msg)
+        }
     -> Html msg
 divCard =
     viewCard div
 
 
-viewCard el { fluid, attributes } { image, content, extraContent } =
+viewCard el cfg content =
     el
         (List.concat
             [ [ class "ui card"
-              , classList [ ( "fluid", fluid ) ]
+              , classList [ ( "fluid", cfg.fluid ) ]
               ]
-            , attributes
+            , cfg.attributes
             ]
         )
         (List.concat
             [ [ div [ class "image" ]
-                    (case image of
+                    (case content.image of
                         Nothing ->
                             []
 
-                        Just image ->
-                            [ img [ src image ] [] ]
+                        Just url ->
+                            [ img [ src url ] [] ]
                     )
               ]
-            , case content of
+            , case content.content of
                 [] ->
                     []
 
                 _ ->
-                    [ div [ class "content" ] content ]
-            , case extraContent of
+                    [ div [ class "content" ] content.content ]
+            , case content.extraContent of
                 [] ->
                     []
 
                 _ ->
-                    [ div [ class "extra content" ] extraContent ]
+                    [ div [ class "extra content" ] content.extraContent ]
             ]
         )

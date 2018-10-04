@@ -90,62 +90,62 @@ init =
 {-| Specify whether or not an image should display at a particular size.
 -}
 size : Maybe Size -> Config -> Config
-size size model =
-    { model | size = size }
+size a model =
+    { model | size = a }
 
 
 {-| Specify whether or not an image should appear centered.
 -}
 centered : Bool -> Config -> Config
-centered centered model =
-    { model | centered = centered }
+centered a model =
+    { model | centered = a }
 
 
 {-| Specify whether or not an image should appear inline, and how it should be
 vertically aligned.
 -}
 inline : Maybe VerticalAlignment -> Config -> Config
-inline inline model =
-    { model | inline = inline }
+inline a model =
+    { model | inline = a }
 
 
 spaced : Bool -> Config -> Config
-spaced spaced model =
-    { model | spaced = spaced }
+spaced a model =
+    { model | spaced = a }
 
 
 rounded : Bool -> Config -> Config
-rounded rounded model =
-    { model | rounded = rounded }
+rounded a model =
+    { model | rounded = a }
 
 
 bordered : Bool -> Config -> Config
-bordered bordered model =
-    { model | bordered = bordered }
+bordered a model =
+    { model | bordered = a }
 
 
 {-| View an `<img>` element with a particular `src` (the url of the image to display).
 -}
 image : Config -> String -> Html msg
-image { size, centered, inline, spaced, rounded, bordered } src =
+image cfg src =
     img
         (List.concat
             [ [ Html.Attributes.src src
               , class "ui image"
               , classList
-                    [ ( "centered", centered )
-                    , ( "spaced", spaced )
-                    , ( "rounded", rounded )
-                    , ( "bordered", bordered )
+                    [ ( "centered", cfg.centered )
+                    , ( "spaced", cfg.spaced )
+                    , ( "rounded", cfg.rounded )
+                    , ( "bordered", cfg.bordered )
                     ]
               ]
-            , case size of
-                Just size ->
-                    [ sizeClass size ]
+            , case cfg.size of
+                Just a ->
+                    [ sizeClass a ]
 
                 Nothing ->
                     []
-            , case inline of
+            , case cfg.inline of
                 Nothing ->
                     []
 
