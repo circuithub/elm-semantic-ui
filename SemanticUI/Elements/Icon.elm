@@ -40,6 +40,7 @@ type Icon
     | AlignJustify
     | ArrowLeft
     | ArrowRight
+    | Camera
     | CaretDown
     | CheckCircleOutline
     | ChevronUp
@@ -272,6 +273,9 @@ icon cfg theIcon =
 
                         CircleOutline ->
                             "circle outline"
+
+                        Camera ->
+                            "camera"
               ]
             ]
         )
