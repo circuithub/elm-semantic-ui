@@ -1,13 +1,9 @@
-module SemanticUI.Elements.Icon
-    exposing
-        ( Config
-        , Icon(..)
-        , attributes
-        , icon
-        , init
-        , link
-        , size
-        )
+module SemanticUI.Elements.Icon exposing
+    ( Icon(..), icon
+    , Config, init
+    , size
+    , attributes, link
+    )
 
 {-| An icon is a glyph used to represent something else.
 
@@ -36,7 +32,7 @@ import SemanticUI exposing (Size(..))
 
 
 {-| The name of the icon. See
-[<https://semantic-ui.com/elements/icon.html>](https://semantic-ui.com/elements/icon.html) for a table
+<https://semantic-ui.com/elements/icon.html> for a table
 of options.
 -}
 type Icon
@@ -47,6 +43,8 @@ type Icon
     | CaretDown
     | CheckCircleOutline
     | ChevronUp
+    | CircleOutline
+    | DotCircleOutline
     | Download
     | Dropbox
     | Dropdown
@@ -59,6 +57,7 @@ type Icon
     | ImageOutline
     | Info
     | Legal
+    | PauseCircleOutline
     | Pencil
     | Plus
     | Print
@@ -69,6 +68,7 @@ type Icon
     | SortDown
     | SortUp
     | Star
+    | TimesCircleOutline
     | Trash
     | Upload
     | User
@@ -260,6 +260,18 @@ icon cfg theIcon =
 
                         ImageOutline ->
                             "image outline"
+
+                        DotCircleOutline ->
+                            "dot circle outline"
+
+                        PauseCircleOutline ->
+                            "pause circle outline"
+
+                        TimesCircleOutline ->
+                            "times circle outline"
+
+                        CircleOutline ->
+                            "circle outline"
               ]
             ]
         )
