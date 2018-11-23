@@ -1,12 +1,9 @@
-module SemanticUI.Elements.Loader
-    exposing
-        ( Config
-        , active
-        , init
-        , inline
-        , inlineCentered
-        , text
-        )
+module SemanticUI.Elements.Loader exposing
+    ( inline, inlineCentered
+    , init, Config
+    , active
+    , size, text
+    )
 
 {-| A loader alerts a user to wait for an activity to complete.
 
@@ -31,6 +28,7 @@ Loaders are hidden unless active or inside an active dimmer.
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import SemanticUI
 
 
 {-| The configuration of a loader.
@@ -38,6 +36,7 @@ import Html.Attributes exposing (..)
 type alias Config =
     { active : Bool
     , text : Maybe String
+    , size : SemanticUI.Size
     }
 
 
@@ -51,6 +50,7 @@ init : Config
 init =
     { active = True
     , text = Nothing
+    , size = SemanticUI.Medium
     }
 
 
@@ -61,11 +61,24 @@ active a model =
     { model | active = a }
 
 
+{-| Specify whether or not a loader is active.
+-}
+size : SemanticUI.Size -> Config -> Config
+size a model =
+    { model | size = a }
+
+
 {-| View a loader inline with other content.
 -}
 inline : Config -> Html msg
 inline cfg =
-    view { active = cfg.active, text = cfg.text, inline = True, centered = False }
+    view
+        { active = cfg.active
+        , text = cfg.text
+        , inline = True
+        , centered = False
+        , size = cfg.size
+        }
 
 
 text : Maybe String -> Config -> Config
@@ -77,7 +90,13 @@ text t model =
 -}
 inlineCentered : Config -> Html msg
 inlineCentered cfg =
-    view { active = cfg.active, text = cfg.text, inline = True, centered = True }
+    view
+        { active = cfg.active
+        , text = cfg.text
+        , inline = True
+        , centered = True
+        , size = cfg.size
+        }
 
 
 view cfg =
@@ -89,6 +108,7 @@ view cfg =
             , ( "centered", cfg.centered )
             , ( "text", cfg.text /= Nothing )
             ]
+        , SemanticUI.sizeClass cfg.size
         ]
         (case cfg.text of
             Nothing ->
