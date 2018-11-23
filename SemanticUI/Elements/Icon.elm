@@ -37,6 +37,7 @@ of options.
 -}
 type Icon
     = Alarm
+    | ArrowsAlternate
     | AlignJustify
     | ArrowLeft
     | ArrowRight
@@ -276,6 +277,9 @@ icon cfg theIcon =
 
                         Camera ->
                             "camera"
+
+                        ArrowsAlternate ->
+                            "arrows alternate"
               ]
             ]
         )
