@@ -1,4 +1,10 @@
-module SemanticUI.Elements.Segment exposing (..)
+module SemanticUI.Elements.Segment exposing
+    ( segment, raised
+    , init, Config, attributes
+    , attached
+    , textAlignment
+    , clearing, loading
+    )
 
 {-| A segment is used to create a grouping of related content.
 
@@ -37,7 +43,7 @@ A segment can have its text aligned to a side.
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import SemanticUI exposing (Attached, TextAlignment(..), attachedClass)
+import SemanticUI exposing (Attached, TextAlignment(..), attachedClass, textAlignmentClass)
 
 
 {-| The configuration of a segment.
@@ -117,13 +123,8 @@ segment cfg =
                     , ( "clearing", cfg.clearing )
                     , ( "loading", cfg.loading )
                     ]
+              , textAlignmentClass cfg.textAlignment
               ]
-            , case cfg.textAlignment of
-                LeftAligned ->
-                    []
-
-                Centered ->
-                    [ class "center aligned" ]
             , case cfg.attached of
                 Just a ->
                     [ attachedClass a ]

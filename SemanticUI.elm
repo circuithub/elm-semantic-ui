@@ -1,17 +1,8 @@
-module SemanticUI
-    exposing
-        ( Attached(..)
-        , Color(..)
-        , ColumnCount(..)
-        , Floated(..)
-        , Size(..)
-        , TextAlignment(..)
-        , attachedClass
-        , colorClass
-        , floatedClass
-        , sizeClass
-        , textAlignmentClass
-        )
+module SemanticUI exposing
+    ( Attached(..), Color(..), ColumnCount(..), Floated(..), Size(..), TextAlignment(..)
+    , attachedClass, floatedClass, sizeClass, textAlignmentClass
+    , colorClass
+    )
 
 {-|
 
@@ -119,6 +110,7 @@ floatedClass floated =
 type TextAlignment
     = LeftAligned
     | Centered
+    | RightAligned
 
 
 {-| Convert a `TextAlignment` into its corresponding `class` `Attribute`.
@@ -131,6 +123,9 @@ textAlignmentClass textAlignment =
 
         Centered ->
             class "center aligned"
+
+        RightAligned ->
+            class "right aligned"
 
 
 {-| How content should attach to its adjacent content.
