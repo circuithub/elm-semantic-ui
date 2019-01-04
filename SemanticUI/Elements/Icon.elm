@@ -37,10 +37,10 @@ of options.
 -}
 type Icon
     = Alarm
-    | ArrowsAlternate
     | AlignJustify
     | ArrowLeft
     | ArrowRight
+    | ArrowsAlternate
     | Camera
     | CaretDown
     | CheckCircleOutline
@@ -63,6 +63,7 @@ type Icon
     | Pencil
     | Plus
     | Print
+    | QuestionCircleOutline
     | Retweet
     | Search
     | Settings
@@ -280,6 +281,9 @@ icon cfg theIcon =
 
                         ArrowsAlternate ->
                             "arrows alternate"
+
+                        QuestionCircleOutline ->
+                            "question circle outline"
               ]
             ]
         )
