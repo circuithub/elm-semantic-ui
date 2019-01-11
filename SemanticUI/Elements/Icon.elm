@@ -41,6 +41,7 @@ type Icon
     | ArrowLeft
     | ArrowRight
     | ArrowsAlternate
+    | Calendar
     | Camera
     | CaretDown
     | CheckCircleOutline
@@ -61,6 +62,7 @@ type Icon
     | Legal
     | PauseCircleOutline
     | Pencil
+    | Play
     | Plus
     | Print
     | QuestionCircleOutline
@@ -71,6 +73,8 @@ type Icon
     | SortDown
     | SortUp
     | Star
+    | Stop
+    | Stopwatch
     | TimesCircleOutline
     | Trash
     | Upload
@@ -284,6 +288,18 @@ icon cfg theIcon =
 
                         QuestionCircleOutline ->
                             "question circle outline"
+
+                        Calendar ->
+                            "calendar"
+
+                        Play ->
+                            "play"
+
+                        Stop ->
+                            "stop"
+
+                        Stopwatch ->
+                            "stopwatch"
               ]
             ]
         )
