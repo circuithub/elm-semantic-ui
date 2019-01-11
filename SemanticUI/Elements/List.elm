@@ -1,18 +1,7 @@
-module SemanticUI.Elements.List
-    exposing
-        ( Config
-        , ListItem
-        , attributes
-        , bulleted
-        , div
-        , divided
-        , horizontal
-        , init
-        , item
-        , relaxed
-        , size
-        , ul
-        )
+module SemanticUI.Elements.List exposing
+    ( ul
+    , Config, attributes, bulleted, div, divided, horizontal, init, relaxed, size
+    )
 
 {-| A list is used to group related content.
 
@@ -35,12 +24,7 @@ list items with `item`.
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import SemanticUI exposing (..)
-
-
-{-| An item in a list.
--}
-type ListItem msg
-    = ListItem (List (Html msg))
+import SemanticUI.Elements.List.Item exposing (ListItem, toHtml)
 
 
 type alias Config msg =
@@ -94,13 +78,6 @@ size a config =
     { config | size = a }
 
 
-{-| Wrap Html as a list item.
--}
-item : List (Html msg) -> ListItem msg
-item =
-    ListItem
-
-
 {-| View a list of items as a `<ul>` element.
 -}
 ul : Config msg -> List (ListItem msg) -> Html msg
@@ -120,6 +97,7 @@ view element cfg items =
         listItemTag =
             if cfg.bulleted then
                 Html.li
+
             else
                 Html.div
     in
@@ -136,4 +114,4 @@ view element cfg items =
               ]
             ]
         )
-        (List.map (\(ListItem i) -> listItemTag [ class "item" ] i) items)
+        (List.map (toHtml listItemTag) items)
