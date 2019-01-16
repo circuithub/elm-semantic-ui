@@ -58,6 +58,7 @@ type Icon
     | Help
     | Hide
     | ImageOutline
+    | Industry
     | Info
     | Legal
     | PauseCircleOutline
@@ -300,6 +301,9 @@ icon cfg theIcon =
 
                         Stopwatch ->
                             "stopwatch"
+
+                        Industry ->
+                            "industry"
               ]
             ]
         )
