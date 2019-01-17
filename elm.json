@@ -1,7 +1,7 @@
 {
     "type": "package",
     "name": "circuithub/elm-semantic-ui",
-    "summary": "helpful summary of your project, less than 80 characters",
+     "summary": "A reasonable type safe interface to creating Semantic UI based applications",
     "license": "BSD-3-Clause",
     "version": "1.0.0",
     "exposed-modules": [
