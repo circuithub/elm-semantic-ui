@@ -1,11 +1,9 @@
 {
+    "type": "package",
+    "name": "circuithub/elm-semantic-ui",
+     "summary": "A reasonable type safe interface to creating Semantic UI based applications",
+    "license": "BSD-3-Clause",
     "version": "1.0.0",
-    "summary": "helpful summary of your project, less than 80 characters",
-    "repository": "https://github.com/user/project.git",
-    "license": "BSD3",
-    "source-directories": [
-        "."
-    ],
     "exposed-modules": [
         "SemanticUI",
         "SemanticUI.Elements.Button",
@@ -25,11 +23,16 @@
         "SemanticUI.Collections.Grid",
         "SemanticUI.Collections.Grid.Column",
         "SemanticUI.Collections.Message",
+        "SemanticUI.Modules.Modal",
+        "SemanticUI.Modules.Checkbox",
         "SemanticUI.Views.Cards.Card"
     ],
+    "elm-version": "0.19.0 <= v < 0.20.0",
     "dependencies": {
-        "elm-lang/core": "5.1.1 <= v < 6.0.0",
-        "elm-lang/html": "2.0.0 <= v < 3.0.0"
+        "elm/core": "1.0.0 <= v < 2.0.0",
+        "elm/html": "1.0.0 <= v < 2.0.0",
+        "elm/json": "1.1.2 <= v < 2.0.0",
+        "elm-community/maybe-extra": "5.0.0 <= v < 6.0.0"
     },
-    "elm-version": "0.18.0 <= v < 0.19.0"
+    "test-dependencies": {}
 }
