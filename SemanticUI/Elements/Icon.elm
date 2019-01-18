@@ -67,6 +67,7 @@ type Icon
     | Plus
     | Print
     | QuestionCircleOutline
+    | Remove
     | Retweet
     | Search
     | Settings
@@ -235,6 +236,9 @@ icon cfg theIcon =
 
                         Settings ->
                             "settings"
+
+                        Remove ->
+                            "remove"
 
                         Retweet ->
                             "retweet"
