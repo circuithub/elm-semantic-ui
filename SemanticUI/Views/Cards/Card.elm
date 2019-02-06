@@ -94,15 +94,14 @@ viewCard el cfg content =
             ]
         )
         (List.concat
-            [ [ div [ class "image" ]
-                    (case content.image of
-                        Nothing ->
-                            []
-
-                        Just url ->
-                            [ img [ src url ] [] ]
-                    )
-              ]
+            [ (case content.image of
+                Nothing ->
+                    []
+                Just url ->
+                    [ div [ class "image" ]
+                          [ img [ src url ] [] ]
+                    ]
+              )
             , case content.content of
                 [] ->
                     []
