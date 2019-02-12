@@ -47,6 +47,7 @@ type Icon
     | CheckCircleOutline
     | ChevronUp
     | CircleOutline
+    | Close
     | DotCircleOutline
     | Download
     | Dropbox
@@ -236,6 +237,9 @@ icon cfg theIcon =
 
                         Settings ->
                             "settings"
+
+                        Close ->
+                            "close"
 
                         Remove ->
                             "remove"
