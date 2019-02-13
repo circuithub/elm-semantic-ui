@@ -5,6 +5,7 @@ module SemanticUI.Collections.Message
         , error
         , header
         , icon
+        , close
         , info
         , init
         , message
@@ -41,54 +42,69 @@ A message can contain an icon.
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import SemanticUI exposing (Color)
 import SemanticUI.Elements.Icon as Icon
 
 
 {-| The configuration for a message.
 -}
-type alias Config =
+type alias Config msg =
     { header : Maybe String
     , icon : Maybe Icon.Icon
     , color : Maybe Color
+    , close : Maybe msg
     }
 
 
 {-| The simplest configuration of a message.
 -}
-init : Config
+init : Config msg
 init =
     { icon = Nothing
     , header = Nothing
     , color = Nothing
+    , close = Nothing
     }
 
 
 {-| Specify the header for a message.
 -}
-header : Maybe String -> Config -> Config
+header : Maybe String -> Config msg -> Config msg
 header a model =
     { model | header = a }
 
 
 {-| Specify the icon for a message.
 -}
-icon : Icon.Icon -> Config -> Config
+icon : Icon.Icon -> Config msg -> Config msg
 icon a model =
     { model | icon = Just a }
 
 
-view : List (Attribute msg) -> Config -> List (Html msg) -> Html msg
+close : msg -> Config msg -> Config msg
+close msg model =
+    { model | close = Just msg }
+
+
+view : List (Attribute msg) -> Config msg -> List (Html msg) -> Html msg
 view extraAttributes cfg contents =
     let
-        contentWithHeader =
+        closeContent =
+            case cfg.close of
+              Nothing ->
+                  []
+              Just msg ->
+                  [ Icon.icon (Icon.init |> Icon.attributes [onClick msg]) Icon.Close
+                  ]
+        headerContent =
             case cfg.header of
                 Nothing ->
-                    contents
+                    []
 
                 Just h ->
-                    div [ class "header" ] [ text h ]
-                        :: contents
+                    [div [ class "header" ] [ text h ]]
+        allContent = headerContent ++ contents
     in
     div
         (List.concat
@@ -106,47 +122,47 @@ view extraAttributes cfg contents =
             , extraAttributes
             ]
         )
-        (case cfg.icon of
+        (closeContent ++ case cfg.icon of
             Nothing ->
-                contentWithHeader
+                allContent
 
             Just a ->
                 [ Icon.icon Icon.init a
-                , div [ class "contents" ] contentWithHeader
+                , div [ class "contents" ] allContent
                 ]
         )
 
 
 {-| View a message with a particular configuration.
 -}
-message : Config -> List (Html msg) -> Html msg
+message : Config msg -> List (Html msg) -> Html msg
 message =
     view []
 
 
 {-| Specify the colour of a message.
 -}
-color : Maybe Color -> Config -> Config
+color : Maybe Color -> Config msg -> Config msg
 color a model =
     { model | color = a }
 
 
 {-| View a message as an error.
 -}
-error : Config -> List (Html msg) -> Html msg
+error : Config msg -> List (Html msg) -> Html msg
 error =
     view [ class "error" ]
 
 
 {-| View a message as a warning.
 -}
-warning : Config -> List (Html msg) -> Html msg
+warning : Config msg -> List (Html msg) -> Html msg
 warning =
     view [ class "warning" ]
 
 
 {-| View a message as information.
 -}
-info : Config -> List (Html msg) -> Html msg
+info : Config msg -> List (Html msg) -> Html msg
 info =
     view [ class "info" ]
