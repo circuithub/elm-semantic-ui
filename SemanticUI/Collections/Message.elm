@@ -1,16 +1,10 @@
-module SemanticUI.Collections.Message
-    exposing
-        ( Config
-        , color
-        , error
-        , header
-        , icon
-        , close
-        , info
-        , init
-        , message
-        , warning
-        )
+module SemanticUI.Collections.Message exposing
+    ( message, error, warning
+    , init, Config
+    , header
+    , icon
+    , attached, close, color, info
+    )
 
 {-| A message displays information that explains nearby content.
 
@@ -43,7 +37,7 @@ A message can contain an icon.
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import SemanticUI exposing (Color)
+import SemanticUI exposing (Attached, Color, attachedClass)
 import SemanticUI.Elements.Icon as Icon
 
 
@@ -54,6 +48,7 @@ type alias Config msg =
     , icon : Maybe Icon.Icon
     , color : Maybe Color
     , close : Maybe msg
+    , attached : Maybe Attached
     }
 
 
@@ -65,7 +60,13 @@ init =
     , header = Nothing
     , color = Nothing
     , close = Nothing
+    , attached = Nothing
     }
+
+
+attached : Maybe Attached -> Config msg -> Config msg
+attached a model =
+    { model | attached = a }
 
 
 {-| Specify the header for a message.
@@ -92,19 +93,23 @@ view extraAttributes cfg contents =
     let
         closeContent =
             case cfg.close of
-              Nothing ->
-                  []
-              Just msg ->
-                  [ Icon.icon (Icon.init |> Icon.attributes [onClick msg]) Icon.Close
-                  ]
+                Nothing ->
+                    []
+
+                Just msg ->
+                    [ Icon.icon (Icon.init |> Icon.attributes [ onClick msg ]) Icon.Close
+                    ]
+
         headerContent =
             case cfg.header of
                 Nothing ->
                     []
 
                 Just h ->
-                    [div [ class "header" ] [ text h ]]
-        allContent = headerContent ++ contents
+                    [ div [ class "header" ] [ text h ] ]
+
+        allContent =
+            headerContent ++ contents
     in
     div
         (List.concat
@@ -113,6 +118,12 @@ view extraAttributes cfg contents =
                     [ ( "icon", cfg.icon /= Nothing )
                     ]
               ]
+            , case cfg.attached of
+                Just a ->
+                    [ attachedClass a ]
+
+                Nothing ->
+                    []
             , case cfg.color of
                 Just a ->
                     [ SemanticUI.colorClass a ]
@@ -122,14 +133,16 @@ view extraAttributes cfg contents =
             , extraAttributes
             ]
         )
-        (closeContent ++ case cfg.icon of
-            Nothing ->
-                allContent
+        (closeContent
+            ++ (case cfg.icon of
+                    Nothing ->
+                        allContent
 
-            Just a ->
-                [ Icon.icon Icon.init a
-                , div [ class "contents" ] allContent
-                ]
+                    Just a ->
+                        [ Icon.icon Icon.init a
+                        , div [ class "contents" ] allContent
+                        ]
+               )
         )
 
 
