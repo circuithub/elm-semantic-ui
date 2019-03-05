@@ -1,4 +1,11 @@
-module SemanticUI.Collections.Grid exposing (..)
+module SemanticUI.Collections.Grid exposing
+    ( Column(..), column
+    , grid
+    , init, Config, attributes
+    , padded
+    , columnsPerRow
+    , divided, doubling, equalWidth, mapColumn, stackable
+    )
 
 {-| A grid is used to harmonize negative space in a layout.
 
@@ -264,3 +271,8 @@ column cfg =
                 , cfg.attributes
                 ]
             )
+
+
+mapColumn : (a -> b) -> Column a -> Column b
+mapColumn f (Column html) =
+    Column (Html.map f html)
