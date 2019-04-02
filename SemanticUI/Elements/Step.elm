@@ -5,6 +5,7 @@ module SemanticUI.Elements.Step
         , StepConfig
         , StepCount(..)
         , step
+        , link
         , steps
         )
 
@@ -116,10 +117,12 @@ steps cfg theSteps =
 
 {-| The configuration of a single step.
 -}
-type alias StepConfig =
+type alias StepConfig msg =
     { icon : Maybe Icon.Icon
     , title : Maybe String
     , completed : Bool
+    , active : Bool
+    , attributes : List (Attribute msg)
     }
 
 
@@ -131,29 +134,36 @@ type Step msg
 
 {-| Construct a single step with a particular configuration.
 -}
-step : StepConfig -> List (Html msg) -> Step msg
-step { icon, title, completed } content =
-    Step <|
-        div
-            [ class "step"
-            , classList [ ( "completed", completed ) ]
-            ]
-            (List.concat
-                [ case icon of
-                    Nothing ->
-                        []
+step : StepConfig msg -> List (Html msg) -> Step msg
+step stepconfig content =
+  viewAs div stepconfig content
 
-                    Just i ->
-                        [ Icon.icon Icon.init i ]
-                , [ div [ class "content" ] <|
-                        case title of
-                            Nothing ->
-                                content
+link : StepConfig msg -> List (Html msg) -> Step msg
+link stepconfig content =
+  viewAs a stepconfig content
 
-                            Just t ->
-                                [ div [ class "title" ] [ text t ]
-                                , div [ class "description" ] content
-                                ]
-                  ]
+viewAs el { icon, title, completed, active, attributes } content =
+  Step <|
+      el
+          ([ class "step"
+          , classList [ ( "completed", completed ), ("active", active) ]
+          ] ++ attributes)
+          (List.concat
+              [ case icon of
+                  Nothing ->
+                      []
+
+                  Just i ->
+                      [ Icon.icon Icon.init i ]
+              , [ div [ class "content" ] <|
+                      case title of
+                          Nothing ->
+                              content
+
+                          Just t ->
+                              [ div [ class "title" ] [ text t ]
+                              , div [ class "description" ] content
+                              ]
                 ]
-            )
+              ]
+          )
