@@ -1,4 +1,4 @@
-module SemanticUI.Modules.Dropdown.Select exposing (Config, State, init, inline, select, selectMaybe)
+module SemanticUI.Modules.Dropdown.Select exposing (Config, State, init, inline, select, selectMaybe, makeSelectToggle)
 
 {-| Refine a dropdown to act as a selection
 
@@ -66,6 +66,7 @@ type alias Config r c s msg =
         , onSelect : s -> msg
         , choices : List c
         , inline : Bool
+        , makeSelectToggle : WrappedNode msg -> Html msg
     }
 
 
@@ -88,10 +89,19 @@ init { identifier, onToggle, onSelect, choices } =
     , onSelect = onSelect
     , choices = choices
     , inline = False
+    , makeSelectToggle = \makeSelect -> makeSelect i [ class "dropdown icon" ] []
     }
 
+{-| Modify a Config's makeSelectToggle value
+-}
+makeSelectToggle :
+    (WrappedNode msg -> Html msg)
+    -> { a | makeSelectToggle : WrappedNode msg -> Html msg }
+    -> { a | makeSelectToggle : WrappedNode msg -> Html msg }
+makeSelectToggle b a =
+    { a | makeSelectToggle = b }
 
-{-| Modify a Configuration's inline value
+{-| Modify a Config's inline value
 -}
 inline : Bool -> { a | inline : Bool } -> { a | inline : Bool }
 inline b a =
@@ -148,7 +158,7 @@ select cfg st renderRoot rootAttrs layoutChoice =
                 (classList [ ( "selection", not cfg.inline ), ( "inline", cfg.inline ) ] :: rootAttrs)
                 [ makeToggle input [ type_ "hidden" ] []
                 , layoutChoice (\r a c -> makeToggle r (classList [ ( "text", cfg.inline ) ] :: a) c) False st.selectedValue
-                , makeToggle i [ class "dropdown icon" ] []
+                , cfg.makeSelectToggle makeToggle
                 , makeDrawer div
                     [ onClick (cfg.onToggle Dropdown.Closing) ]
                     (List.map
@@ -212,6 +222,7 @@ selectMaybe cfg st renderRoot rootAttrs layoutNone layout =
         , onSelect = cfg.onSelect
         , choices = List.map Just cfg.choices
         , inline = cfg.inline
+        , makeSelectToggle = cfg.makeSelectToggle
         }
         st
         renderRoot
