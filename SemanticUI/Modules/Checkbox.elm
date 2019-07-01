@@ -1,4 +1,4 @@
-module SemanticUI.Modules.Checkbox exposing (Config, checkbox, init, label)
+module SemanticUI.Modules.Checkbox exposing (Config, checkbox, disabled, init, label)
 
 import Html exposing (..)
 import Html.Attributes exposing (class, classList, type_)
@@ -9,6 +9,7 @@ import Maybe.Extra as Maybe
 type alias Config msg =
     { onClick : msg
     , label : Maybe String
+    , disabled : Bool
     }
 
 
@@ -16,6 +17,7 @@ init : { onClick : msg } -> Config msg
 init { onClick } =
     { onClick = onClick
     , label = Nothing
+    , disabled = False
     }
 
 
@@ -24,11 +26,19 @@ label lbl config =
     { config | label = Just lbl }
 
 
+disabled : Bool -> Config msg -> Config msg
+disabled a model =
+    { model | disabled = a }
+
+
 checkbox : Config msg -> { r | checked : Bool } -> Html msg
 checkbox cfg { checked } =
     div
         [ class "ui checkbox"
-        , classList [ ( "checked", checked ) ]
+        , classList
+            [ ( "checked", checked )
+            , ( "disabled", cfg.disabled )
+            ]
         , Html.Events.onClick cfg.onClick
         ]
         [ input
