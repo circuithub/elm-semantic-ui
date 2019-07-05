@@ -2,6 +2,7 @@ module SemanticUI.Elements.List.Item exposing
     ( Config
     , ListItem
     , icon
+    , iconConfig
     , init
     , item
     , toHtml
@@ -13,25 +14,33 @@ import SemanticUI.Elements.Icon as Icon
 
 
 type ListItem msg
-    = ListItem Config (List (Html msg))
+    = ListItem (Config msg) (List (Html msg))
 
 
-type alias Config =
+type alias Config msg =
     { icon : Maybe Icon.Icon
+    , iconCfg : Maybe (Icon.Config msg)
     }
 
 
-init : Config
+init : Config msg
 init =
-    { icon = Nothing }
+    { icon = Nothing
+    , iconCfg = Nothing
+    }
 
 
-icon : Maybe Icon.Icon -> Config -> Config
+icon : Maybe Icon.Icon -> Config msg -> Config msg
 icon i cfg =
     { cfg | icon = i }
 
 
-item : Config -> List (Html msg) -> ListItem msg
+iconConfig : Maybe (Icon.Config msg) -> Config msg -> Config msg
+iconConfig iconCfg cfg =
+    { cfg | iconCfg = iconCfg }
+
+
+item : Config msg -> List (Html msg) -> ListItem msg
 item =
     ListItem
 
@@ -45,7 +54,11 @@ toHtml node (ListItem cfg body) =
                 body
 
             Just i ->
-                [ Icon.icon Icon.init i
+                let
+                    iconCfg =
+                        cfg.iconCfg |> Maybe.withDefault Icon.init
+                in
+                [ Icon.icon iconCfg i
                 , div [ class "content" ] body
                 ]
         )
