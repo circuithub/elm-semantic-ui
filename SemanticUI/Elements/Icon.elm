@@ -4,7 +4,7 @@ module SemanticUI.Elements.Icon exposing
     , size
     , Flip(..), flip
     , Rotate(..), rotate
-    , attributes, bordered, circular, link
+    , bordered, circular, link, color, attributes
     )
 
 {-| An icon is a glyph used to represent something else.
@@ -40,11 +40,16 @@ An icon can be rotated
 
 @docs Rotate, rotate
 
+
+## Other properties
+
+@docs bordered, circular, link, color, attributes
+
 -}
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import SemanticUI exposing (Size(..))
+import SemanticUI exposing (Color(..), Size(..), colorClass)
 
 
 {-| The name of the icon. See
@@ -160,6 +165,7 @@ type alias Config msg =
     , rotate : Rotate
     , circular : Bool
     , bordered : Bool
+    , color : Maybe Color
     }
 
 
@@ -208,6 +214,13 @@ bordered x cfg =
     { cfg | bordered = x }
 
 
+{-| Specify whether or not this icon should be colored
+-}
+color : Maybe Color -> Config msg -> Config msg
+color x cfg =
+    { cfg | color = x }
+
+
 {-| The most basic configuration of an icon.
 -}
 init : Config msg
@@ -219,6 +232,7 @@ init =
     , rotate = NoRotation
     , circular = False
     , bordered = False
+    , color = Nothing
     }
 
 
@@ -264,6 +278,7 @@ icon cfg theIcon =
                     , ( "bordered", cfg.bordered )
                     ]
               , sizeClass cfg.size
+              , cfg.color |> Maybe.map colorClass |> Maybe.withDefault (class "")
               , class <|
                     case theIcon of
                         Dropbox ->
