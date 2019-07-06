@@ -47,8 +47,8 @@ An icon can be rotated
 
 -}
 
-import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html exposing (Attribute, Html)
+import Html.Attributes exposing (class, classList)
 import SemanticUI exposing (Color(..), Size(..), colorClass)
 
 
@@ -119,42 +119,6 @@ type Rotate
     | Counterclockwise
 
 
-attributes : List (Attribute msg) -> Config msg -> Config msg
-attributes attrs model =
-    { model | attributes = attrs }
-
-
-{-| Custom sizeClass that doesn't render medium (as the "medium" class is
-Medium.com's icon)
--}
-sizeClass : Size -> Attribute msg
-sizeClass a =
-    case a of
-        Mini ->
-            class "mini"
-
-        Tiny ->
-            class "tiny"
-
-        Small ->
-            class "small"
-
-        Medium ->
-            class ""
-
-        Large ->
-            class "large"
-
-        Big ->
-            class "big"
-
-        Huge ->
-            class "huge"
-
-        Massive ->
-            class "massive"
-
-
 {-| Configuration of an icon.
 -}
 type alias Config msg =
@@ -167,6 +131,22 @@ type alias Config msg =
     , bordered : Bool
     , inverted : Bool
     , color : Maybe Color
+    }
+
+
+{-| The most basic configuration of an icon.
+-}
+init : Config msg
+init =
+    { size = Medium
+    , attributes = []
+    , link = False
+    , flip = NoFlip
+    , rotate = NoRotation
+    , circular = False
+    , bordered = False
+    , inverted = False
+    , color = Nothing
     }
 
 
@@ -229,20 +209,9 @@ color x cfg =
     { cfg | color = x }
 
 
-{-| The most basic configuration of an icon.
--}
-init : Config msg
-init =
-    { size = Medium
-    , attributes = []
-    , link = False
-    , flip = NoFlip
-    , rotate = NoRotation
-    , circular = False
-    , bordered = False
-    , inverted = False
-    , color = Nothing
-    }
+attributes : List (Attribute msg) -> Config msg -> Config msg
+attributes attrs model =
+    { model | attributes = attrs }
 
 
 getFlipClass : Config msg -> ( String, Bool )
@@ -271,11 +240,42 @@ getRotationClass cfg =
             ( "counterclockwise rotated", True )
 
 
+{-| Custom sizeClass that doesn't render medium (as the "medium" class is
+Medium.com's icon)
+-}
+sizeClass : Size -> Attribute msg
+sizeClass a =
+    case a of
+        Mini ->
+            class "mini"
+
+        Tiny ->
+            class "tiny"
+
+        Small ->
+            class "small"
+
+        Medium ->
+            class ""
+
+        Large ->
+            class "large"
+
+        Big ->
+            class "big"
+
+        Huge ->
+            class "huge"
+
+        Massive ->
+            class "massive"
+
+
 {-| View an icon with a particular configuration.
 -}
 icon : Config msg -> Icon -> Html msg
 icon cfg theIcon =
-    i
+    Html.i
         (List.concat
             [ cfg.attributes
             , [ classList
