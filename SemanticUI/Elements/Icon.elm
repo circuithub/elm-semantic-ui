@@ -4,7 +4,7 @@ module SemanticUI.Elements.Icon exposing
     , size
     , Flip(..), flip
     , Rotate(..), rotate
-    , attributes, link
+    , attributes, link, circular
     )
 
 {-| An icon is a glyph used to represent something else.
@@ -158,14 +158,19 @@ type alias Config msg =
     , link : Bool
     , flip : Flip
     , rotate : Rotate
+    , circular : Bool
     }
 
 
+{-| Specify whether an icon should be flipped horizontally or vertically
+-}
 flip : Flip -> Config msg -> Config msg
 flip flip_ cfg =
     { cfg | flip = flip_ }
 
 
+{-| Specify the rotation of an icon.
+-}
 rotate : Rotate -> Config msg -> Config msg
 rotate rotate_ cfg =
     { cfg | rotate = rotate_ }
@@ -185,6 +190,14 @@ link a model =
     { model | link = a }
 
 
+{-| Specify whether or not this icon should be formatted to appear circular
+-}
+circular : Bool -> Config msg -> Config msg
+circular x cfg =
+    { cfg | circular = x}
+
+
+
 {-| The most basic configuration of an icon.
 -}
 init : Config msg
@@ -194,6 +207,7 @@ init =
     , link = False
     , flip = NoFlip
     , rotate = NoRotation
+    , circular = False
     }
 
 
@@ -235,6 +249,7 @@ icon cfg theIcon =
                     , ( "icon", True )
                     , getFlipClass cfg
                     , getRotationClass cfg
+                    , ( "circular", cfg.circular)
                     ]
               , sizeClass cfg.size
               , class <|
