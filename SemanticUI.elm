@@ -25,36 +25,60 @@ import Html.Attributes exposing (..)
 {-| Colours from the standard colour pallette in SemanticUI
 -}
 type Color
-    = Blue
-    | Teal
-    | Yellow
-    | Red
-    | Green
+    = Red
     | Orange
+    | Yellow
+    | Olive
+    | Green
+    | Teal
+    | Blue
+    | Violet
+    | Purple
+    | Pink
+    | Brown
     | Grey
+    | Black
 
 
 colorClass : Color -> Attribute msg
 colorClass color =
     class <|
         case color of
-            Blue ->
-                "blue"
+            Red ->
+                "red"
 
-            Teal ->
-                "teal"
+            Orange ->
+                "orange"
 
             Yellow ->
                 "yellow"
 
-            Red ->
-                "red"
+            Olive ->
+                "olive"
 
             Green ->
                 "green"
 
-            Orange ->
-                "orange"
+            Teal ->
+                "teal"
+
+            Blue ->
+                "blue"
+
+            Purple ->
+                "purple"
+
+            Violet ->
+                "violet"
+
+            Pink ->
+                "pink"
+
+            Brown ->
+                "brown"
+
+            Black ->
+                "black"
 
             Grey ->
                 "grey"
