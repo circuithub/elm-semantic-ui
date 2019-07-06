@@ -4,7 +4,7 @@ module SemanticUI.Elements.Icon exposing
     , size
     , Flip(..), flip
     , Rotate(..), rotate
-    , bordered, circular, link, color, attributes
+    , bordered, circular, link, color, inverted, attributes
     )
 
 {-| An icon is a glyph used to represent something else.
@@ -43,7 +43,7 @@ An icon can be rotated
 
 ## Other properties
 
-@docs bordered, circular, link, color, attributes
+@docs bordered, circular, link, color, inverted, attributes
 
 -}
 
@@ -165,6 +165,7 @@ type alias Config msg =
     , rotate : Rotate
     , circular : Bool
     , bordered : Bool
+    , inverted : Bool
     , color : Maybe Color
     }
 
@@ -214,6 +215,13 @@ bordered x cfg =
     { cfg | bordered = x }
 
 
+{-| Specify whether or not this icon should have its colors inverted.
+-}
+inverted : Bool -> Config msg -> Config msg
+inverted x cfg =
+    { cfg | inverted = x }
+
+
 {-| Specify whether or not this icon should be colored
 -}
 color : Maybe Color -> Config msg -> Config msg
@@ -232,6 +240,7 @@ init =
     , rotate = NoRotation
     , circular = False
     , bordered = False
+    , inverted = False
     , color = Nothing
     }
 
@@ -276,6 +285,7 @@ icon cfg theIcon =
                     , getRotationClass cfg
                     , ( "circular", cfg.circular )
                     , ( "bordered", cfg.bordered )
+                    , ( "inverted", cfg.inverted )
                     ]
               , sizeClass cfg.size
               , cfg.color |> Maybe.map colorClass |> Maybe.withDefault (class "")
