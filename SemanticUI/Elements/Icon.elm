@@ -3,6 +3,7 @@ module SemanticUI.Elements.Icon exposing
     , Config, init
     , size
     , Flip(..), flip
+    , Rotate(..), rotate
     , attributes, link
     )
 
@@ -31,6 +32,13 @@ An icon can vary in size.
 An icon can be flipped horizontally or vertically
 
 @docs Flip, flip
+
+
+## Flip
+
+An icon can be rotated
+
+@docs Rotate, rotate
 
 -}
 
@@ -95,9 +103,15 @@ type Icon
 
 
 type Flip
-    = None
+    = NoFlip
     | Vertically
     | Horizontally
+
+
+type Rotate
+    = NoRotation
+    | Clockwise
+    | Counterclockwise
 
 
 attributes : List (Attribute msg) -> Config msg -> Config msg
@@ -143,12 +157,18 @@ type alias Config msg =
     , attributes : List (Attribute msg)
     , link : Bool
     , flip : Flip
+    , rotate : Rotate
     }
 
 
 flip : Flip -> Config msg -> Config msg
-flip f cfg =
-    { cfg | flip = f }
+flip flip_ cfg =
+    { cfg | flip = flip_ }
+
+
+rotate : Rotate -> Config msg -> Config msg
+rotate rotate_ cfg =
+    { cfg | rotate = rotate_ }
 
 
 {-| Specify the size of an icon.
@@ -172,16 +192,35 @@ init =
     { size = Medium
     , attributes = []
     , link = False
-    , flip = None
+    , flip = NoFlip
+    , rotate = NoRotation
     }
 
 
-getFlipClass : Config msg -> (String, Bool)
+getFlipClass : Config msg -> ( String, Bool )
 getFlipClass cfg =
     case cfg.flip of
-        None -> ("", False)
-        Vertically -> ("vertically flipped", True)
-        Horizontally -> ("horizontally flipped", True)
+        NoFlip ->
+            ( "", False )
+
+        Vertically ->
+            ( "vertically flipped", True )
+
+        Horizontally ->
+            ( "horizontally flipped", True )
+
+
+getRotationClass : Config msg -> ( String, Bool )
+getRotationClass cfg =
+    case cfg.rotate of
+        NoRotation ->
+            ( "", False )
+
+        Clockwise ->
+            ( "clockwise rotated", True )
+
+        Counterclockwise ->
+            ( "counterclockwise rotated", True )
 
 
 {-| View an icon with a particular configuration.
@@ -195,6 +234,7 @@ icon cfg theIcon =
                     [ ( "link", cfg.link )
                     , ( "icon", True )
                     , getFlipClass cfg
+                    , getRotationClass cfg
                     ]
               , sizeClass cfg.size
               , class <|
