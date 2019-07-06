@@ -4,7 +4,7 @@ module SemanticUI.Elements.Icon exposing
     , size
     , Flip(..), flip
     , Rotate(..), rotate
-    , attributes, link, circular
+    , attributes, bordered, circular, link
     )
 
 {-| An icon is a glyph used to represent something else.
@@ -159,6 +159,7 @@ type alias Config msg =
     , flip : Flip
     , rotate : Rotate
     , circular : Bool
+    , bordered : Bool
     }
 
 
@@ -194,8 +195,17 @@ link a model =
 -}
 circular : Bool -> Config msg -> Config msg
 circular x cfg =
-    { cfg | circular = x}
+    { cfg | circular = x }
 
+
+{-| Specify whether or not this icon should be formatted to appear bordered.
+
+> In 0.x.x bordered was formally known as squared
+
+-}
+bordered : Bool -> Config msg -> Config msg
+bordered x cfg =
+    { cfg | bordered = x }
 
 
 {-| The most basic configuration of an icon.
@@ -208,6 +218,7 @@ init =
     , flip = NoFlip
     , rotate = NoRotation
     , circular = False
+    , bordered = False
     }
 
 
@@ -249,7 +260,8 @@ icon cfg theIcon =
                     , ( "icon", True )
                     , getFlipClass cfg
                     , getRotationClass cfg
-                    , ( "circular", cfg.circular)
+                    , ( "circular", cfg.circular )
+                    , ( "bordered", cfg.bordered )
                     ]
               , sizeClass cfg.size
               , class <|
