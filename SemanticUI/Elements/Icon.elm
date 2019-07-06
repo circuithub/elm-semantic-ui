@@ -2,6 +2,7 @@ module SemanticUI.Elements.Icon exposing
     ( Icon(..), icon
     , Config, init
     , size
+    , Flip(..), flip
     , attributes, link
     )
 
@@ -23,6 +24,13 @@ module SemanticUI.Elements.Icon exposing
 An icon can vary in size.
 
 @docs size
+
+
+## Flip
+
+An icon can be flipped horizontally or vertically
+
+@docs Flip, flip
 
 -}
 
@@ -86,6 +94,12 @@ type Icon
     | WarningSign
 
 
+type Flip
+    = None
+    | Vertically
+    | Horizontally
+
+
 attributes : List (Attribute msg) -> Config msg -> Config msg
 attributes attrs model =
     { model | attributes = attrs }
@@ -128,7 +142,13 @@ type alias Config msg =
     { size : Size
     , attributes : List (Attribute msg)
     , link : Bool
+    , flip : Flip
     }
+
+
+flip : Flip -> Config msg -> Config msg
+flip f cfg =
+    { cfg | flip = f }
 
 
 {-| Specify the size of an icon.
@@ -152,7 +172,16 @@ init =
     { size = Medium
     , attributes = []
     , link = False
+    , flip = None
     }
+
+
+getFlipClass : Config msg -> (String, Bool)
+getFlipClass cfg =
+    case cfg.flip of
+        None -> ("", False)
+        Vertically -> ("vertically flipped", True)
+        Horizontally -> ("horizontally flipped", True)
 
 
 {-| View an icon with a particular configuration.
@@ -165,6 +194,7 @@ icon cfg theIcon =
             , [ classList
                     [ ( "link", cfg.link )
                     , ( "icon", True )
+                    , getFlipClass cfg
                     ]
               , sizeClass cfg.size
               , class <|
