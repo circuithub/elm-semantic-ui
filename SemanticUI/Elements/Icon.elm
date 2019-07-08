@@ -2,7 +2,9 @@ module SemanticUI.Elements.Icon exposing
     ( Icon(..), icon
     , Config, init
     , size
-    , attributes, link
+    , Flip(..), flip
+    , Rotate(..), rotate
+    , bordered, circular, link, color, inverted, attributes
     )
 
 {-| An icon is a glyph used to represent something else.
@@ -24,11 +26,30 @@ An icon can vary in size.
 
 @docs size
 
+
+## Flip
+
+An icon can be flipped horizontally or vertically
+
+@docs Flip, flip
+
+
+## Flip
+
+An icon can be rotated
+
+@docs Rotate, rotate
+
+
+## Other properties
+
+@docs bordered, circular, link, color, inverted, attributes
+
 -}
 
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import SemanticUI exposing (Size(..))
+import Html exposing (Attribute, Html)
+import Html.Attributes exposing (class, classList)
+import SemanticUI exposing (Color(..), Size(..), colorClass)
 
 
 {-| The name of the icon. See
@@ -86,9 +107,137 @@ type Icon
     | WarningSign
 
 
+type Flip
+    = NoFlip
+    | Vertically
+    | Horizontally
+
+
+type Rotate
+    = NoRotation
+    | Clockwise
+    | Counterclockwise
+
+
+{-| Configuration of an icon.
+-}
+type alias Config msg =
+    { size : Size
+    , attributes : List (Attribute msg)
+    , link : Bool
+    , flip : Flip
+    , rotate : Rotate
+    , circular : Bool
+    , bordered : Bool
+    , inverted : Bool
+    , color : Maybe Color
+    }
+
+
+{-| The most basic configuration of an icon.
+-}
+init : Config msg
+init =
+    { size = Medium
+    , attributes = []
+    , link = False
+    , flip = NoFlip
+    , rotate = NoRotation
+    , circular = False
+    , bordered = False
+    , inverted = False
+    , color = Nothing
+    }
+
+
+{-| Specify whether an icon should be flipped horizontally or vertically
+-}
+flip : Flip -> Config msg -> Config msg
+flip flip_ cfg =
+    { cfg | flip = flip_ }
+
+
+{-| Specify the rotation of an icon.
+-}
+rotate : Rotate -> Config msg -> Config msg
+rotate rotate_ cfg =
+    { cfg | rotate = rotate_ }
+
+
+{-| Specify the size of an icon.
+-}
+size : Size -> Config msg -> Config msg
+size a model =
+    { model | size = a }
+
+
+{-| Specify whether or not this is a link icon.
+-}
+link : Bool -> Config msg -> Config msg
+link a model =
+    { model | link = a }
+
+
+{-| Specify whether or not this icon should be formatted to appear circular
+-}
+circular : Bool -> Config msg -> Config msg
+circular x cfg =
+    { cfg | circular = x }
+
+
+{-| Specify whether or not this icon should be formatted to appear bordered.
+
+> In 0.x.x bordered was formally known as squared
+
+-}
+bordered : Bool -> Config msg -> Config msg
+bordered x cfg =
+    { cfg | bordered = x }
+
+
+{-| Specify whether or not this icon should have its colors inverted.
+-}
+inverted : Bool -> Config msg -> Config msg
+inverted x cfg =
+    { cfg | inverted = x }
+
+
+{-| Specify whether or not this icon should be colored
+-}
+color : Maybe Color -> Config msg -> Config msg
+color x cfg =
+    { cfg | color = x }
+
+
 attributes : List (Attribute msg) -> Config msg -> Config msg
 attributes attrs model =
     { model | attributes = attrs }
+
+
+getFlipClass : Config msg -> ( String, Bool )
+getFlipClass cfg =
+    case cfg.flip of
+        NoFlip ->
+            ( "", False )
+
+        Vertically ->
+            ( "vertically flipped", True )
+
+        Horizontally ->
+            ( "horizontally flipped", True )
+
+
+getRotationClass : Config msg -> ( String, Bool )
+getRotationClass cfg =
+    case cfg.rotate of
+        NoRotation ->
+            ( "", False )
+
+        Clockwise ->
+            ( "clockwise rotated", True )
+
+        Counterclockwise ->
+            ( "counterclockwise rotated", True )
 
 
 {-| Custom sizeClass that doesn't render medium (as the "medium" class is
@@ -122,51 +271,24 @@ sizeClass a =
             class "massive"
 
 
-{-| Configuration of an icon.
--}
-type alias Config msg =
-    { size : Size
-    , attributes : List (Attribute msg)
-    , link : Bool
-    }
-
-
-{-| Specify the size of an icon.
--}
-size : Size -> Config msg -> Config msg
-size a model =
-    { model | size = a }
-
-
-{-| Specify whether or not this is a link icon.
--}
-link : Bool -> Config msg -> Config msg
-link a model =
-    { model | link = a }
-
-
-{-| The most basic configuration of an icon.
--}
-init : Config msg
-init =
-    { size = Medium
-    , attributes = []
-    , link = False
-    }
-
-
 {-| View an icon with a particular configuration.
 -}
 icon : Config msg -> Icon -> Html msg
 icon cfg theIcon =
-    i
+    Html.i
         (List.concat
             [ cfg.attributes
             , [ classList
                     [ ( "link", cfg.link )
                     , ( "icon", True )
+                    , getFlipClass cfg
+                    , getRotationClass cfg
+                    , ( "circular", cfg.circular )
+                    , ( "bordered", cfg.bordered )
+                    , ( "inverted", cfg.inverted )
                     ]
               , sizeClass cfg.size
+              , cfg.color |> Maybe.map colorClass |> Maybe.withDefault (class "")
               , class <|
                     case theIcon of
                         Dropbox ->
