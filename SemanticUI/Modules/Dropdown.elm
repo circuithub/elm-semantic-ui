@@ -1,7 +1,7 @@
 module SemanticUI.Modules.Dropdown exposing
     ( Config
-    , Layout
     , State(..)
+    , Layout
     , ToggleEvent(..)
     , drawer
     , dropdown
@@ -121,11 +121,11 @@ As an example a big dropdown menu using primitives:
 -}
 
 import Dropdown
-import SemanticUI.Modules.Common exposing (Render, WrappedNode)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Decode
+import SemanticUI.Modules.Common exposing (Render, WrappedNode)
 
 
 {-| Layout function for a drop down.
@@ -205,7 +205,7 @@ readOnly v c =
     { c | readOnly = v }
 
 
-{-| The current state the dropdown is in
+{-| The current state of the dropdown drawer
 -}
 type State
     = Closed
@@ -253,15 +253,15 @@ Amongst other things it adds the "ui dropdown" class to the root node.
 root : Config r msg -> State -> Render msg -> List (Attribute msg) -> List (Html msg) -> Html msg
 root cfg state render attrs children =
     let
-        ctx =
-            toContext cfg state
+        isVisible =
+            drawerIsVisible state
 
         attrs_ =
             classList
                 [ ( "ui", True )
                 , ( "dropdown", True )
-                , ( "active", ctx.drawerIsVisible )
-                , ( "visible", ctx.drawerIsVisible )
+                , ( "active", isVisible )
+                , ( "visible", isVisible )
                 , ( "disabled", cfg.readOnly )
                 ]
                 :: style "position" "relative"
@@ -283,8 +283,8 @@ root cfg state render attrs children =
                 :: children
             )
         )
-        ctx.drawerIsOpen
-        ctx.dropdownCfg
+        (drawerIsOpen state)
+        (toDropdownConfig cfg)
 
 
 {-| Create an element for the toggle area that will toggle the drawer on toggle event.
@@ -300,15 +300,11 @@ It takes the following:
 -}
 toggle : Config r msg -> State -> Render msg -> List (Attribute msg) -> List (Html msg) -> Html msg
 toggle cfg state render attrs children =
-    let
-        ctx =
-            toContext cfg state
-    in
     if cfg.readOnly then
         render attrs children
 
     else
-        Dropdown.toggle render attrs children ctx.drawerIsOpen ctx.dropdownCfg
+        Dropdown.toggle render attrs children (drawerIsOpen state) (toDropdownConfig cfg state)
 
 
 {-| Create the drawer element which is displayed when the dropdown is expanded/toggled.
@@ -327,8 +323,22 @@ It adds the "menu" class to the node.
 drawer : Config r msg -> State -> Render msg -> List (Attribute msg) -> List (Html msg) -> Html msg
 drawer cfg state render attrs children =
     let
-        ctx =
-            toContext cfg state
+        isTransitioning =
+            drawerIsTransitioning state
+
+        isVisible =
+            drawerIsVisible state
+
+        finalState =
+            case state of
+                Opening ->
+                    Opened
+
+                Closing ->
+                    Closed
+
+                _ ->
+                    state
     in
     if cfg.readOnly then
         render
@@ -344,17 +354,17 @@ drawer cfg state render attrs children =
             ((classList
                 [ ( "menu", True )
                 , ( "active", True )
-                , ( "visible", ctx.drawerIsVisible )
-                , ( "hiden", not ctx.drawerIsVisible )
-                , ( "animating", ctx.drawerIsTransitioning )
+                , ( "visible", isVisible )
+                , ( "hiden", not isVisible )
+                , ( "animating", isTransitioning )
                 , ( "transition", True )
-                , ( "slide", ctx.drawerIsTransitioning )
-                , ( "down", ctx.drawerIsTransitioning )
+                , ( "slide", isTransitioning )
+                , ( "down", isTransitioning )
                 , ( "in", state == Opening )
                 , ( "out", state == Closing )
                 ]
-                :: (if ctx.drawerIsTransitioning then
-                        [ on "animationend" (Decode.succeed (cfg.onToggle <| ctx.drawerToggledFinal)) ]
+                :: (if isTransitioning then
+                        [ on "animationend" (Decode.succeed (cfg.onToggle finalState)) ]
 
                     else
                         []
@@ -363,8 +373,8 @@ drawer cfg state render attrs children =
                 ++ attrs
             )
             children
-            ctx.drawerIsOpen
-            ctx.dropdownCfg
+            (drawerIsOpen state)
+            (toDropdownConfig cfg state)
 
 
 {-| Create an item that goes in the drawer.
@@ -385,72 +395,48 @@ item render attrs children =
     render (class "item" :: attrs) children
 
 
-type alias Context msg =
-    { drawerIsOpen : Bool
-    , drawerIsTransitioning : Bool
-    , drawerIsVisible : Bool
-    , drawerToggledFinal : State
-    , dropdownCfg : Dropdown.Config msg
-    }
+drawerIsOpen : State -> Bool
+drawerIsOpen state =
+    state == Opening || state == Opened
 
 
-toContext : Config r msg -> State -> Context msg
-toContext cfg state =
-    let
-        drawerIsOpen =
-            state == Opening || state == Opened
+drawerIsTransitioning : State -> Bool
+drawerIsTransitioning state =
+    state == Opening || state == Closing
 
-        drawerIsTransitioning =
-            state == Opening || state == Closing
 
-        drawerIsVisible =
-            drawerIsOpen || drawerIsTransitioning
+drawerIsVisible : State -> Bool
+drawerIsVisible state =
+    state /= Closed
 
-        drawerToggledFinal =
-            if drawerIsTransitioning then
-                if state == Opening then
-                    Opened
 
-                else
-                    Closed
+toDropdownConfig : Config config msg -> State -> Dropdown.Config msg
+toDropdownConfig cfg state =
+    { identifier = cfg.identifier
+    , toggleEvent =
+        case cfg.toggleEvent of
+            OnClick ->
+                Dropdown.OnClick
 
-            else
-                state
+            OnHover ->
+                Dropdown.OnHover
 
-        dropdownCfg =
-            { identifier = cfg.identifier
-            , toggleEvent =
-                case cfg.toggleEvent of
-                    OnClick ->
-                        Dropdown.OnClick
+            OnFocus ->
+                Dropdown.OnFocus
+    , drawerVisibleAttribute = classList []
+    , callback =
+        \toggleOpen ->
+            let
+                newState =
+                    case ( toggleOpen, drawerIsOpen state ) of
+                        ( True, False ) ->
+                            Opening
 
-                    OnHover ->
-                        Dropdown.OnHover
+                        ( False, True ) ->
+                            Closing
 
-                    OnFocus ->
-                        Dropdown.OnFocus
-            , drawerVisibleAttribute = classList []
-            , callback =
-                cfg.onToggle
-                    << (\b ->
-                            if b then
-                                if drawerIsOpen then
-                                    state
-
-                                else
-                                    Opening
-
-                            else if not drawerIsOpen then
-                                state
-
-                            else
-                                Closing
-                       )
-            }
-    in
-    { dropdownCfg = dropdownCfg
-    , drawerIsOpen = drawerIsOpen
-    , drawerToggledFinal = drawerToggledFinal
-    , drawerIsVisible = drawerIsVisible
-    , drawerIsTransitioning = drawerIsTransitioning
+                        _ ->
+                            state
+            in
+            cfg.onToggle newState
     }
