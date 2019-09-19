@@ -70,7 +70,7 @@ Example of inline select :
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import SemanticUI.Modules.Common exposing (HtmlRenderer)
+import SemanticUI.Modules.Common exposing (HtmlBuilder)
 import SemanticUI.Modules.Dropdown as Dropdown exposing (dropdown)
 
 
@@ -95,7 +95,7 @@ type alias Config option selection msg =
     , onSelect : selection -> msg
     , options : List option
     , inline : Bool
-    , makeSelectToggle : (HtmlRenderer msg -> HtmlRenderer msg) -> Html msg
+    , makeSelectToggle : (HtmlBuilder msg -> HtmlBuilder msg) -> Html msg
     }
 
 
@@ -125,9 +125,9 @@ init { identifier, onToggle, onSelect, options } =
 {-| Modify a Config's makeSelectToggle value
 -}
 makeSelectToggle :
-    ((HtmlRenderer msg -> HtmlRenderer msg) -> Html msg)
-    -> { config | makeSelectToggle : (HtmlRenderer msg -> HtmlRenderer msg) -> Html msg }
-    -> { config | makeSelectToggle : (HtmlRenderer msg -> HtmlRenderer msg) -> Html msg }
+    ((HtmlBuilder msg -> HtmlBuilder msg) -> Html msg)
+    -> { config | makeSelectToggle : (HtmlBuilder msg -> HtmlBuilder msg) -> Html msg }
+    -> { config | makeSelectToggle : (HtmlBuilder msg -> HtmlBuilder msg) -> Html msg }
 makeSelectToggle a config =
     { config | makeSelectToggle = a }
 
@@ -158,7 +158,7 @@ The final resultant value is what you decide (some kind of DOM)
 
 -}
 type alias OptionBuilder msg option =
-    { toOption : HtmlRenderer msg -> HtmlRenderer msg
+    { toOption : HtmlBuilder msg -> HtmlBuilder msg
     , isSelectionLabel : Bool
     , value : option
     }
@@ -189,7 +189,7 @@ as part of the list.
 select :
     Config option option msg
     -> { state | dropdownState : Dropdown.State, selectedValue : option }
-    -> HtmlRenderer msg
+    -> HtmlBuilder msg
     -> List (Attribute msg)
     -> (OptionBuilder msg option -> Html msg)
     -> Html msg
@@ -261,9 +261,9 @@ The option layout function returns a DOM node and takes:
 selectMaybe :
     Config option (Maybe option) msg
     -> { state | dropdownState : Dropdown.State, selectedValue : Maybe option }
-    -> HtmlRenderer msg
+    -> HtmlBuilder msg
     -> List (Attribute msg)
-    -> ({ toEmptyOption : HtmlRenderer msg -> HtmlRenderer msg } -> Html msg)
+    -> ({ toEmptyOption : HtmlBuilder msg -> HtmlBuilder msg } -> Html msg)
     -> (OptionBuilder msg option -> Html msg)
     -> Html msg
 selectMaybe cfg state rootElement rootAttrs layoutEmptySelect layoutOption =

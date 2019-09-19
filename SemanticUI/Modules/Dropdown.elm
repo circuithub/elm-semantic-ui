@@ -125,7 +125,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Decode
-import SemanticUI.Modules.Common exposing (HtmlRenderer)
+import SemanticUI.Modules.Common exposing (HtmlBuilder)
 
 
 {-| Everything needed to build a particular dropdown.
@@ -141,10 +141,10 @@ The final resultant value is what you decide (some kind of DOM)
 
 -}
 type alias DropdownBuilder msg =
-    { toDropdown : HtmlRenderer msg -> HtmlRenderer msg
-    , toToggle : HtmlRenderer msg -> HtmlRenderer msg
-    , toDrawer : HtmlRenderer msg -> HtmlRenderer msg
-    , toItem : HtmlRenderer msg -> HtmlRenderer msg
+    { toDropdown : HtmlBuilder msg -> HtmlBuilder msg
+    , toToggle : HtmlBuilder msg -> HtmlBuilder msg
+    , toDrawer : HtmlBuilder msg -> HtmlBuilder msg
+    , toItem : HtmlBuilder msg -> HtmlBuilder msg
     }
 
 
@@ -248,7 +248,7 @@ It takes the following:
 Amongst other things it adds the "ui dropdown" class to the root node.
 
 -}
-root : Config msg -> State -> HtmlRenderer msg -> HtmlRenderer msg
+root : Config msg -> State -> HtmlBuilder msg -> HtmlBuilder msg
 root cfg state element attrs children =
     let
         isVisible =
@@ -294,7 +294,7 @@ It takes the following:
   - Children of node
 
 -}
-toggle : Config msg -> State -> HtmlRenderer msg -> HtmlRenderer msg
+toggle : Config msg -> State -> HtmlBuilder msg -> HtmlBuilder msg
 toggle cfg state element attrs children =
     if cfg.readOnly then
         element attrs children
@@ -316,7 +316,7 @@ It takes the following:
 It adds the "menu" class to the node.
 
 -}
-drawer : Config msg -> State -> HtmlRenderer msg -> HtmlRenderer msg
+drawer : Config msg -> State -> HtmlBuilder msg -> HtmlBuilder msg
 drawer cfg state element attrs children =
     let
         isTransitioning =
@@ -386,7 +386,7 @@ It takes the following:
 It adds the "item" class to the node.
 
 -}
-item : HtmlRenderer msg -> HtmlRenderer msg
+item : HtmlBuilder msg -> HtmlBuilder msg
 item element attrs children =
     element (class "item" :: attrs) children
 
