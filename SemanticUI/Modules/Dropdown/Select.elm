@@ -1,47 +1,77 @@
-module SemanticUI.Modules.Dropdown.Select exposing (Config, State, init, inline, select, selectMaybe, makeSelectToggle)
+module SemanticUI.Modules.Dropdown.Select exposing (Config, State, init, inline, makeSelectToggle, select, selectMaybe)
 
 {-| Refine a dropdown to act as a selection
 
 Example of `select` :
 
     Select.select
-        (Select.init { identifier = "select1", onToggle = ToggleSelect1, onSelect = SetSelect1, choices =  [ Yes, No ]})
-        { dropdownState = model.select1, selectedValue = model.select1Selection }
+        (Select.init
+            { identifier = "select1"
+            , onToggle = ToggleSelect1
+            , onSelect = SetSelect1
+            , options = [ Yes, No ]
+            }
+        )
+        { dropdownState = model.select
+        , selectedValue = model.select1Selection
+        }
         div
         []
-        (\makeSelect _ a -> makeSelect div [ class "text" ] [ text (toString a) ])
+        (\{ toOption, value } ->
+            toOption div [ class "text" ] [ text (toString value) ]
+        )
 
 Example of `selectMaybe` :
 
     Select.selectMaybe
-        (Select.init { identifier = "select2", onToggle = ToggleSelect2, onSelect = SetSelect2, choices =  [ Yes, No ]})
-        { dropdownState = model.select2, selectedValue = model.select2Selection }
+        (Select.init
+            { identifier = "select2"
+            , onToggle = ToggleSelect2
+            , onSelect = SetSelect2
+            , options = [ Yes, No ]
+            }
+        )
+        { dropdownState = model.select2
+        , selectedValue = model.select2Selection
+        }
         div
         []
-        (\makeNoSelect -> makeNoSelect div [ class "text default" ] [ text "None Selected" ])
-        (\makeSelect _ a -> makeSelect div [ class "text" ] [ text (toString a) ])
+        (\{ toEmptyOption } ->
+            toEmptyOption div [ class "text default" ] [ text "None Selected" ]
+        )
+        (\{ toOption, value } ->
+            toOption div [ class "text" ] [ text (toString value) ]
+        )
 
 Example of inline select :
 
     Select.select
-        (Select.init { identifier = "inline1", onToggle =  ToggleInline1, onSelect = SelectInline1, choices = [ "today", "this week", "this month" ]} |> Select.inline True)
-        model.inline1
-        model.inline1Selection
+        (Select.init
+            { identifier = "inline1"
+            , onToggle = ToggleInline1
+            , onSelect = SelectInline1
+            , options = [ "today", "this week", "this month" ]
+            }
+            |> Select.inline True
+        )
+        { dropdownState = model.select
+        , selectedValue = model.select1Selection
+        }
         div
         []
-        (\makeChoice isList c ->
-            makeChoice div
-                [ classList [ ( "active", isList && model.inline1Selection == c ) ] ]
-                [ text c ]
+        (\{ toOption, isSelectionLabel, value } ->
+            toOption div
+                [ classList [ ( "active", not isSelectionLabel && model.inline1Selection == value ) ] ]
+                [ text value ]
         )
 
 -}
 
-import SemanticUI.Modules.Common exposing (Render, WrappedNode)
-import SemanticUI.Modules.Dropdown as Dropdown exposing (dropdown)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import SemanticUI.Modules.Common exposing (HtmlRenderer)
+import SemanticUI.Modules.Dropdown as Dropdown exposing (dropdown)
 
 
 {-| Configuration for a select
@@ -50,54 +80,55 @@ import Html.Events exposing (..)
   - onToggle - message to handle dropdown state changes
   - toggleEvent - what casuse dropdown state change (default OnClick)
   - readOnly - is the selection read only or not
-  - onSelect - messages to handle selection change (when clicking on choice)
-  - choices - the list of possible choices
+  - onSelect - messages to handle selection change (when clicking on option)
+  - options - the list of possible options
   - inline - should the selection be inline or not
     (dropdown does not have "selection" class but "inline" and
     "text" class is added to the unexpanded item)
 
 -}
-type alias Config r c s msg =
+type alias Config r option selection msg =
     { r
         | identifier : String
         , onToggle : Dropdown.State -> msg
         , toggleEvent : Dropdown.ToggleEvent
         , readOnly : Bool
-        , onSelect : s -> msg
-        , choices : List c
+        , onSelect : selection -> msg
+        , options : List option
         , inline : Bool
-        , makeSelectToggle : WrappedNode msg -> Html msg
+        , makeSelectToggle : (HtmlRenderer msg -> HtmlRenderer msg) -> Html msg
     }
 
 
 {-| Create a default Config given, unique identifier, dropdown state change handler
-selection handler and list of choices
+selection handler and list of options
 -}
 init :
     { r
         | identifier : String
         , onToggle : Dropdown.State -> msg
-        , onSelect : s -> msg
-        , choices : List c
+        , onSelect : selection -> msg
+        , options : List option
     }
-    -> Config {} c s msg
-init { identifier, onToggle, onSelect, choices } =
+    -> Config {} option selection msg
+init { identifier, onToggle, onSelect, options } =
     { identifier = identifier
     , onToggle = onToggle
     , toggleEvent = Dropdown.OnClick
     , readOnly = False
     , onSelect = onSelect
-    , choices = choices
+    , options = options
     , inline = False
-    , makeSelectToggle = \makeSelect -> makeSelect i [ class "dropdown icon" ] []
+    , makeSelectToggle = \toToggle -> toToggle i [ class "dropdown icon" ] []
     }
+
 
 {-| Modify a Config's makeSelectToggle value
 -}
 makeSelectToggle :
-    (WrappedNode msg -> Html msg)
-    -> { a | makeSelectToggle : WrappedNode msg -> Html msg }
-    -> { a | makeSelectToggle : WrappedNode msg -> Html msg }
+    ((HtmlRenderer msg -> HtmlRenderer msg) -> Html msg)
+    -> { a | makeSelectToggle : (HtmlRenderer msg -> HtmlRenderer msg) -> Html msg }
+    -> { a | makeSelectToggle : (HtmlRenderer msg -> HtmlRenderer msg) -> Html msg }
 makeSelectToggle b a =
     { a | makeSelectToggle = b }
 
@@ -115,6 +146,13 @@ type alias State r a =
     }
 
 
+type alias OptionBuilder msg option =
+    { toOption : HtmlRenderer msg -> HtmlRenderer msg
+    , isSelectionLabel : Bool
+    , value : option
+    }
+
+
 {-| Draw the select.
 
 Takes the following:
@@ -122,30 +160,29 @@ Takes the following:
   - Configuration,
   - the current dropdown state,
   - the currently selected value,
-  - the type of top level DOM node as a render function,
+  - A renderer for the top level HTML container, typically passed in as a simple HTML element constructor e.g. `Html.div`
   - any extra attributes applied to the top level DOM node and
-  - the choice layout function
+  - the option layout function
 
-The choice layout function returns a DOM node and takes:
+The layoutOption function is provided with
 
-  - A wrapped node (give it a node render function attributes and children).
-  - A bool that is true choice being rendered is part of the list and false if
-    its the selected choice.
-  - The choice value.
+  - `toOption` - A builder for the individual options
+  - `isSelectionLabel` - A bool that is `True` if the option item is part of the root dropdown control or `False` if it is in the list of options.
+  - `value` - The option value.
 
 When not inline then "selection" class is added to the top level node otherwise
-"inline" calsss is added and "text" class is added when the choice is not rendered
+"inline" class is added and "text" class is added when the option is not rendered
 as part of the list.
 
 -}
 select :
-    Config r0 a a msg
-    -> State r1 a
-    -> Render msg
+    Config r0 option option msg
+    -> State r1 option
+    -> HtmlRenderer msg
     -> List (Attribute msg)
-    -> (WrappedNode msg -> Bool -> a -> Html msg)
+    -> (OptionBuilder msg option -> Html msg)
     -> Html msg
-select cfg st renderRoot rootAttrs layoutChoice =
+select cfg st rootElement rootAttrs layoutOption =
     dropdown
         { identifier = cfg.identifier
         , onToggle = cfg.onToggle
@@ -153,19 +190,35 @@ select cfg st renderRoot rootAttrs layoutChoice =
         , readOnly = cfg.readOnly
         }
         st.dropdownState
-        (\{ makeDropdown, makeToggle, makeDrawer, makeItem } ->
-            makeDropdown renderRoot
+        (\{ toDropdown, toToggle, toDrawer, toItem } ->
+            toDropdown rootElement
                 (classList [ ( "selection", not cfg.inline ), ( "inline", cfg.inline ) ] :: rootAttrs)
-                [ makeToggle input [ type_ "hidden" ] []
-                , layoutChoice (\r a c -> makeToggle r (classList [ ( "text", cfg.inline ) ] :: a) c) False st.selectedValue
-                , cfg.makeSelectToggle makeToggle
-                , makeDrawer div
+                [ toToggle input [ type_ "hidden" ] []
+                , layoutOption
+                    { toOption =
+                        \optionElement optionAttrs optionChildren ->
+                            toToggle optionElement
+                                (classList [ ( "text", cfg.inline ) ] :: optionAttrs)
+                                optionChildren
+                    , isSelectionLabel = True
+                    , value = st.selectedValue
+                    }
+                , cfg.makeSelectToggle toToggle
+                , toDrawer div
                     [ onClick (cfg.onToggle Dropdown.Closing) ]
                     (List.map
-                        (\k ->
-                            layoutChoice (makeItem << (\r a c -> r (onClick (cfg.onSelect k) :: a) c)) True k
+                        (\option ->
+                            layoutOption
+                                { toOption =
+                                    \optionElement optionAttrs optionChildren ->
+                                        toItem optionElement
+                                            (onClick (cfg.onSelect option) :: optionAttrs)
+                                            optionChildren
+                                , isSelectionLabel = False
+                                , value = option
+                                }
                         )
-                        cfg.choices
+                        cfg.options
                     )
                 ]
         )
@@ -181,50 +234,46 @@ Takes the following:
   - the type of top level DOM node as a render function,
   - any extra attributes applied to the top level DOM node,
   - the layout function when there is no selection and
-  - the choice layout function
+  - the option layout function
 
 The no selection layout function returns a DOM node and takes:
 
-  - A wrapped node (give it a node render function attributes and children).
+  - `toEmptyOption` - A builder for the empty selection label
 
-The choice layout function returns a DOM node and takes:
+The option layout function returns a DOM node and takes:
 
-  - A wrapped node (give it a node render function attributes and children).
-  - A bool that is true choice being rendered is part of the list and false if
-    its the selected choice.
-  - The choice value.
+  - `toOption` - A builder for the individual options
+  - `isSelectionLabel` - A bool that is `True` if the option item is part of the root dropdown control or `False` if it is in the list of options
+  - `value` - The option value
 
 -}
 selectMaybe :
-    Config r0 a (Maybe a) msg
-    -> State r1 (Maybe a)
-    -> Render msg
+    Config r0 option (Maybe option) msg
+    -> State r1 (Maybe option)
+    -> HtmlRenderer msg
     -> List (Attribute msg)
-    -> (WrappedNode msg -> Html msg)
-    -> (WrappedNode msg -> Bool -> a -> Html msg)
+    -> ({ toEmptyOption : HtmlRenderer msg -> HtmlRenderer msg } -> Html msg)
+    -> (OptionBuilder msg option -> Html msg)
     -> Html msg
-selectMaybe cfg st renderRoot rootAttrs layoutNone layout =
-    let
-        renderChoice_ =
-            \w b ma ->
-                case ma of
-                    Nothing ->
-                        layoutNone w
-
-                    Just a ->
-                        layout w b a
-    in
+selectMaybe cfg state rootElement rootAttrs layoutEmptySelect layoutOption =
     select
         { identifier = cfg.identifier
         , onToggle = cfg.onToggle
         , toggleEvent = cfg.toggleEvent
         , readOnly = cfg.readOnly
         , onSelect = cfg.onSelect
-        , choices = List.map Just cfg.choices
+        , options = List.map Just cfg.options
         , inline = cfg.inline
         , makeSelectToggle = cfg.makeSelectToggle
         }
-        st
-        renderRoot
+        state
+        rootElement
         rootAttrs
-        renderChoice_
+        (\{ toOption, isSelectionLabel, value } ->
+            case value of
+                Nothing ->
+                    layoutEmptySelect { toEmptyOption = toOption }
+
+                Just val ->
+                    layoutOption { toOption = toOption, isSelectionLabel = isSelectionLabel, value = val }
+        )

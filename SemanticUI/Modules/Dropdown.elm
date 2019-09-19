@@ -1,7 +1,7 @@
 module SemanticUI.Modules.Dropdown exposing
     ( Config
+    , DropdownBuilder
     , State(..)
-    , Layout
     , ToggleEvent(..)
     , drawer
     , dropdown
@@ -20,40 +20,40 @@ As an example a big dropdown menu using layout:
     dropdown
         (Dropdown.init { identifier = "file", onToggle = ToggleFile })
         model.file
-        (\({ makeDropdown, makeToggle, makeDrawer, makeItem } as outer) ->
-            makeDropdown div
+        (\({ toDropdown, toToggle, toDrawer, toItem } as outer) ->
+            toDropdown div
                 []
-                [ makeToggle div [ class "text" ] [ text "File" ]
-                , makeToggle i [ class "dropdown icon" ] []
-                , makeDrawer div
+                [ toToggle div [ class "text" ] [ text "File" ]
+                , toToggle i [ class "dropdown icon" ] []
+                , toDrawer div
                     []
-                    [ makeItem div [] [ text "New" ]
-                    , makeItem div [] [ span [ class "description" ] [ text "ctrl + o" ], text "Open..." ]
-                    , makeItem div [] [ span [ class "description" ] [ text "ctrl + s" ], text "Save as..." ]
-                    , makeItem div [] [ span [ class "description" ] [ text "ctrl + r" ], text "Rename" ]
-                    , makeItem div [] [ text "Make a copy" ]
-                    , makeItem div [] [ i [ class "folder icon" ] [], text "Move to folder" ]
-                    , makeItem div [] [ i [ class "trash icon" ] [], text "Move to trash" ]
+                    [ toItem div [] [ text "New" ]
+                    , toItem div [] [ span [ class "description" ] [ text "ctrl + o" ], text "Open..." ]
+                    , toItem div [] [ span [ class "description" ] [ text "ctrl + s" ], text "Save as..." ]
+                    , toItem div [] [ span [ class "description" ] [ text "ctrl + r" ], text "Rename" ]
+                    , toItem div [] [ text "Make a copy" ]
+                    , toItem div [] [ i [ class "folder icon" ] [], text "Move to folder" ]
+                    , toItem div [] [ i [ class "trash icon" ] [], text "Move to trash" ]
                     , div [ class "divider" ] []
-                    , makeItem div [] [ text "Download As.." ]
+                    , toItem div [] [ text "Download As.." ]
                     , dropdown
                         (Dropdown.init { identifier = "fileSub", onToggle = ToggleFileSub }
                             |> Dropdown.toggleEvent Dropdown.OnHover
                         )
                         model.fileSub
-                        (\{ makeDropdown, makeToggle, makeDrawer, makeItem } ->
-                            makeDropdown (outer.makeItem div)
+                        (\{ toDropdown, toToggle, toDrawer, toItem } ->
+                            toDropdown (outer.toItem div)
                                 []
-                                [ makeToggle div [] [ i [ class "dropdown icon" ] [], text "Publish to Web" ]
-                                , makeDrawer div
+                                [ toToggle div [] [ i [ class "dropdown icon" ] [], text "Publish to Web" ]
+                                , toDrawer div
                                     []
-                                    [ makeItem div [] [ text "Google Docs" ]
-                                    , makeItem div [] [ text "Google Drive" ]
-                                    , makeItem div [] [ text "Google Drive" ]
-                                    , makeItem div [] [ text "Dropbox" ]
-                                    , makeItem div [] [ text "Adobe Creative Cloud" ]
-                                    , makeItem div [] [ text "Private FTP" ]
-                                    , makeItem div [] [ text "Another Service..." ]
+                                    [ toItem div [] [ text "Google Docs" ]
+                                    , toItem div [] [ text "Google Drive" ]
+                                    , toItem div [] [ text "Google Drive" ]
+                                    , toItem div [] [ text "Dropbox" ]
+                                    , toItem div [] [ text "Adobe Creative Cloud" ]
+                                    , toItem div [] [ text "Private FTP" ]
+                                    , toItem div [] [ text "Another Service..." ]
                                     ]
                                 ]
                         )
@@ -125,28 +125,27 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Decode
-import SemanticUI.Modules.Common exposing (Render, WrappedNode)
+import SemanticUI.Modules.Common exposing (HtmlRenderer)
 
 
-{-| Layout function for a drop down.
+{-| Partially applied dropdown builder.
 
 A function that takes a record with the following functions
 
-  - makeDropdown - the function `root` with `Config` and `State` applied to it.
-  - makeToggle - the function `toggle` with `Config` and `State` applied to it.
-  - makeDrawer - the function `drawer` with `Config` and `State` applied to it.
-  - makeItem - the function `item` with `Config` and `State` applied to it.
+  - toDropdown - the function `root` with `Config` and `State` applied to it.
+  - toToggle - the function `toggle` with `Config` and `State` applied to it.
+  - toDrawer - the function `drawer` with `Config` and `State` applied to it.
+  - toItem - the function `item` with `Config` and `State` applied to it.
 
 The final resultant value is what you decide (some kind of DOM)
 
 -}
-type alias Layout msg html =
-    { makeDropdown : WrappedNode msg
-    , makeToggle : WrappedNode msg
-    , makeDrawer : WrappedNode msg
-    , makeItem : WrappedNode msg
+type alias DropdownBuilder msg =
+    { toDropdown : HtmlRenderer msg -> HtmlRenderer msg
+    , toToggle : HtmlRenderer msg -> HtmlRenderer msg
+    , toDrawer : HtmlRenderer msg -> HtmlRenderer msg
+    , toItem : HtmlRenderer msg -> HtmlRenderer msg
     }
-    -> html
 
 
 {-| Define when the dropdown should open
@@ -226,14 +225,14 @@ Takes:
 dropdown :
     Config r msg
     -> State
-    -> Layout msg html
+    -> (DropdownBuilder msg -> html)
     -> html
 dropdown cfg state layout =
     layout
-        { makeToggle = toggle cfg state
-        , makeDrawer = drawer cfg state
-        , makeItem = item
-        , makeDropdown = root cfg state
+        { toToggle = toggle cfg state
+        , toDrawer = drawer cfg state
+        , toItem = item
+        , toDropdown = root cfg state
         }
 
 
@@ -243,15 +242,15 @@ It takes the following:
 
   - `Config`
   - `State`
-  - Node type as a render function e.g. `Html.div`
+  - HTML renderer, typically passed in as a simple HTML element constructor e.g. `Html.div`
   - Node attributes
   - Node children, some of whitch were created using `toggle` and one using `drawer`
 
 Amongst other things it adds the "ui dropdown" class to the root node.
 
 -}
-root : Config r msg -> State -> Render msg -> List (Attribute msg) -> List (Html msg) -> Html msg
-root cfg state render attrs children =
+root : Config r msg -> State -> HtmlRenderer msg -> HtmlRenderer msg
+root cfg state element attrs children =
     let
         isVisible =
             drawerIsVisible state
@@ -267,7 +266,7 @@ root cfg state render attrs children =
                 :: style "position" "relative"
                 :: attrs
     in
-    Dropdown.dropdown render
+    Dropdown.dropdown element
         attrs_
         (List.map (\e -> \_ _ -> e)
             (toggle cfg
@@ -284,7 +283,7 @@ root cfg state render attrs children =
             )
         )
         (drawerIsOpen state)
-        (toDropdownConfig cfg)
+        (toDropdownConfig cfg state)
 
 
 {-| Create an element for the toggle area that will toggle the drawer on toggle event.
@@ -293,18 +292,18 @@ It takes the following:
 
   - `Config`
   - `State`
-  - Node type as a render function
+  - HTML renderer, typically passed in as a simple HTML element constructor e.g. `Html.div`
   - Attributes of node
   - Children of node
 
 -}
-toggle : Config r msg -> State -> Render msg -> List (Attribute msg) -> List (Html msg) -> Html msg
-toggle cfg state render attrs children =
+toggle : Config r msg -> State -> HtmlRenderer msg -> HtmlRenderer msg
+toggle cfg state element attrs children =
     if cfg.readOnly then
-        render attrs children
+        element attrs children
 
     else
-        Dropdown.toggle render attrs children (drawerIsOpen state) (toDropdownConfig cfg state)
+        Dropdown.toggle element attrs children (drawerIsOpen state) (toDropdownConfig cfg state)
 
 
 {-| Create the drawer element which is displayed when the dropdown is expanded/toggled.
@@ -313,15 +312,15 @@ It takes the following:
 
   - `Config`
   - `State`
-  - Node type as a render function e.g. `Html.div`
+  - HTML renderer, typically passed in as a simple HTML element constructor e.g. `Html.div`
   - Attributes of node
   - Children of node (some of which atleast created with `item`)
 
 It adds the "menu" class to the node.
 
 -}
-drawer : Config r msg -> State -> Render msg -> List (Attribute msg) -> List (Html msg) -> Html msg
-drawer cfg state render attrs children =
+drawer : Config r msg -> State -> HtmlRenderer msg -> HtmlRenderer msg
+drawer cfg state element attrs children =
     let
         isTransitioning =
             drawerIsTransitioning state
@@ -341,7 +340,7 @@ drawer cfg state render attrs children =
                     state
     in
     if cfg.readOnly then
-        render
+        element
             (classList
                 [ ( "menu", True )
                 ]
@@ -350,7 +349,7 @@ drawer cfg state render attrs children =
             children
 
     else
-        Dropdown.drawer render
+        Dropdown.drawer element
             ((classList
                 [ ( "menu", True )
                 , ( "active", True )
@@ -383,16 +382,16 @@ It takes the following:
 
   - `Config`
   - `State`
-  - Node type as a render function e.g. `Html.div`
+  - HTML renderer, typically passed in as a simple HTML element constructor e.g. `Html.div`
   - Attributes of node
   - Children of node
 
 It adds the "item" class to the node.
 
 -}
-item : Render msg -> List (Attribute msg) -> List (Html msg) -> Html msg
-item render attrs children =
-    render (class "item" :: attrs) children
+item : HtmlRenderer msg -> HtmlRenderer msg
+item element attrs children =
+    element (class "item" :: attrs) children
 
 
 drawerIsOpen : State -> Bool
