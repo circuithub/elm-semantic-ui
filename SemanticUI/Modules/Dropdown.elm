@@ -128,7 +128,7 @@ import Json.Decode as Decode
 import SemanticUI.Modules.Common exposing (HtmlRenderer)
 
 
-{-| Partially applied dropdown builder.
+{-| Everything needed to build a particular dropdown.
 
 A function that takes a record with the following functions
 
@@ -164,12 +164,11 @@ type ToggleEvent
   - readOnly - Is the dropdown read only (default False)
 
 -}
-type alias Config r msg =
-    { r
-        | identifier : String
-        , onToggle : State -> msg
-        , toggleEvent : ToggleEvent
-        , readOnly : Bool
+type alias Config msg =
+    { identifier : String
+    , onToggle : State -> msg
+    , toggleEvent : ToggleEvent
+    , readOnly : Bool
     }
 
 
@@ -181,7 +180,7 @@ Takes:
   - The state change handler.
 
 -}
-init : { r | identifier : String, onToggle : State -> msg } -> Config {} msg
+init : { config | identifier : String, onToggle : State -> msg } -> Config msg
 init { identifier, onToggle } =
     { identifier = identifier
     , onToggle = onToggle
@@ -192,16 +191,16 @@ init { identifier, onToggle } =
 
 {-| Set toggleEvent on a Config
 -}
-toggleEvent : ToggleEvent -> { a | toggleEvent : ToggleEvent } -> { a | toggleEvent : ToggleEvent }
-toggleEvent v c =
-    { c | toggleEvent = v }
+toggleEvent : ToggleEvent -> { config | toggleEvent : ToggleEvent } -> { config | toggleEvent : ToggleEvent }
+toggleEvent a config =
+    { config | toggleEvent = a }
 
 
 {-| Set readOnly on a Config
 -}
-readOnly : Bool -> { a | readOnly : Bool } -> { a | readOnly : Bool }
-readOnly v c =
-    { c | readOnly = v }
+readOnly : Bool -> { config | readOnly : Bool } -> { config | readOnly : Bool }
+readOnly a config =
+    { config | readOnly = a }
 
 
 {-| The current state of the dropdown drawer
@@ -223,7 +222,7 @@ Takes:
 
 -}
 dropdown :
-    Config r msg
+    Config msg
     -> State
     -> (DropdownBuilder msg -> html)
     -> html
@@ -249,26 +248,24 @@ It takes the following:
 Amongst other things it adds the "ui dropdown" class to the root node.
 
 -}
-root : Config r msg -> State -> HtmlRenderer msg -> HtmlRenderer msg
+root : Config msg -> State -> HtmlRenderer msg -> HtmlRenderer msg
 root cfg state element attrs children =
     let
         isVisible =
             drawerIsVisible state
-
-        attrs_ =
-            classList
-                [ ( "ui", True )
-                , ( "dropdown", True )
-                , ( "active", isVisible )
-                , ( "visible", isVisible )
-                , ( "disabled", cfg.readOnly )
-                ]
-                :: style "position" "relative"
-                :: attrs
     in
     Dropdown.dropdown element
-        attrs_
-        (List.map (\e -> \_ _ -> e)
+        (classList
+            [ ( "ui", True )
+            , ( "dropdown", True )
+            , ( "active", isVisible )
+            , ( "visible", isVisible )
+            , ( "disabled", cfg.readOnly )
+            ]
+            :: style "position" "relative"
+            :: attrs
+        )
+        (List.map (\e _ _ -> e)
             (toggle cfg
                 state
                 div
@@ -297,7 +294,7 @@ It takes the following:
   - Children of node
 
 -}
-toggle : Config r msg -> State -> HtmlRenderer msg -> HtmlRenderer msg
+toggle : Config msg -> State -> HtmlRenderer msg -> HtmlRenderer msg
 toggle cfg state element attrs children =
     if cfg.readOnly then
         element attrs children
@@ -319,7 +316,7 @@ It takes the following:
 It adds the "menu" class to the node.
 
 -}
-drawer : Config r msg -> State -> HtmlRenderer msg -> HtmlRenderer msg
+drawer : Config msg -> State -> HtmlRenderer msg -> HtmlRenderer msg
 drawer cfg state element attrs children =
     let
         isTransitioning =
@@ -409,7 +406,7 @@ drawerIsVisible state =
     state /= Closed
 
 
-toDropdownConfig : Config config msg -> State -> Dropdown.Config msg
+toDropdownConfig : Config msg -> State -> Dropdown.Config msg
 toDropdownConfig cfg state =
     { identifier = cfg.identifier
     , toggleEvent =

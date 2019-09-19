@@ -87,16 +87,15 @@ import SemanticUI.Modules.Dropdown as Dropdown exposing (dropdown)
     "text" class is added to the unexpanded item)
 
 -}
-type alias Config r option selection msg =
-    { r
-        | identifier : String
-        , onToggle : Dropdown.State -> msg
-        , toggleEvent : Dropdown.ToggleEvent
-        , readOnly : Bool
-        , onSelect : selection -> msg
-        , options : List option
-        , inline : Bool
-        , makeSelectToggle : (HtmlRenderer msg -> HtmlRenderer msg) -> Html msg
+type alias Config option selection msg =
+    { identifier : String
+    , onToggle : Dropdown.State -> msg
+    , toggleEvent : Dropdown.ToggleEvent
+    , readOnly : Bool
+    , onSelect : selection -> msg
+    , options : List option
+    , inline : Bool
+    , makeSelectToggle : (HtmlRenderer msg -> HtmlRenderer msg) -> Html msg
     }
 
 
@@ -104,13 +103,13 @@ type alias Config r option selection msg =
 selection handler and list of options
 -}
 init :
-    { r
+    { config
         | identifier : String
         , onToggle : Dropdown.State -> msg
         , onSelect : selection -> msg
         , options : List option
     }
-    -> Config {} option selection msg
+    -> Config option selection msg
 init { identifier, onToggle, onSelect, options } =
     { identifier = identifier
     , onToggle = onToggle
@@ -127,25 +126,37 @@ init { identifier, onToggle, onSelect, options } =
 -}
 makeSelectToggle :
     ((HtmlRenderer msg -> HtmlRenderer msg) -> Html msg)
-    -> { a | makeSelectToggle : (HtmlRenderer msg -> HtmlRenderer msg) -> Html msg }
-    -> { a | makeSelectToggle : (HtmlRenderer msg -> HtmlRenderer msg) -> Html msg }
-makeSelectToggle b a =
-    { a | makeSelectToggle = b }
+    -> { config | makeSelectToggle : (HtmlRenderer msg -> HtmlRenderer msg) -> Html msg }
+    -> { config | makeSelectToggle : (HtmlRenderer msg -> HtmlRenderer msg) -> Html msg }
+makeSelectToggle a config =
+    { config | makeSelectToggle = a }
+
 
 {-| Modify a Config's inline value
 -}
-inline : Bool -> { a | inline : Bool } -> { a | inline : Bool }
-inline b a =
-    { a | inline = b }
+inline : Bool -> { config | inline : Bool } -> { config | inline : Bool }
+inline a config =
+    { config | inline = a }
 
 
-type alias State r a =
-    { r
-        | dropdownState : Dropdown.State
-        , selectedValue : a
+type alias State a =
+    { dropdownState : Dropdown.State
+    , selectedValue : a
     }
 
 
+{-| Everything needed to build a particular option item in the dropdown drawer.
+
+A function that takes a record with the following functions
+
+  - toDropdown - the function `root` with `Config` and `State` applied to it.
+  - toToggle - the function `toggle` with `Config` and `State` applied to it.
+  - toDrawer - the function `drawer` with `Config` and `State` applied to it.
+  - toItem - the function `item` with `Config` and `State` applied to it.
+
+The final resultant value is what you decide (some kind of DOM)
+
+-}
 type alias OptionBuilder msg option =
     { toOption : HtmlRenderer msg -> HtmlRenderer msg
     , isSelectionLabel : Bool
@@ -176,20 +187,20 @@ as part of the list.
 
 -}
 select :
-    Config r0 option option msg
-    -> State r1 option
+    Config option option msg
+    -> { state | dropdownState : Dropdown.State, selectedValue : option }
     -> HtmlRenderer msg
     -> List (Attribute msg)
     -> (OptionBuilder msg option -> Html msg)
     -> Html msg
-select cfg st rootElement rootAttrs layoutOption =
+select cfg state rootElement rootAttrs layoutOption =
     dropdown
         { identifier = cfg.identifier
         , onToggle = cfg.onToggle
         , toggleEvent = cfg.toggleEvent
         , readOnly = cfg.readOnly
         }
-        st.dropdownState
+        state.dropdownState
         (\{ toDropdown, toToggle, toDrawer, toItem } ->
             toDropdown rootElement
                 (classList [ ( "selection", not cfg.inline ), ( "inline", cfg.inline ) ] :: rootAttrs)
@@ -201,7 +212,7 @@ select cfg st rootElement rootAttrs layoutOption =
                                 (classList [ ( "text", cfg.inline ) ] :: optionAttrs)
                                 optionChildren
                     , isSelectionLabel = True
-                    , value = st.selectedValue
+                    , value = state.selectedValue
                     }
                 , cfg.makeSelectToggle toToggle
                 , toDrawer div
@@ -248,8 +259,8 @@ The option layout function returns a DOM node and takes:
 
 -}
 selectMaybe :
-    Config r0 option (Maybe option) msg
-    -> State r1 (Maybe option)
+    Config option (Maybe option) msg
+    -> { state | dropdownState : Dropdown.State, selectedValue : Maybe option }
     -> HtmlRenderer msg
     -> List (Attribute msg)
     -> ({ toEmptyOption : HtmlRenderer msg -> HtmlRenderer msg } -> Html msg)
@@ -274,6 +285,6 @@ selectMaybe cfg state rootElement rootAttrs layoutEmptySelect layoutOption =
                 Nothing ->
                     layoutEmptySelect { toEmptyOption = toOption }
 
-                Just val ->
-                    layoutOption { toOption = toOption, isSelectionLabel = isSelectionLabel, value = val }
+                Just option ->
+                    layoutOption { toOption = toOption, isSelectionLabel = isSelectionLabel, value = option }
         )
