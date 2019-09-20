@@ -125,7 +125,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Decode
-import SemanticUI.Modules.Common exposing (HtmlBuilder)
+import SemanticUI.Modules.HtmlBuilder as HtmlBuilder exposing (HtmlBuilder)
 
 
 {-| Everything needed to build a particular dropdown.

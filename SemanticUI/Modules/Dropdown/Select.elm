@@ -70,8 +70,8 @@ Example of inline select :
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import SemanticUI.Modules.Common exposing (HtmlBuilder)
-import SemanticUI.Modules.Dropdown as Dropdown exposing (dropdown)
+import SemanticUI.Modules.Dropdown as Dropdown
+import SemanticUI.Modules.HtmlBuilder as HtmlBuilder exposing (HtmlBuilder)
 
 
 {-| Configuration for a select
@@ -145,23 +145,80 @@ type alias State a =
     }
 
 
+{-| Everything needed to build a particular Select.option
+-}
+type alias OptionBuilder msg option =
+    { layout :
+        { toItem : HtmlBuilder msg -> HtmlBuilder msg
+        , value : option
+        }
+        -> Hmtl msg
+    }
+
+
+{-| Everything needed to build a particular Select.dropdown
+-}
+type alias DropdownBuilder msg option =
+    { toDrawer : HmtlBuilder msg -> HtmlBuilder msg
+    , toDropdown : HmtlBuilder msg -> HtmlBuilder msg
+    , toOption : OptionBuilder -> option -> Hmtl msg
+    , toToggle : HtmlBuilder msg -> HtmlBuilder msg
+    }
+
+
+{-| A dropdown component with stateful selection.
+-}
+dropdown :
+    Config option option msg
+    -> { state | dropdownState : Dropdown.State, selectedValue : option }
+    -> (DropdownBuilder msg option -> html)
+    -> html
+dropdown cfg state layout =
+    Dropdown.dropdown
+        { identifier = cfg.identifier
+        , onToggle = cfg.onToggle
+        , toggleEvent = cfg.toggleEvent
+        , readOnly = cfg.readOnly
+        }
+        state.dropdownState
+        (\{ toDropdown, toToggle, toDrawer, toItem } ->
+            layout
+                { toDropdown = toDropdown
+                , toToggle = toToggle
+                , toDrawer =
+                    \element ->
+                        toDrawer element
+                            |> HtmlBuilder.prependAttribute (onClick (cfg.onToggle Dropdown.Closing))
+                , toOption =
+                    \optionBuilder value ->
+                        optionBuilder.layout
+                            { toItem =
+                                \element ->
+                                    toItem element
+                                        |> HtmlBuilder.prependAttribute (onClick (cfg.onSelect value))
+                            , value = value
+                            }
+                }
+        )
+
+
 {-| Everything needed to build a particular option item in the dropdown drawer.
 
 A function that takes a record with the following functions
 
-  - toDropdown - the function `root` with `Config` and `State` applied to it.
-  - toToggle - the function `toggle` with `Config` and `State` applied to it.
-  - toDrawer - the function `drawer` with `Config` and `State` applied to it.
-  - toItem - the function `item` with `Config` and `State` applied to it.
+  - toOption
+  - isSelectionLabel
+  - value
 
 The final resultant value is what you decide (some kind of DOM)
 
 -}
-type alias OptionBuilder msg option =
-    { toOption : HtmlBuilder msg -> HtmlBuilder msg
-    , isSelectionLabel : Bool
-    , value : option
-    }
+
+-- type alias OptionBuilder msg option =
+--     { toOption : HtmlBuilder msg -> HtmlBuilder msg
+--     , isSelectionLabel : Bool
+--     , value : option
+--     }
 
 
 {-| Draw the select.
@@ -194,7 +251,7 @@ select :
     -> (OptionBuilder msg option -> Html msg)
     -> Html msg
 select cfg state rootElement rootAttrs layoutOption =
-    dropdown
+    Dropdown.dropdown
         { identifier = cfg.identifier
         , onToggle = cfg.onToggle
         , toggleEvent = cfg.toggleEvent
@@ -207,10 +264,9 @@ select cfg state rootElement rootAttrs layoutOption =
                 [ toToggle input [ type_ "hidden" ] []
                 , layoutOption
                     { toOption =
-                        \optionElement optionAttrs optionChildren ->
+                        \optionElement ->
                             toToggle optionElement
-                                (classList [ ( "text", cfg.inline ) ] :: optionAttrs)
-                                optionChildren
+                                |> HtmlBuilder.prependAttribute (classList [ ( "text", cfg.inline ) ])
                     , isSelectionLabel = True
                     , value = state.selectedValue
                     }
@@ -221,10 +277,9 @@ select cfg state rootElement rootAttrs layoutOption =
                         (\option ->
                             layoutOption
                                 { toOption =
-                                    \optionElement optionAttrs optionChildren ->
+                                    \optionElement ->
                                         toItem optionElement
-                                            (onClick (cfg.onSelect option) :: optionAttrs)
-                                            optionChildren
+                                            |> HtmlBuilder.prependAttribute (onClick (cfg.onSelect option))
                                 , isSelectionLabel = False
                                 , value = option
                                 }
