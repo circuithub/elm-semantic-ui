@@ -9,25 +9,25 @@ Example of `Select.dropdown` :
             { identifier = "select1"
             , onToggle = ToggleSelect1
             , onSelect = SetSelect1
+            , layout =
+                \{ toDropdown, toDrawer, toOption, toToggle } ->
+                    toDropdown div
+                        [ class "inline" ]
+                        [ toToggle div
+                            [ classList [ ( "default", model.select1Selection == Nothing ), ( "text", True ) ] ]
+                            [ text (Maybe.withDefault "Nothing selected" model.select1Selection)
+                            , i [ class "dropdown icon" ] []
+                            ]
+                        , toDrawer div
+                            []
+                            (List.map option [ Yes, No ])
+                        ]
+            , layoutOption =
+                \{ toItem, value } ->
+                    toItem div [ class "text" ] [ text (toString value) ]
             }
         )
         model.select1DrawerState
-        (\{ toDropdown, toDrawer, toOption, toToggle } ->
-            toDropdown div
-                [ class "inline" ]
-                [ toToggle div
-                    [ classList [ ( "default", model.select1Selection == Nothing ), ( "text", True ) ] ]
-                    [ text (Maybe.withDefault "Nothing selected" model.select1Selection)
-                    , i [ class "dropdown icon" ] []
-                    ]
-                , toDrawer div
-                    []
-                    (List.map
-                        (toOption { layout = \{ toItem, value } -> toItem div [ class "text" ] [ text (toString value) ] })
-                        [ Yes, No ]
-                    )
-                ]
-        )
 
 -}
 
@@ -61,38 +61,43 @@ type ToggleEvent
     | OnFocus
 
 
+{-| Configuration for a select
 
--- {-| Configuration for a select
---
---   - identifier - unique identifier
---   - onToggle - message to handle dropdown state changes
---   - toggleEvent - what casuse dropdown state change (default OnClick)
---   - readOnly - is the selection read only or not
---   - onSelect - messages to handle selection change (when clicking on option)
---   - options - the list of possible options
---   - inline - should the selection be inline or not
---     (dropdown does not have "selection" class but "inline" and
---     "text" class is added to the unexpanded item)
---
--- -}
--- type alias Config option selection msg =
---     { identifier : String
---     , onToggle : Dropdown.State -> msg
---     , toggleEvent : Dropdown.ToggleEvent
---     , readOnly : Bool
---     , onSelect : selection -> msg
---     , options : List option
---     , inline : Bool
---     , makeSelectToggle : (HtmlBuilder msg -> HtmlBuilder msg) -> Html msg
---     }
+  - identifier - unique identifier
+  - onToggle - message to handle dropdown state changes
+  - toggleEvent - what casuse dropdown state change (default OnClick)
+  - readOnly - is the selection read only or not
+  - onSelect - messages to handle selection change (when clicking on option)
+  - layout
+  - layoutOption
 
-
-type alias Config msg option =
+-}
+type alias Config msg html option =
     { identifier : String
     , onSelect : option -> msg
     , onToggle : DrawerState -> msg
     , toggleEvent : ToggleEvent
     , readOnly : Bool
+    , layout : DropdownBuilder msg html option -> html
+    , layoutOption : OptionBuilder msg option -> html
+    }
+
+
+{-| Everything needed to build a particular Select.option
+-}
+type alias OptionBuilder msg option =
+    { toItem : HtmlBuilder msg -> HtmlBuilder msg
+    , value : option
+    }
+
+
+{-| Everything needed to build a particular Select.dropdown
+-}
+type alias DropdownBuilder msg html option =
+    { toDropdown : HtmlBuilder msg -> HtmlBuilder msg
+    , toDrawer : HtmlBuilder msg -> HtmlBuilder msg
+    , toToggle : HtmlBuilder msg -> HtmlBuilder msg
+    , option : option -> html
     }
 
 
@@ -101,69 +106,48 @@ init :
         | identifier : String
         , onToggle : DrawerState -> msg
         , onSelect : option -> msg
+        , layout : DropdownBuilder msg html option -> html
+        , layoutOption : OptionBuilder msg option -> html
     }
-    -> Config msg option
-init { identifier, onToggle, onSelect } =
+    -> Config msg html option
+init { identifier, onToggle, onSelect, layout, layoutOption } =
     { identifier = identifier
     , onToggle = onToggle
     , toggleEvent = OnClick
     , readOnly = False
     , onSelect = onSelect
-    }
-
-
-
-
-
-{-| Everything needed to build a particular Select.option
--}
-type alias OptionBuilder msg option =
-    { layout :
-        { toItem : HtmlBuilder msg -> HtmlBuilder msg
-        , value : option
-        }
-        -> Html msg
-    }
-
-
-{-| Everything needed to build a particular Select.dropdown
--}
-type alias DropdownBuilder msg option =
-    { toDropdown : HtmlBuilder msg -> HtmlBuilder msg
-    , toDrawer : HtmlBuilder msg -> HtmlBuilder msg
-    , toOption : OptionBuilder msg option -> option -> Html msg
-    , toToggle : HtmlBuilder msg -> HtmlBuilder msg
+    , layout = layout
+    , layoutOption = layoutOption
     }
 
 
 {-| A dropdown component with stateful selection.
 -}
 dropdown :
-    Config msg option
+    Config msg html option
     -> DrawerState
-    -> (DropdownBuilder msg option -> html)
     -> html
-dropdown config state layout =
+dropdown config state =
     Dropdown.dropdown
         { identifier = config.identifier
         , onToggle = config.onToggle << fromDropdownState
         , toggleEvent = toDropdownToggleEvent config.toggleEvent
         , readOnly = config.readOnly
+        , layout =
+            \{ toDropdown, toToggle, toDrawer, toItem } ->
+                config.layout
+                    { toDropdown = toDropdown
+                    , toToggle = toToggle
+                    , toDrawer = toDrawer << HtmlBuilder.prependAttribute (onClick (config.onToggle Closing))
+                    , option =
+                        \value ->
+                            config.layoutOption
+                                { toItem = toItem << HtmlBuilder.prependAttribute (onClick (config.onSelect value))
+                                , value = value
+                                }
+                    }
         }
         (toDropdownState state)
-        (\{ toDropdown, toToggle, toDrawer, toItem } ->
-            layout
-                { toDropdown = toDropdown
-                , toToggle = toToggle
-                , toDrawer = toDrawer << HtmlBuilder.prependAttribute (onClick (config.onToggle Closing))
-                , toOption =
-                    \optionBuilder value ->
-                        optionBuilder.layout
-                            { toItem = toItem << HtmlBuilder.prependAttribute (onClick (config.onSelect value))
-                            , value = value
-                            }
-                }
-        )
 
 
 toDropdownState : DrawerState -> Dropdown.State
