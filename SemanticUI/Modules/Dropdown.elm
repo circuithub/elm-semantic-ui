@@ -64,20 +64,20 @@ As an example a big dropdown menu using layout:
 As an example a big dropdown menu using primitives:
 
     let
-        cfg =
+        config =
             Dropdown.init { identifier = "file", onToggle = ToggleFile2 }
 
-        st =
+        state =
             model.file2
     in
-    Dropdown.root cfg
-        st
+    Dropdown.root config
+        state
         div
         []
-        [ Dropdown.toggle cfg st div [ class "text" ] [ text "File" ]
-        , Dropdown.toggle cfg st i [ class "dropdown icon" ] []
-        , Dropdown.drawer cfg
-            st
+        [ Dropdown.toggle config state div [ class "text" ] [ text "File" ]
+        , Dropdown.toggle config state i [ class "dropdown icon" ] []
+        , Dropdown.drawer config
+            state
             div
             []
             [ Dropdown.item div [] [ text "New" ]
@@ -226,12 +226,12 @@ dropdown :
     -> State
     -> (DropdownBuilder msg -> html)
     -> html
-dropdown cfg state layout =
+dropdown config state layout =
     layout
-        { toToggle = toggle cfg state
-        , toDrawer = drawer cfg state
+        { toToggle = toggle config state
+        , toDrawer = drawer config state
         , toItem = item
-        , toDropdown = root cfg state
+        , toDropdown = root config state
         }
 
 
@@ -249,38 +249,40 @@ Amongst other things it adds the "ui dropdown" class to the root node.
 
 -}
 root : Config msg -> State -> HtmlBuilder msg -> HtmlBuilder msg
-root cfg state element attrs children =
+root config state element attrs children =
     let
         isVisible =
             drawerIsVisible state
     in
-    Dropdown.dropdown element
+    Dropdown.root
+        { identifier = config.identifier
+        , onToggle = toDropdownOnToggle state config.onToggle
+        , toggleEvent = toDropdownToggleEvent config.toggleEvent
+        }
+        (drawerIsOpen state)
+        element
         (classList
             [ ( "ui", True )
             , ( "dropdown", True )
             , ( "active", isVisible )
             , ( "visible", isVisible )
-            , ( "disabled", cfg.readOnly )
+            , ( "disabled", config.readOnly )
             ]
             :: style "position" "relative"
             :: attrs
         )
-        (List.map (\e _ _ -> e)
-            (toggle cfg
-                state
-                div
-                [ style "position" "absolute"
-                , style "width" "100%"
-                , style "height" "100%"
-                , style "left" "0%"
-                , style "top" "0%"
-                ]
-                []
-                :: children
-            )
+        (toggle config
+            state
+            div
+            [ style "position" "absolute"
+            , style "width" "100%"
+            , style "height" "100%"
+            , style "left" "0%"
+            , style "top" "0%"
+            ]
+            []
+            :: children
         )
-        (drawerIsOpen state)
-        (toDropdownConfig cfg state)
 
 
 {-| Create an element for the toggle area that will toggle the drawer on toggle event.
@@ -295,12 +297,16 @@ It takes the following:
 
 -}
 toggle : Config msg -> State -> HtmlBuilder msg -> HtmlBuilder msg
-toggle cfg state element attrs children =
-    if cfg.readOnly then
-        element attrs children
+toggle config state =
+    if config.readOnly then
+        identity
 
     else
-        Dropdown.toggle element attrs children (drawerIsOpen state) (toDropdownConfig cfg state)
+        Dropdown.toggle
+            { onToggle = toDropdownOnToggle state config.onToggle
+            , toggleEvent = toDropdownToggleEvent config.toggleEvent
+            }
+            (drawerIsOpen state)
 
 
 {-| Create the drawer element which is displayed when the dropdown is expanded/toggled.
@@ -317,7 +323,7 @@ It adds the "menu" class to the node.
 
 -}
 drawer : Config msg -> State -> HtmlBuilder msg -> HtmlBuilder msg
-drawer cfg state element attrs children =
+drawer config state element =
     let
         isTransitioning =
             drawerIsTransitioning state
@@ -336,59 +342,45 @@ drawer cfg state element attrs children =
                 _ ->
                     state
     in
-    if cfg.readOnly then
+    if config.readOnly then
         element
-            (classList
-                [ ( "menu", True )
-                ]
-                :: attrs
-            )
-            children
+            |> HtmlBuilder.prependAttribute (classList [ ( "menu", True ) ])
 
     else
-        Dropdown.drawer element
-            ((classList
-                [ ( "menu", True )
-                , ( "active", True )
-                , ( "visible", isVisible )
-                , ( "hiden", not isVisible )
-                , ( "animating", isTransitioning )
-                , ( "transition", True )
-                , ( "slide", isTransitioning )
-                , ( "down", isTransitioning )
-                , ( "in", state == Opening )
-                , ( "out", state == Closing )
-                ]
-                :: (if isTransitioning then
-                        [ on "animationend" (Decode.succeed (cfg.onToggle finalState)) ]
-
-                    else
-                        []
-                   )
-             )
-                ++ attrs
-            )
-            children
+        Dropdown.drawer
+            { drawerVisibleAttribute = classList [] }
             (drawerIsOpen state)
-            (toDropdownConfig cfg state)
+            element
+            |> HtmlBuilder.prependAttributes
+                (classList
+                    [ ( "menu", True )
+                    , ( "active", True )
+                    , ( "visible", isVisible )
+                    , ( "hiden", not isVisible )
+                    , ( "animating", isTransitioning )
+                    , ( "transition", True )
+                    , ( "slide", isTransitioning )
+                    , ( "down", isTransitioning )
+                    , ( "in", state == Opening )
+                    , ( "out", state == Closing )
+                    ]
+                    :: (if isTransitioning then
+                            [ on "animationend" (Decode.succeed (config.onToggle finalState)) ]
+
+                        else
+                            []
+                       )
+                )
 
 
 {-| Create an item that goes in the drawer.
-
-It takes the following:
-
-  - `Config`
-  - `State`
-  - HTML renderer, typically passed in as a simple HTML element constructor e.g. `Html.div`
-  - Attributes of node
-  - Children of node
 
 It adds the "item" class to the node.
 
 -}
 item : HtmlBuilder msg -> HtmlBuilder msg
-item element attrs children =
-    element (class "item" :: attrs) children
+item =
+    HtmlBuilder.prependAttribute (class "item")
 
 
 drawerIsOpen : State -> Bool
@@ -406,33 +398,32 @@ drawerIsVisible state =
     state /= Closed
 
 
-toDropdownConfig : Config msg -> State -> Dropdown.Config msg
-toDropdownConfig cfg state =
-    { identifier = cfg.identifier
-    , toggleEvent =
-        case cfg.toggleEvent of
-            OnClick ->
-                Dropdown.OnClick
+toDropdownToggleEvent : ToggleEvent -> Dropdown.ToggleEvent
+toDropdownToggleEvent event =
+    case event of
+        OnClick ->
+            Dropdown.OnClick
 
-            OnHover ->
-                Dropdown.OnHover
+        OnHover ->
+            Dropdown.OnHover
 
-            OnFocus ->
-                Dropdown.OnFocus
-    , drawerVisibleAttribute = classList []
-    , callback =
-        \toggleOpen ->
-            let
-                newState =
-                    case ( toggleOpen, drawerIsOpen state ) of
-                        ( True, False ) ->
-                            Opening
+        OnFocus ->
+            Dropdown.OnFocus
 
-                        ( False, True ) ->
-                            Closing
 
-                        _ ->
-                            state
-            in
-            cfg.onToggle newState
-    }
+toDrawerState : State -> Dropdown.State -> State
+toDrawerState currentState toggleOpen =
+    case ( toggleOpen, drawerIsOpen currentState ) of
+        ( True, False ) ->
+            Opening
+
+        ( False, True ) ->
+            Closing
+
+        _ ->
+            currentState
+
+
+toDropdownOnToggle : State -> (State -> msg) -> Dropdown.State -> msg
+toDropdownOnToggle currentState onToggle toggleOpen =
+    onToggle (toDrawerState currentState toggleOpen)
