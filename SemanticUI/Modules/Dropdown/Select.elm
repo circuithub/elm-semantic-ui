@@ -1,68 +1,32 @@
-module SemanticUI.Modules.Dropdown.Select exposing (Config, State, init, inline, makeSelectToggle, select, selectMaybe)
+module SemanticUI.Modules.Dropdown.Select exposing (Config, DrawerState(..), dropdown)
 
-{-| Refine a dropdown to act as a selection
+{-| Refine a dropdown with selection state
 
-Example of `select` :
+Example of `Select.dropdown` :
 
-    Select.select
+    Select.dropdown
         (Select.init
             { identifier = "select1"
             , onToggle = ToggleSelect1
             , onSelect = SetSelect1
-            , options = [ Yes, No ]
             }
         )
-        { dropdownState = model.select
-        , selectedValue = model.select1Selection
-        }
-        div
-        []
-        (\{ toOption, value } ->
-            toOption div [ class "text" ] [ text (toString value) ]
-        )
-
-Example of `selectMaybe` :
-
-    Select.selectMaybe
-        (Select.init
-            { identifier = "select2"
-            , onToggle = ToggleSelect2
-            , onSelect = SetSelect2
-            , options = [ Yes, No ]
-            }
-        )
-        { dropdownState = model.select2
-        , selectedValue = model.select2Selection
-        }
-        div
-        []
-        (\{ toEmptyOption } ->
-            toEmptyOption div [ class "text default" ] [ text "None Selected" ]
-        )
-        (\{ toOption, value } ->
-            toOption div [ class "text" ] [ text (toString value) ]
-        )
-
-Example of inline select :
-
-    Select.select
-        (Select.init
-            { identifier = "inline1"
-            , onToggle = ToggleInline1
-            , onSelect = SelectInline1
-            , options = [ "today", "this week", "this month" ]
-            }
-            |> Select.inline True
-        )
-        { dropdownState = model.select
-        , selectedValue = model.select1Selection
-        }
-        div
-        []
-        (\{ toOption, isSelectionLabel, value } ->
-            toOption div
-                [ classList [ ( "active", not isSelectionLabel && model.inline1Selection == value ) ] ]
-                [ text value ]
+        model.select1DrawerState
+        (\{ toDropdown, toDrawer, toOption, toToggle } ->
+            toDropdown div
+                [ class "inline" ]
+                [ toToggle div
+                    [ classList [ ( "default", model.select1Selection == Nothing ), ( "text", True ) ] ]
+                    [ text (Maybe.withDefault "Nothing selected" model.select1Selection)
+                    , i [ class "dropdown icon" ] []
+                    ]
+                , toDrawer div
+                    []
+                    (List.map
+                        (toOption { layout = \{ toItem, value } -> toItem div [ class "text" ] [ text (toString value) ] })
+                        [ Yes, No ]
+                    )
+                ]
         )
 
 -}
@@ -74,75 +38,81 @@ import SemanticUI.Modules.Dropdown as Dropdown
 import SemanticUI.Modules.HtmlBuilder as HtmlBuilder exposing (HtmlBuilder)
 
 
-{-| Configuration for a select
+{-| The current state of the dropdown drawer.
 
-  - identifier - unique identifier
-  - onToggle - message to handle dropdown state changes
-  - toggleEvent - what casuse dropdown state change (default OnClick)
-  - readOnly - is the selection read only or not
-  - onSelect - messages to handle selection change (when clicking on option)
-  - options - the list of possible options
-  - inline - should the selection be inline or not
-    (dropdown does not have "selection" class but "inline" and
-    "text" class is added to the unexpanded item)
+Identical to `Dropdown.State`
 
 -}
-type alias Config option selection msg =
+type DrawerState
+    = Closed
+    | Opening
+    | Opened
+    | Closing
+
+
+{-| Define when the dropdown should open.
+
+Identical to `Dropdown.ToggleEvent`
+
+-}
+type ToggleEvent
+    = OnClick
+    | OnHover
+    | OnFocus
+
+
+
+-- {-| Configuration for a select
+--
+--   - identifier - unique identifier
+--   - onToggle - message to handle dropdown state changes
+--   - toggleEvent - what casuse dropdown state change (default OnClick)
+--   - readOnly - is the selection read only or not
+--   - onSelect - messages to handle selection change (when clicking on option)
+--   - options - the list of possible options
+--   - inline - should the selection be inline or not
+--     (dropdown does not have "selection" class but "inline" and
+--     "text" class is added to the unexpanded item)
+--
+-- -}
+-- type alias Config option selection msg =
+--     { identifier : String
+--     , onToggle : Dropdown.State -> msg
+--     , toggleEvent : Dropdown.ToggleEvent
+--     , readOnly : Bool
+--     , onSelect : selection -> msg
+--     , options : List option
+--     , inline : Bool
+--     , makeSelectToggle : (HtmlBuilder msg -> HtmlBuilder msg) -> Html msg
+--     }
+
+
+type alias Config msg option =
     { identifier : String
-    , onToggle : Dropdown.State -> msg
-    , toggleEvent : Dropdown.ToggleEvent
+    , onSelect : option -> msg
+    , onToggle : DrawerState -> msg
+    , toggleEvent : ToggleEvent
     , readOnly : Bool
-    , onSelect : selection -> msg
-    , options : List option
-    , inline : Bool
-    , makeSelectToggle : (HtmlBuilder msg -> HtmlBuilder msg) -> Html msg
     }
 
 
-{-| Create a default Config given, unique identifier, dropdown state change handler
-selection handler and list of options
--}
 init :
     { config
         | identifier : String
-        , onToggle : Dropdown.State -> msg
-        , onSelect : selection -> msg
-        , options : List option
+        , onToggle : DrawerState -> msg
+        , onSelect : option -> msg
     }
-    -> Config option selection msg
-init { identifier, onToggle, onSelect, options } =
+    -> Config msg option
+init { identifier, onToggle, onSelect } =
     { identifier = identifier
     , onToggle = onToggle
-    , toggleEvent = Dropdown.OnClick
+    , toggleEvent = OnClick
     , readOnly = False
     , onSelect = onSelect
-    , options = options
-    , inline = False
-    , makeSelectToggle = \toToggle -> toToggle i [ class "dropdown icon" ] []
     }
 
 
-{-| Modify a Config's makeSelectToggle value
--}
-makeSelectToggle :
-    ((HtmlBuilder msg -> HtmlBuilder msg) -> Html msg)
-    -> { config | makeSelectToggle : (HtmlBuilder msg -> HtmlBuilder msg) -> Html msg }
-    -> { config | makeSelectToggle : (HtmlBuilder msg -> HtmlBuilder msg) -> Html msg }
-makeSelectToggle a config =
-    { config | makeSelectToggle = a }
 
-
-{-| Modify a Config's inline value
--}
-inline : Bool -> { config | inline : Bool } -> { config | inline : Bool }
-inline a config =
-    { config | inline = a }
-
-
-type alias State a =
-    { dropdownState : Dropdown.State
-    , selectedValue : a
-    }
 
 
 {-| Everything needed to build a particular Select.option
@@ -152,16 +122,16 @@ type alias OptionBuilder msg option =
         { toItem : HtmlBuilder msg -> HtmlBuilder msg
         , value : option
         }
-        -> Hmtl msg
+        -> Html msg
     }
 
 
 {-| Everything needed to build a particular Select.dropdown
 -}
 type alias DropdownBuilder msg option =
-    { toDrawer : HmtlBuilder msg -> HtmlBuilder msg
-    , toDropdown : HmtlBuilder msg -> HtmlBuilder msg
-    , toOption : OptionBuilder -> option -> Hmtl msg
+    { toDropdown : HtmlBuilder msg -> HtmlBuilder msg
+    , toDrawer : HtmlBuilder msg -> HtmlBuilder msg
+    , toOption : OptionBuilder msg option -> option -> Html msg
     , toToggle : HtmlBuilder msg -> HtmlBuilder msg
     }
 
@@ -169,177 +139,73 @@ type alias DropdownBuilder msg option =
 {-| A dropdown component with stateful selection.
 -}
 dropdown :
-    Config option option msg
-    -> { state | dropdownState : Dropdown.State, selectedValue : option }
+    Config msg option
+    -> DrawerState
     -> (DropdownBuilder msg option -> html)
     -> html
-dropdown cfg state layout =
+dropdown config state layout =
     Dropdown.dropdown
-        { identifier = cfg.identifier
-        , onToggle = cfg.onToggle
-        , toggleEvent = cfg.toggleEvent
-        , readOnly = cfg.readOnly
+        { identifier = config.identifier
+        , onToggle = config.onToggle << fromDropdownState
+        , toggleEvent = toDropdownToggleEvent config.toggleEvent
+        , readOnly = config.readOnly
         }
-        state.dropdownState
+        (toDropdownState state)
         (\{ toDropdown, toToggle, toDrawer, toItem } ->
             layout
                 { toDropdown = toDropdown
                 , toToggle = toToggle
-                , toDrawer =
-                    \element ->
-                        toDrawer element
-                            |> HtmlBuilder.prependAttribute (onClick (cfg.onToggle Dropdown.Closing))
+                , toDrawer = toDrawer << HtmlBuilder.prependAttribute (onClick (config.onToggle Closing))
                 , toOption =
                     \optionBuilder value ->
                         optionBuilder.layout
-                            { toItem =
-                                \element ->
-                                    toItem element
-                                        |> HtmlBuilder.prependAttribute (onClick (cfg.onSelect value))
+                            { toItem = toItem << HtmlBuilder.prependAttribute (onClick (config.onSelect value))
                             , value = value
                             }
                 }
         )
 
 
-{-| Everything needed to build a particular option item in the dropdown drawer.
+toDropdownState : DrawerState -> Dropdown.State
+toDropdownState state =
+    case state of
+        Opening ->
+            Dropdown.Opening
 
-A function that takes a record with the following functions
+        Closing ->
+            Dropdown.Closing
 
-  - toOption
-  - isSelectionLabel
-  - value
+        Opened ->
+            Dropdown.Opened
 
-The final resultant value is what you decide (some kind of DOM)
-
--}
-
--- type alias OptionBuilder msg option =
---     { toOption : HtmlBuilder msg -> HtmlBuilder msg
---     , isSelectionLabel : Bool
---     , value : option
---     }
+        Closed ->
+            Dropdown.Closed
 
 
-{-| Draw the select.
+fromDropdownState : Dropdown.State -> DrawerState
+fromDropdownState state =
+    case state of
+        Dropdown.Opening ->
+            Opening
 
-Takes the following:
+        Dropdown.Closing ->
+            Closing
 
-  - Configuration,
-  - the current dropdown state,
-  - the currently selected value,
-  - A renderer for the top level HTML container, typically passed in as a simple HTML element constructor e.g. `Html.div`
-  - any extra attributes applied to the top level DOM node and
-  - the option layout function
+        Dropdown.Opened ->
+            Opened
 
-The layoutOption function is provided with
-
-  - `toOption` - A builder for the individual options
-  - `isSelectionLabel` - A bool that is `True` if the option item is part of the root dropdown control or `False` if it is in the list of options.
-  - `value` - The option value.
-
-When not inline then "selection" class is added to the top level node otherwise
-"inline" class is added and "text" class is added when the option is not rendered
-as part of the list.
-
--}
-select :
-    Config option option msg
-    -> { state | dropdownState : Dropdown.State, selectedValue : option }
-    -> HtmlBuilder msg
-    -> List (Attribute msg)
-    -> (OptionBuilder msg option -> Html msg)
-    -> Html msg
-select cfg state rootElement rootAttrs layoutOption =
-    Dropdown.dropdown
-        { identifier = cfg.identifier
-        , onToggle = cfg.onToggle
-        , toggleEvent = cfg.toggleEvent
-        , readOnly = cfg.readOnly
-        }
-        state.dropdownState
-        (\{ toDropdown, toToggle, toDrawer, toItem } ->
-            toDropdown rootElement
-                (classList [ ( "selection", not cfg.inline ), ( "inline", cfg.inline ) ] :: rootAttrs)
-                [ toToggle input [ type_ "hidden" ] []
-                , layoutOption
-                    { toOption =
-                        \optionElement ->
-                            toToggle optionElement
-                                |> HtmlBuilder.prependAttribute (classList [ ( "text", cfg.inline ) ])
-                    , isSelectionLabel = True
-                    , value = state.selectedValue
-                    }
-                , cfg.makeSelectToggle toToggle
-                , toDrawer div
-                    [ onClick (cfg.onToggle Dropdown.Closing) ]
-                    (List.map
-                        (\option ->
-                            layoutOption
-                                { toOption =
-                                    \optionElement ->
-                                        toItem optionElement
-                                            |> HtmlBuilder.prependAttribute (onClick (cfg.onSelect option))
-                                , isSelectionLabel = False
-                                , value = option
-                                }
-                        )
-                        cfg.options
-                    )
-                ]
-        )
+        Dropdown.Closed ->
+            Closed
 
 
-{-| Draw the select where there may not be a valid initial selection.
+toDropdownToggleEvent : ToggleEvent -> Dropdown.ToggleEvent
+toDropdownToggleEvent event =
+    case event of
+        OnClick ->
+            Dropdown.OnClick
 
-Takes the following:
+        OnHover ->
+            Dropdown.OnHover
 
-  - Configuration,
-  - the current dropdown state,
-  - the currently selected value,
-  - the type of top level DOM node as a render function,
-  - any extra attributes applied to the top level DOM node,
-  - the layout function when there is no selection and
-  - the option layout function
-
-The no selection layout function returns a DOM node and takes:
-
-  - `toEmptyOption` - A builder for the empty selection label
-
-The option layout function returns a DOM node and takes:
-
-  - `toOption` - A builder for the individual options
-  - `isSelectionLabel` - A bool that is `True` if the option item is part of the root dropdown control or `False` if it is in the list of options
-  - `value` - The option value
-
--}
-selectMaybe :
-    Config option (Maybe option) msg
-    -> { state | dropdownState : Dropdown.State, selectedValue : Maybe option }
-    -> HtmlBuilder msg
-    -> List (Attribute msg)
-    -> ({ toEmptyOption : HtmlBuilder msg -> HtmlBuilder msg } -> Html msg)
-    -> (OptionBuilder msg option -> Html msg)
-    -> Html msg
-selectMaybe cfg state rootElement rootAttrs layoutEmptySelect layoutOption =
-    select
-        { identifier = cfg.identifier
-        , onToggle = cfg.onToggle
-        , toggleEvent = cfg.toggleEvent
-        , readOnly = cfg.readOnly
-        , onSelect = cfg.onSelect
-        , options = List.map Just cfg.options
-        , inline = cfg.inline
-        , makeSelectToggle = cfg.makeSelectToggle
-        }
-        state
-        rootElement
-        rootAttrs
-        (\{ toOption, isSelectionLabel, value } ->
-            case value of
-                Nothing ->
-                    layoutEmptySelect { toEmptyOption = toOption }
-
-                Just option ->
-                    layoutOption { toOption = toOption, isSelectionLabel = isSelectionLabel, value = option }
-        )
+        OnFocus ->
+            Dropdown.OnFocus
