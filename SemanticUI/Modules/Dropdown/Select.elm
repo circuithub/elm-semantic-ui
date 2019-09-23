@@ -40,7 +40,7 @@ import SemanticUI.Modules.HtmlBuilder as HtmlBuilder exposing (HtmlBuilder)
 
 {-| The current state of the dropdown drawer.
 
-Identical to `Dropdown.State`
+Identical to `Dropdown.DrawerState`
 
 -}
 type DrawerState
@@ -73,7 +73,8 @@ type ToggleEvent
 
 -}
 type alias Config msg html option =
-    { identifier : String
+    { drawerState : DrawerState
+    , identifier : String
     , onSelect : option -> msg
     , onToggle : DrawerState -> msg
     , toggleEvent : ToggleEvent
@@ -103,21 +104,23 @@ type alias DropdownBuilder msg html option =
 
 init :
     { config
-        | identifier : String
+        | drawerState : DrawerState
+        , identifier : String
         , onToggle : DrawerState -> msg
         , onSelect : option -> msg
         , layout : DropdownBuilder msg html option -> html
         , layoutOption : OptionBuilder msg option -> html
     }
     -> Config msg html option
-init { identifier, onToggle, onSelect, layout, layoutOption } =
-    { identifier = identifier
-    , onToggle = onToggle
+init config =
+    { drawerState = config.drawerState
+    , identifier = config.identifier
+    , onToggle = config.onToggle
+    , onSelect = config.onSelect
+    , layout = config.layout
+    , layoutOption = config.layoutOption
     , toggleEvent = OnClick
     , readOnly = False
-    , onSelect = onSelect
-    , layout = layout
-    , layoutOption = layoutOption
     }
 
 
@@ -125,12 +128,12 @@ init { identifier, onToggle, onSelect, layout, layoutOption } =
 -}
 dropdown :
     Config msg html option
-    -> DrawerState
     -> html
-dropdown config state =
+dropdown config =
     Dropdown.dropdown
-        { identifier = config.identifier
-        , onToggle = config.onToggle << fromDropdownState
+        { drawerState = toDropdownDrawerState config.drawerState
+        , identifier = config.identifier
+        , onToggle = config.onToggle << fromDropdownDrawerState
         , toggleEvent = toDropdownToggleEvent config.toggleEvent
         , readOnly = config.readOnly
         , layout =
@@ -147,11 +150,10 @@ dropdown config state =
                                 }
                     }
         }
-        (toDropdownState state)
 
 
-toDropdownState : DrawerState -> Dropdown.State
-toDropdownState state =
+toDropdownDrawerState : DrawerState -> Dropdown.DrawerState
+toDropdownDrawerState state =
     case state of
         Opening ->
             Dropdown.Opening
@@ -166,8 +168,8 @@ toDropdownState state =
             Dropdown.Closed
 
 
-fromDropdownState : Dropdown.State -> DrawerState
-fromDropdownState state =
+fromDropdownDrawerState : Dropdown.DrawerState -> DrawerState
+fromDropdownDrawerState state =
     case state of
         Dropdown.Opening ->
             Opening
