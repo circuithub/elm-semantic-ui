@@ -1,17 +1,17 @@
-module SemanticUI.Modules.Dropdown.Select exposing (Config, DrawerState(..), dropdown)
+module SemanticUI.Modules.Dropdown.Select exposing (Config, DrawerState(..), select)
 
 {-| Refine a dropdown with selection state
 
-Example of `Select.dropdown` :
+Example of `Select.select` :
 
-    Select.dropdown
+    Select.select
         (Select.init
             { identifier = "select1"
             , onToggle = ToggleSelect1
             , onSelect = SetSelect1
             , layout =
-                \{ toDropdown, toDrawer, toOption, toToggle } ->
-                    toDropdown div
+                \{ toSelect, toDrawer, toOption, toToggle } ->
+                    toSelect div
                         [ class "inline" ]
                         [ toToggle div
                             [ classList [ ( "default", model.select1Selection == Nothing ), ( "text", True ) ] ]
@@ -50,7 +50,7 @@ type DrawerState
     | Closing
 
 
-{-| Define when the dropdown should open.
+{-| Define when the dropdown drawer should open.
 
 Identical to `Dropdown.ToggleEvent`
 
@@ -79,7 +79,7 @@ type alias Config msg html option =
     , onToggle : DrawerState -> msg
     , toggleEvent : ToggleEvent
     , readOnly : Bool
-    , layout : DropdownBuilder msg html option -> html
+    , layout : SelectBuilder msg html option -> html
     , layoutOption : OptionBuilder msg option -> html
     }
 
@@ -94,8 +94,8 @@ type alias OptionBuilder msg option =
 
 {-| Everything needed to build a particular Select.dropdown
 -}
-type alias DropdownBuilder msg html option =
-    { toDropdown : HtmlBuilder msg -> HtmlBuilder msg
+type alias SelectBuilder msg html option =
+    { toSelect : HtmlBuilder msg -> HtmlBuilder msg
     , toDrawer : HtmlBuilder msg -> HtmlBuilder msg
     , toToggle : HtmlBuilder msg -> HtmlBuilder msg
     , option : option -> html
@@ -108,7 +108,7 @@ init :
         , identifier : String
         , onToggle : DrawerState -> msg
         , onSelect : option -> msg
-        , layout : DropdownBuilder msg html option -> html
+        , layout : SelectBuilder msg html option -> html
         , layoutOption : OptionBuilder msg option -> html
     }
     -> Config msg html option
@@ -126,10 +126,10 @@ init config =
 
 {-| A dropdown component with stateful selection.
 -}
-dropdown :
+select :
     Config msg html option
     -> html
-dropdown config =
+select config =
     Dropdown.dropdown
         { drawerState = toDropdownDrawerState config.drawerState
         , identifier = config.identifier
@@ -139,7 +139,7 @@ dropdown config =
         , layout =
             \{ toDropdown, toToggle, toDrawer, toItem } ->
                 config.layout
-                    { toDropdown = toDropdown
+                    { toSelect = toDropdown
                     , toToggle = toToggle
                     , toDrawer = toDrawer << HtmlBuilder.prependAttribute (onClick (config.onToggle Closing))
                     , option =
