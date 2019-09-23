@@ -1,7 +1,7 @@
 module SemanticUI.Modules.Dropdown exposing
     ( Config
+    , DrawerState(..)
     , DropdownBuilder
-    , State(..)
     , ToggleEvent(..)
     , drawer
     , dropdown
@@ -21,6 +21,7 @@ As an example a big dropdown menu using layout:
         (Dropdown.init
             { identifier = "file"
             , onToggle = ToggleFile
+            , state = model.file
             , layout =
                 \({ toDropdown, toToggle, toDrawer, toItem } as outer) ->
                     toDropdown div
@@ -66,25 +67,19 @@ As an example a big dropdown menu using layout:
                         ]
             }
         )
-        model.file
 
 As an example a big dropdown menu using primitives:
 
     let
         config =
-            Dropdown.init { identifier = "file", onToggle = ToggleFile2 }
-
-        state =
-            model.file2
+            Dropdown.init { identifier = "file", onToggle = ToggleFile2, state = model.file2 }
     in
     Dropdown.root config
-        state
         div
         []
-        [ Dropdown.toggle config state div [ class "text" ] [ text "File" ]
-        , Dropdown.toggle config state i [ class "dropdown icon" ] []
+        [ Dropdown.toggle config div [ class "text" ] [ text "File" ]
+        , Dropdown.toggle config i [ class "dropdown icon" ] []
         , Dropdown.drawer config
-            state
             div
             []
             [ Dropdown.item div [] [ text "New" ]
@@ -139,10 +134,10 @@ import SemanticUI.Modules.HtmlBuilder as HtmlBuilder exposing (HtmlBuilder)
 
 A function that takes a record with the following functions
 
-  - toDropdown - the function `root` with `Config` and `State` applied to it.
-  - toToggle - the function `toggle` with `Config` and `State` applied to it.
-  - toDrawer - the function `drawer` with `Config` and `State` applied to it.
-  - toItem - the function `item` with `Config` and `State` applied to it.
+  - toDropdown - the function `root` with `Config` and `DrawerState` applied to it.
+  - toToggle - the function `toggle` with `Config` and `DrawerState` applied to it.
+  - toDrawer - the function `drawer` with `Config` and `DrawerState` applied to it.
+  - toItem - the function `item` with `Config` and `DrawerState` applied to it.
 
 The final resultant value is what you decide (some kind of DOM)
 
@@ -165,6 +160,7 @@ type ToggleEvent
 
 {-| Configuration for a dropdown
 
+  - drawerState - Current state of the dropdown
   - identifier - Unique identifier for the dropdown
   - onToggle - Handle state change of the dropdown
   - toggleEvent - When should the dropdown expand (default OnClick)
@@ -172,8 +168,9 @@ type ToggleEvent
 
 -}
 type alias Config msg html =
-    { identifier : String
-    , onToggle : State -> msg
+    { drawerState : DrawerState
+    , identifier : String
+    , onToggle : DrawerState -> msg
     , toggleEvent : ToggleEvent
     , readOnly : Bool
     , layout : DropdownBuilder msg -> html
@@ -188,9 +185,12 @@ Takes:
   - The state change handler.
 
 -}
-init : { config | identifier : String, onToggle : State -> msg, layout : DropdownBuilder msg -> html } -> Config msg html
-init { identifier, onToggle, layout } =
-    { identifier = identifier
+init :
+    { config | drawerState : DrawerState, identifier : String, onToggle : DrawerState -> msg, layout : DropdownBuilder msg -> html }
+    -> Config msg html
+init { drawerState, identifier, onToggle, layout } =
+    { drawerState = drawerState
+    , identifier = identifier
     , onToggle = onToggle
     , layout = layout
     , toggleEvent = OnClick
@@ -214,7 +214,7 @@ readOnly a config =
 
 {-| The current state of the dropdown drawer
 -}
-type State
+type DrawerState
     = Closed
     | Opening
     | Opened
@@ -232,14 +232,13 @@ Takes:
 -}
 dropdown :
     Config msg html
-    -> State
     -> html
-dropdown config state =
+dropdown config =
     config.layout
-        { toToggle = toggle config state
-        , toDrawer = drawer config state
+        { toToggle = toggle config
+        , toDrawer = drawer config
         , toItem = item
-        , toDropdown = root config state
+        , toDropdown = root config
         }
 
 
@@ -248,7 +247,6 @@ dropdown config state =
 It takes the following:
 
   - `Config`
-  - `State`
   - HTML renderer, typically passed in as a simple HTML element constructor e.g. `Html.div`
   - Node attributes
   - Node children, some of whitch were created using `toggle` and one using `drawer`
@@ -257,21 +255,20 @@ Amongst other things it adds the "ui dropdown" class to the root node.
 
 -}
 root :
-    { config | identifier : String, onToggle : State -> msg, toggleEvent : ToggleEvent, readOnly : Bool }
-    -> State
+    { config | drawerState : DrawerState, identifier : String, onToggle : DrawerState -> msg, toggleEvent : ToggleEvent, readOnly : Bool }
     -> HtmlBuilder msg
     -> HtmlBuilder msg
-root config state element attrs children =
+root config element attrs children =
     let
         isVisible =
-            drawerIsVisible state
+            drawerIsVisible config.drawerState
     in
     Dropdown.root
         { identifier = config.identifier
-        , onToggle = toDropdownOnToggle state config.onToggle
+        , onToggle = toDropdownOnToggle config.drawerState config.onToggle
         , toggleEvent = toDropdownToggleEvent config.toggleEvent
+        , isToggled = drawerIsOpen config.drawerState
         }
-        (drawerIsOpen state)
         element
         (classList
             [ ( "ui", True )
@@ -284,7 +281,6 @@ root config state element attrs children =
             :: attrs
         )
         (toggle config
-            state
             div
             [ style "position" "absolute"
             , style "width" "100%"
@@ -302,27 +298,25 @@ root config state element attrs children =
 It takes the following:
 
   - `Config`
-  - `State`
   - HTML renderer, typically passed in as a simple HTML element constructor e.g. `Html.div`
   - Attributes of node
   - Children of node
 
 -}
 toggle :
-    { config | readOnly : Bool, onToggle : State -> msg, toggleEvent : ToggleEvent }
-    -> State
+    { config | drawerState : DrawerState, readOnly : Bool, onToggle : DrawerState -> msg, toggleEvent : ToggleEvent }
     -> HtmlBuilder msg
     -> HtmlBuilder msg
-toggle config state =
+toggle config =
     if config.readOnly then
         identity
 
     else
         Dropdown.toggle
-            { onToggle = toDropdownOnToggle state config.onToggle
+            { onToggle = toDropdownOnToggle config.drawerState config.onToggle
             , toggleEvent = toDropdownToggleEvent config.toggleEvent
+            , isToggled = drawerIsOpen config.drawerState
             }
-            (drawerIsOpen state)
 
 
 {-| Create the drawer element which is displayed when the dropdown is expanded/toggled.
@@ -330,7 +324,6 @@ toggle config state =
 It takes the following:
 
   - `Config`
-  - `State`
   - HTML renderer, typically passed in as a simple HTML element constructor e.g. `Html.div`
   - Attributes of node
   - Children of node (some of which atleast created with `item`)
@@ -339,20 +332,19 @@ It adds the "menu" class to the node.
 
 -}
 drawer :
-    { config | readOnly : Bool, onToggle : State -> msg }
-    -> State
+    { config | drawerState : DrawerState, readOnly : Bool, onToggle : DrawerState -> msg }
     -> HtmlBuilder msg
     -> HtmlBuilder msg
-drawer config state element =
+drawer ({ drawerState } as config) element =
     let
         isTransitioning =
-            drawerIsTransitioning state
+            drawerIsTransitioning drawerState
 
         isVisible =
-            drawerIsVisible state
+            drawerIsVisible drawerState
 
         finalState =
-            case state of
+            case drawerState of
                 Opening ->
                     Opened
 
@@ -360,7 +352,7 @@ drawer config state element =
                     Closed
 
                 _ ->
-                    state
+                    drawerState
     in
     if config.readOnly then
         element
@@ -368,8 +360,9 @@ drawer config state element =
 
     else
         Dropdown.drawer
-            { drawerVisibleAttribute = classList [] }
-            (drawerIsOpen state)
+            { drawerVisibleAttribute = classList []
+            , isToggled = drawerIsOpen drawerState
+            }
             element
             |> HtmlBuilder.prependAttributes
                 (classList
@@ -381,8 +374,8 @@ drawer config state element =
                     , ( "transition", True )
                     , ( "slide", isTransitioning )
                     , ( "down", isTransitioning )
-                    , ( "in", state == Opening )
-                    , ( "out", state == Closing )
+                    , ( "in", drawerState == Opening )
+                    , ( "out", drawerState == Closing )
                     ]
                     :: (if isTransitioning then
                             [ on "animationend" (Decode.succeed (config.onToggle finalState)) ]
@@ -403,17 +396,17 @@ item =
     HtmlBuilder.prependAttribute (class "item")
 
 
-drawerIsOpen : State -> Bool
+drawerIsOpen : DrawerState -> Bool
 drawerIsOpen state =
     state == Opening || state == Opened
 
 
-drawerIsTransitioning : State -> Bool
+drawerIsTransitioning : DrawerState -> Bool
 drawerIsTransitioning state =
     state == Opening || state == Closing
 
 
-drawerIsVisible : State -> Bool
+drawerIsVisible : DrawerState -> Bool
 drawerIsVisible state =
     state /= Closed
 
@@ -431,7 +424,7 @@ toDropdownToggleEvent event =
             Dropdown.OnFocus
 
 
-toDrawerState : State -> Dropdown.State -> State
+toDrawerState : DrawerState -> Dropdown.State -> DrawerState
 toDrawerState currentState toggleOpen =
     case ( toggleOpen, drawerIsOpen currentState ) of
         ( True, False ) ->
@@ -444,6 +437,6 @@ toDrawerState currentState toggleOpen =
             currentState
 
 
-toDropdownOnToggle : State -> (State -> msg) -> Dropdown.State -> msg
+toDropdownOnToggle : DrawerState -> (DrawerState -> msg) -> Dropdown.State -> msg
 toDropdownOnToggle currentState onToggle toggleOpen =
     onToggle (toDrawerState currentState toggleOpen)
