@@ -3,12 +3,11 @@ module SemanticUI.Modules.Dropdown exposing
     , DrawerState(..)
     , DropdownBuilder
     , ToggleEvent(..)
-    , drawer
     , dropdown
     , init
-    , item
     , readOnly
-    , root
+    , toHtml
+    , toItem
     , toggle
     , toggleEvent
     )
@@ -17,108 +16,59 @@ module SemanticUI.Modules.Dropdown exposing
 
 As an example a big dropdown menu using layout:
 
+    let
+        mainMenu { toDropdown, toToggle, toDrawer } =
+            toDropdown div
+                []
+                [ toToggle div [ class "text" ] [ text "File" ]
+                , toToggle i [ class "dropdown icon" ] []
+                , toDrawer div
+                    []
+                    [ Dropdown.toItem div [] [ text "New" ]
+                    , Dropdown.toItem div [] [ span [ class "description" ] [ text "ctrl + o" ], text "Open..." ]
+                    , Dropdown.toItem div [] [ span [ class "description" ] [ text "ctrl + s" ], text "Save as..." ]
+                    , Dropdown.toItem div [] [ span [ class "description" ] [ text "ctrl + r" ], text "Rename" ]
+                    , Dropdown.toItem div [] [ text "Make a copy" ]
+                    , Dropdown.toItem div [] [ i [ class "folder icon" ] [], text "Move to folder" ]
+                    , Dropdown.toItem div [] [ i [ class "trash icon" ] [], text "Move to trash" ]
+                    , div [ class "divider" ] []
+                    , Dropdown.toItem div [] [ text "Download As.." ]
+                    , Dropdown.dropdown
+                        (Dropdown.init
+                            { identifier = "fileSub"
+                            , onToggle = ToggleFileSub
+                            , state = model.fileSub
+                            }
+                            |> Dropdown.toggleEvent Dropdown.OnHover
+                        )
+                        |> Dropdown.toHtml subMenu
+                    ]
+                ]
+
+        subMenu { toDropdown, toToggle, toDrawer } =
+            toDropdown (Dropdown.toItem div)
+                []
+                [ toToggle div [] [ i [ class "dropdown icon" ] [], text "Publish to Web" ]
+                , toDrawer div
+                    []
+                    [ Dropdown.toItem div [] [ text "Google Docs" ]
+                    , Dropdown.toItem div [] [ text "Google Drive" ]
+                    , Dropdown.toItem div [] [ text "Google Drive" ]
+                    , Dropdown.toItem div [] [ text "Dropbox" ]
+                    , Dropdown.toItem div [] [ text "Adobe Creative Cloud" ]
+                    , Dropdown.toItem div [] [ text "Private FTP" ]
+                    , Dropdown.toItem div [] [ text "Another Service..." ]
+                    ]
+                ]
+    in
     Dropdown.dropdown
         (Dropdown.init
             { identifier = "file"
             , onToggle = ToggleFile
             , state = model.file
-            , layout =
-                \({ toDropdown, toToggle, toDrawer, toItem } as outer) ->
-                    toDropdown div
-                        []
-                        [ toToggle div [ class "text" ] [ text "File" ]
-                        , toToggle i [ class "dropdown icon" ] []
-                        , toDrawer div
-                            []
-                            [ toItem div [] [ text "New" ]
-                            , toItem div [] [ span [ class "description" ] [ text "ctrl + o" ], text "Open..." ]
-                            , toItem div [] [ span [ class "description" ] [ text "ctrl + s" ], text "Save as..." ]
-                            , toItem div [] [ span [ class "description" ] [ text "ctrl + r" ], text "Rename" ]
-                            , toItem div [] [ text "Make a copy" ]
-                            , toItem div [] [ i [ class "folder icon" ] [], text "Move to folder" ]
-                            , toItem div [] [ i [ class "trash icon" ] [], text "Move to trash" ]
-                            , div [ class "divider" ] []
-                            , toItem div [] [ text "Download As.." ]
-                            , dropdown
-                                (Dropdown.init
-                                    { identifier = "fileSub"
-                                    , onToggle = ToggleFileSub
-                                    , layout =
-                                        \{ toDropdown, toToggle, toDrawer, toItem } ->
-                                            toDropdown (outer.toItem div)
-                                                []
-                                                [ toToggle div [] [ i [ class "dropdown icon" ] [], text "Publish to Web" ]
-                                                , toDrawer div
-                                                    []
-                                                    [ toItem div [] [ text "Google Docs" ]
-                                                    , toItem div [] [ text "Google Drive" ]
-                                                    , toItem div [] [ text "Google Drive" ]
-                                                    , toItem div [] [ text "Dropbox" ]
-                                                    , toItem div [] [ text "Adobe Creative Cloud" ]
-                                                    , toItem div [] [ text "Private FTP" ]
-                                                    , toItem div [] [ text "Another Service..." ]
-                                                    ]
-                                                ]
-                                    }
-                                    |> Dropdown.toggleEvent Dropdown.OnHover
-                                )
-                                model.fileSub
-                            ]
-                        ]
             }
         )
-
-As an example a big dropdown menu using primitives:
-
-    let
-        config =
-            Dropdown.init { identifier = "file", onToggle = ToggleFile2, state = model.file2 }
-    in
-    Dropdown.root config
-        div
-        []
-        [ Dropdown.toggle config div [ class "text" ] [ text "File" ]
-        , Dropdown.toggle config i [ class "dropdown icon" ] []
-        , Dropdown.drawer config
-            div
-            []
-            [ Dropdown.item div [] [ text "New" ]
-            , Dropdown.item div [] [ span [ class "description" ] [ text "ctrl + o" ], text "Open..." ]
-            , Dropdown.item div [] [ span [ class "description" ] [ text "ctrl + s" ], text "Save as..." ]
-            , Dropdown.item div [] [ span [ class "description" ] [ text "ctrl + r" ], text "Rename" ]
-            , Dropdown.item div [] [ text "Make a copy" ]
-            , Dropdown.item div [] [ i [ class "folder icon" ] [], text "Move to folder" ]
-            , Dropdown.item div [] [ i [ class "trash icon" ] [], text "Move to trash" ]
-            , div [ class "divider" ] []
-            , Dropdown.item div [] [ text "Download As.." ]
-            , let
-                cfgSub =
-                    Dropdown.init { identifier = "fileSub", onToggle = ToggleFileSub2 }
-                        |> Dropdown.toggleEvent Dropdown.OnHover
-
-                stSub =
-                    model.fileSub2
-              in
-              Dropdown.root cfgSub
-                stSub
-                (Dropdown.item div)
-                []
-                [ Dropdown.toggle cfgSub stSub div [] [ i [ class "dropdown icon" ] [], text "Publish to Web" ]
-                , Dropdown.drawer cfgSub
-                    stSub
-                    div
-                    []
-                    [ Dropdown.item div [] [ text "Google Docs" ]
-                    , Dropdown.item div [] [ text "Google Drive" ]
-                    , Dropdown.item div [] [ text "Google Drive" ]
-                    , Dropdown.item div [] [ text "Dropbox" ]
-                    , Dropdown.item div [] [ text "Adobe Creative Cloud" ]
-                    , Dropdown.item div [] [ text "Private FTP" ]
-                    , Dropdown.item div [] [ text "Another Service..." ]
-                    ]
-                ]
-            ]
-        ]
+        |> Dropdown.toHtml mainMenu
 
 -}
 
@@ -137,7 +87,6 @@ A function that takes a record with the following functions
   - toDropdown - the function `root` with `Config` and `DrawerState` applied to it.
   - toToggle - the function `toggle` with `Config` and `DrawerState` applied to it.
   - toDrawer - the function `drawer` with `Config` and `DrawerState` applied to it.
-  - toItem - the function `item` with `Config` and `DrawerState` applied to it.
 
 The final resultant value is what you decide (some kind of DOM)
 
@@ -146,7 +95,6 @@ type alias DropdownBuilder msg =
     { toDropdown : HtmlBuilder msg -> HtmlBuilder msg
     , toToggle : HtmlBuilder msg -> HtmlBuilder msg
     , toDrawer : HtmlBuilder msg -> HtmlBuilder msg
-    , toItem : HtmlBuilder msg -> HtmlBuilder msg
     }
 
 
@@ -167,13 +115,12 @@ type ToggleEvent
   - readOnly - Is the dropdown read only (default False)
 
 -}
-type alias Config msg html =
+type alias Config msg =
     { drawerState : DrawerState
     , identifier : String
     , onToggle : DrawerState -> msg
     , toggleEvent : ToggleEvent
     , readOnly : Bool
-    , layout : DropdownBuilder msg -> html
     }
 
 
@@ -186,13 +133,12 @@ Takes:
 
 -}
 init :
-    { config | drawerState : DrawerState, identifier : String, onToggle : DrawerState -> msg, layout : DropdownBuilder msg -> html }
-    -> Config msg html
-init { drawerState, identifier, onToggle, layout } =
+    { config | drawerState : DrawerState, identifier : String, onToggle : DrawerState -> msg }
+    -> Config msg
+init { drawerState, identifier, onToggle } =
     { drawerState = drawerState
     , identifier = identifier
     , onToggle = onToggle
-    , layout = layout
     , toggleEvent = OnClick
     , readOnly = False
     }
@@ -221,23 +167,24 @@ type DrawerState
     | Closing
 
 
-{-| Render a dropdown.
+type Dropdown msg
+    = Dropdown (Config msg)
 
-Takes:
 
-  - Configuration
-  - The current state of the dropdown
-  - The layout function for the dropdown
-
--}
 dropdown :
-    Config msg html
-    -> html
-dropdown config =
-    config.layout
+    Config msg
+    -> Dropdown msg
+dropdown =
+    Dropdown
+
+
+{-| Render a dropdown with the provided layout
+-}
+toHtml : (DropdownBuilder msg -> Html msg) -> Dropdown msg -> Html msg
+toHtml layout (Dropdown config) =
+    layout
         { toToggle = toggle config
         , toDrawer = drawer config
-        , toItem = item
         , toDropdown = root config
         }
 
@@ -326,7 +273,7 @@ It takes the following:
   - `Config`
   - HTML renderer, typically passed in as a simple HTML element constructor e.g. `Html.div`
   - Attributes of node
-  - Children of node (some of which atleast created with `item`)
+  - Children of node (some of which may be created with `toItem`)
 
 It adds the "menu" class to the node.
 
@@ -391,8 +338,8 @@ drawer ({ drawerState } as config) element =
 It adds the "item" class to the node.
 
 -}
-item : HtmlBuilder msg -> HtmlBuilder msg
-item =
+toItem : HtmlBuilder msg -> HtmlBuilder msg
+toItem =
     HtmlBuilder.prependAttribute (class "item")
 
 
