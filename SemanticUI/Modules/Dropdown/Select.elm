@@ -5,7 +5,7 @@ module SemanticUI.Modules.Dropdown.Select exposing (Config, DrawerState(..), sel
 Example of `Select.select` :
 
     let
-        menu { toSelect, toDrawer, toOption, toToggle } =
+        menu { toSelect, toOption, toToggle, drawer } =
             let
                 option val =
                     toOption val div [ class "text" ] [ text (toString val) ]
@@ -17,7 +17,7 @@ Example of `Select.select` :
                     [ text (Maybe.withDefault "Nothing selected" model.select1Selection)
                     , i [ class "dropdown icon" ] []
                     ]
-                , toDrawer div
+                , drawer
                     []
                     (List.map option [ Yes, No ])
                 ]
@@ -97,9 +97,9 @@ type alias OptionBuilder msg option =
 -}
 type alias SelectBuilder msg option =
     { toSelect : HtmlBuilder msg -> HtmlBuilder msg
-    , toDrawer : HtmlBuilder msg -> HtmlBuilder msg
     , toToggle : HtmlBuilder msg -> HtmlBuilder msg
     , toOption : option -> HtmlBuilder msg -> HtmlBuilder msg
+    , drawer : HtmlBuilder msg
     }
 
 
@@ -137,11 +137,13 @@ select =
 toHtml : (SelectBuilder msg option -> Html msg) -> Select msg option -> Html msg
 toHtml layout (Select config) =
     let
-        dropdownLayout { toDropdown, toToggle, toDrawer } =
+        dropdownLayout { toDropdown, toToggle, drawer } =
             layout
                 { toSelect = toDropdown
                 , toToggle = toToggle
-                , toDrawer = toDrawer << HtmlBuilder.prependAttribute (onClick (config.onToggle Closing))
+                , drawer =
+                    drawer
+                        |> HtmlBuilder.prependAttribute (onClick (config.onToggle Closing))
                 , toOption =
                     \value ->
                         Dropdown.toItem << HtmlBuilder.prependAttribute (onClick (config.onSelect value))

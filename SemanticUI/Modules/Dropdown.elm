@@ -16,12 +16,12 @@ module SemanticUI.Modules.Dropdown exposing
 As an example a big dropdown menu using layout:
 
     let
-        mainMenu { toDropdown, toToggle, toDrawer } =
+        mainMenu { toDropdown, toToggle, drawer } =
             toDropdown div
                 []
                 [ toToggle div [ class "text" ] [ text "File" ]
                 , toToggle i [ class "dropdown icon" ] []
-                , toDrawer div
+                , drawer
                     []
                     [ Dropdown.toItem div [] [ text "New" ]
                     , Dropdown.toItem div [] [ span [ class "description" ] [ text "ctrl + o" ], text "Open..." ]
@@ -44,11 +44,11 @@ As an example a big dropdown menu using layout:
                     ]
                 ]
 
-        subMenu { toDropdown, toToggle, toDrawer } =
+        subMenu { toDropdown, toToggle, drawer } =
             toDropdown (Dropdown.toItem div)
                 []
                 [ toToggle div [] [ i [ class "dropdown icon" ] [], text "Publish to Web" ]
-                , toDrawer div
+                , drawer
                     []
                     [ Dropdown.toItem div [] [ text "Google Docs" ]
                     , Dropdown.toItem div [] [ text "Google Drive" ]
@@ -81,19 +81,17 @@ import SemanticUI.Modules.HtmlBuilder as HtmlBuilder exposing (HtmlBuilder)
 
 {-| Everything needed to build a particular dropdown.
 
-A function that takes a record with the following functions
+A function that takes a record with the following functions:
 
-  - toDropdown - the function `root` with `Config` and `DrawerState` applied to it.
-  - toToggle - the function `toggle` with `Config` and `DrawerState` applied to it.
-  - toDrawer - the function `drawer` with `Config` and `DrawerState` applied to it.
-
-The final resultant value is what you decide (some kind of DOM)
+  - toDropdown - converts a `<div>` or an `<a>` element  into a SemanticUI dropdown
+  - toToggle - converts an element into a toggle for the dropdown
+  - drawer - the drawer element that can be toggled open or closed
 
 -}
 type alias DropdownBuilder msg =
     { toDropdown : HtmlBuilder msg -> HtmlBuilder msg
     , toToggle : HtmlBuilder msg -> HtmlBuilder msg
-    , toDrawer : HtmlBuilder msg -> HtmlBuilder msg
+    , drawer : HtmlBuilder msg
     }
 
 
@@ -182,9 +180,9 @@ dropdown =
 toHtml : (DropdownBuilder msg -> Html msg) -> Dropdown msg -> Html msg
 toHtml layout (Dropdown config) =
     layout
-        { toToggle = toggle config
-        , toDrawer = drawer config
-        , toDropdown = root config
+        { toToggle = toToggle config
+        , toDropdown = toRoot config
+        , drawer = drawer config
         }
 
 
@@ -200,11 +198,11 @@ It takes the following:
 Amongst other things it adds the "ui dropdown" class to the root node.
 
 -}
-root :
+toRoot :
     { config | drawerState : DrawerState, identifier : String, onToggle : DrawerState -> msg, toggleEvent : ToggleEvent, readOnly : Bool }
     -> HtmlBuilder msg
     -> HtmlBuilder msg
-root config element attrs children =
+toRoot config element attrs children =
     let
         isVisible =
             drawerIsVisible config.drawerState
@@ -226,7 +224,7 @@ root config element attrs children =
             :: style "position" "relative"
             :: attrs
         )
-        (toggle config
+        (toToggle config
             div
             [ style "position" "absolute"
             , style "width" "100%"
@@ -249,11 +247,11 @@ It takes the following:
   - Children of node
 
 -}
-toggle :
+toToggle :
     { config | drawerState : DrawerState, readOnly : Bool, onToggle : DrawerState -> msg, toggleEvent : ToggleEvent }
     -> HtmlBuilder msg
     -> HtmlBuilder msg
-toggle config =
+toToggle config =
     if config.readOnly then
         identity
 
@@ -279,9 +277,10 @@ It adds the "menu" class to the node.
 -}
 drawer :
     { config | drawerState : DrawerState, readOnly : Bool, onToggle : DrawerState -> msg }
-    -> HtmlBuilder msg
-    -> HtmlBuilder msg
-drawer ({ drawerState } as config) element =
+    -> List (Attribute msg)
+    -> List (Html msg)
+    -> Html msg
+drawer ({ drawerState } as config) =
     let
         isTransitioning =
             drawerIsTransitioning drawerState
@@ -301,7 +300,7 @@ drawer ({ drawerState } as config) element =
                     drawerState
     in
     if config.readOnly then
-        element
+        div
             |> HtmlBuilder.prependAttribute (classList [ ( "menu", True ) ])
 
     else
@@ -309,7 +308,7 @@ drawer ({ drawerState } as config) element =
             { drawerVisibleAttribute = classList []
             , isToggled = drawerIsOpen drawerState
             }
-            element
+            div
             |> HtmlBuilder.prependAttributes
                 (classList
                     [ ( "menu", True )
