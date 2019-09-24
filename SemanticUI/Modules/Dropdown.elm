@@ -1,10 +1,10 @@
 module SemanticUI.Modules.Dropdown exposing
-    ( Config
+    ( Builder
+    , Config
     , DrawerState(..)
-    , DropdownBuilder
+    , Dropdown(..)
     , ToggleEvent(..)
     , dropdown
-    , init
     , readOnly
     , toHtml
     , toItem
@@ -33,13 +33,11 @@ As an example a big dropdown menu using layout:
                     , div [ class "divider" ] []
                     , Dropdown.toItem div [] [ text "Download As.." ]
                     , Dropdown.dropdown
-                        (Dropdown.init
-                            { identifier = "fileSub"
-                            , onToggle = ToggleFileSub
-                            , state = model.fileSub
-                            }
-                            |> Dropdown.toggleEvent Dropdown.OnHover
-                        )
+                        { identifier = "fileSub"
+                        , onToggle = ToggleFileSub
+                        , state = model.fileSub
+                        }
+                        |> Dropdown.toggleEvent Dropdown.OnHover
                         |> Dropdown.toHtml subMenu
                     ]
                 ]
@@ -61,12 +59,10 @@ As an example a big dropdown menu using layout:
                 ]
     in
     Dropdown.dropdown
-        (Dropdown.init
-            { identifier = "file"
-            , onToggle = ToggleFile
-            , state = model.file
-            }
-        )
+        { identifier = "file"
+        , onToggle = ToggleFile
+        , state = model.file
+        }
         |> Dropdown.toHtml mainMenu
 
 -}
@@ -79,16 +75,14 @@ import Json.Decode as Decode
 import SemanticUI.Modules.HtmlBuilder as HtmlBuilder exposing (HtmlBuilder)
 
 
-{-| Everything needed to build a particular dropdown.
+{-| Everything needed to build the `Html msg` representation of a particular dropdown.
 
-A function that takes a record with the following functions:
-
-  - toDropdown - converts a `<div>` or an `<a>` element  into a SemanticUI dropdown
+  - toDropdown - converts a `<div>` or an `<a>` element into a SemanticUI dropdown
   - toToggle - converts an element into a toggle for the dropdown
   - drawer - the drawer element that can be toggled open or closed
 
 -}
-type alias DropdownBuilder msg =
+type alias Builder msg =
     { toDropdown : HtmlBuilder msg -> HtmlBuilder msg
     , toToggle : HtmlBuilder msg -> HtmlBuilder msg
     , drawer : HtmlBuilder msg
@@ -121,38 +115,27 @@ type alias Config msg =
     }
 
 
-{-| Create a default Config for a dropdown.
+{-| A type that represents the dropdown.
 
-Takes:
-
-  - The unique identifier.
-  - The state change handler.
+Use `dropdown` to construct it.
 
 -}
-init :
-    { config | drawerState : DrawerState, identifier : String, onToggle : DrawerState -> msg }
-    -> Config msg
-init { drawerState, identifier, onToggle } =
-    { drawerState = drawerState
-    , identifier = identifier
-    , onToggle = onToggle
-    , toggleEvent = OnClick
-    , readOnly = False
-    }
+type Dropdown msg
+    = Dropdown (Config msg)
 
 
-{-| Set toggleEvent on a Config
+{-| Set toggleEvent on a Dropdown
 -}
-toggleEvent : ToggleEvent -> { config | toggleEvent : ToggleEvent } -> { config | toggleEvent : ToggleEvent }
-toggleEvent a config =
-    { config | toggleEvent = a }
+toggleEvent : ToggleEvent -> Dropdown msg -> Dropdown msg
+toggleEvent a (Dropdown config) =
+    Dropdown { config | toggleEvent = a }
 
 
-{-| Set readOnly on a Config
+{-| Set readOnly on a Dropdown
 -}
-readOnly : Bool -> { config | readOnly : Bool } -> { config | readOnly : Bool }
-readOnly a config =
-    { config | readOnly = a }
+readOnly : Bool -> Dropdown msg -> Dropdown msg
+readOnly a (Dropdown config) =
+    Dropdown { config | readOnly = a }
 
 
 {-| The current state of the dropdown drawer
@@ -164,20 +147,22 @@ type DrawerState
     | Closing
 
 
-type Dropdown msg
-    = Dropdown (Config msg)
-
-
 dropdown :
-    Config msg
+    { config | drawerState : DrawerState, identifier : String, onToggle : DrawerState -> msg }
     -> Dropdown msg
-dropdown =
+dropdown config =
     Dropdown
+        { drawerState = config.drawerState
+        , identifier = config.identifier
+        , onToggle = config.onToggle
+        , toggleEvent = OnClick
+        , readOnly = False
+        }
 
 
 {-| Render a dropdown with the provided layout
 -}
-toHtml : (DropdownBuilder msg -> Html msg) -> Dropdown msg -> Html msg
+toHtml : (Builder msg -> Html msg) -> Dropdown msg -> Html msg
 toHtml layout (Dropdown config) =
     layout
         { toToggle = toToggle config

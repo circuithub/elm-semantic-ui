@@ -1,4 +1,14 @@
-module SemanticUI.Modules.Dropdown.Select exposing (Config, DrawerState(..), select)
+module SemanticUI.Modules.Dropdown.Select exposing
+    ( Builder
+    , Config
+    , DrawerState(..)
+    , Select(..)
+    , ToggleEvent(..)
+    , readOnly
+    , select
+    , toHtml
+    , toggleEvent
+    )
 
 {-| Refine a dropdown with selection state
 
@@ -23,13 +33,11 @@ Example of `Select.select` :
                 ]
     in
     Select.select
-        (Select.init
-            { identifier = "select1"
-            , onToggle = ToggleSelect1
-            , onSelect = SetSelect1
-            , drawerState = model.select1DrawerState
-            }
-        )
+        { identifier = "select1"
+        , onToggle = ToggleSelect1
+        , onSelect = SetSelect1
+        , drawerState = model.select1DrawerState
+        }
         |> Select.toHtml menu
 
 -}
@@ -85,17 +93,27 @@ type alias Config msg option =
     }
 
 
-{-| Everything needed to build a particular Select.option
--}
-type alias OptionBuilder msg option =
-    { toItem : HtmlBuilder msg -> HtmlBuilder msg
-    , value : option
-    }
+type Select msg option
+    = Select (Config msg option)
 
 
-{-| Everything needed to build a particular Select.dropdown
+{-| Set `toggleEvent` on a `Select`
 -}
-type alias SelectBuilder msg option =
+toggleEvent : ToggleEvent -> Select msg -> Select msg
+toggleEvent a (Select config) =
+    Select { config | toggleEvent = a }
+
+
+{-| Set `readOnly` on a `Select`
+-}
+readOnly : Bool -> Select msg -> Select msg
+readOnly a (Select config) =
+    Select { config | readOnly = a }
+
+
+{-| Everything needed to build the `Html msg` representation of a particular select dropdown.
+-}
+type alias Builder msg option =
     { toSelect : HtmlBuilder msg -> HtmlBuilder msg
     , toToggle : HtmlBuilder msg -> HtmlBuilder msg
     , toOption : option -> HtmlBuilder msg -> HtmlBuilder msg
@@ -103,38 +121,28 @@ type alias SelectBuilder msg option =
     }
 
 
-init :
+{-| A dropdown component with stateful selection.
+-}
+select :
     { config
         | drawerState : DrawerState
         , identifier : String
         , onToggle : DrawerState -> msg
         , onSelect : option -> msg
     }
-    -> Config msg option
-init config =
-    { drawerState = config.drawerState
-    , identifier = config.identifier
-    , onToggle = config.onToggle
-    , onSelect = config.onSelect
-    , toggleEvent = OnClick
-    , readOnly = False
-    }
-
-
-type Select msg option
-    = Select (Config msg option)
-
-
-{-| A dropdown component with stateful selection.
--}
-select :
-    Config msg option
     -> Select msg option
-select =
+select config =
     Select
+        { drawerState = config.drawerState
+        , identifier = config.identifier
+        , onToggle = config.onToggle
+        , onSelect = config.onSelect
+        , toggleEvent = OnClick
+        , readOnly = False
+        }
 
 
-toHtml : (SelectBuilder msg option -> Html msg) -> Select msg option -> Html msg
+toHtml : (Builder msg option -> Html msg) -> Select msg option -> Html msg
 toHtml layout (Select config) =
     let
         dropdownLayout { toDropdown, toToggle, drawer } =
@@ -146,10 +154,10 @@ toHtml layout (Select config) =
                         |> HtmlBuilder.prependAttribute (onClick (config.onToggle Closing))
                 , toOption =
                     \value ->
-                        Dropdown.toItem << HtmlBuilder.prependAttribute (onClick (config.onSelect value))
+                        toItem << HtmlBuilder.prependAttribute (onClick (config.onSelect value))
                 }
     in
-    Dropdown.dropdown
+    Dropdown.Dropdown
         { drawerState = toDropdownDrawerState config.drawerState
         , identifier = config.identifier
         , onToggle = config.onToggle << fromDropdownDrawerState
@@ -157,6 +165,16 @@ toHtml layout (Select config) =
         , readOnly = config.readOnly
         }
         |> Dropdown.toHtml dropdownLayout
+
+
+{-| Create an item that goes in the drawer.
+
+Identical to `Dropdown.toItem`
+
+-}
+toItem : HtmlBuilder msg -> HtmlBuilder msg
+toItem =
+    HtmlBuilder.prependAttribute (class "item")
 
 
 toDropdownDrawerState : DrawerState -> Dropdown.DrawerState
