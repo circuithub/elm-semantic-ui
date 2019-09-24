@@ -8,7 +8,6 @@ module SemanticUI.Modules.Dropdown exposing
     , readOnly
     , toHtml
     , toItem
-    , toggle
     , toggleEvent
     )
 
