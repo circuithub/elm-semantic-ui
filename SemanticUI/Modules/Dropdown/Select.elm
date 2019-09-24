@@ -90,6 +90,8 @@ type alias Config msg option =
     , onToggle : DrawerState -> msg
     , toggleEvent : ToggleEvent
     , readOnly : Bool
+    , selectAttributes : List (Attribute msg)
+    , formInput : Maybe { name : String, value : String }
     }
 
 
@@ -99,14 +101,14 @@ type Select msg option
 
 {-| Set `toggleEvent` on a `Select`
 -}
-toggleEvent : ToggleEvent -> Select msg -> Select msg
+toggleEvent : ToggleEvent -> Select msg option -> Select msg option
 toggleEvent a (Select config) =
     Select { config | toggleEvent = a }
 
 
 {-| Set `readOnly` on a `Select`
 -}
-readOnly : Bool -> Select msg -> Select msg
+readOnly : Bool -> Select msg option -> Select msg option
 readOnly a (Select config) =
     Select { config | readOnly = a }
 
@@ -139,6 +141,43 @@ select config =
         , onSelect = config.onSelect
         , toggleEvent = OnClick
         , readOnly = False
+        , selectAttributes = []
+        , formInput = Nothing
+        }
+
+
+{-| A dropdown select component visually styled as a `<select>` form control with an optional hidden `<input>` for forms.
+-}
+selection :
+    { config
+        | currentSelection : Maybe option
+        , drawerState : DrawerState
+        , identifier : String
+        , onToggle : DrawerState -> msg
+        , onSelect : option -> msg
+        , formInput : Maybe { name : String, toValue : option -> String }
+    }
+    -> Select msg option
+selection config =
+    Select
+        { drawerState = config.drawerState
+        , identifier = config.identifier
+        , onToggle = config.onToggle
+        , onSelect = config.onSelect
+        , formInput =
+            config.formInput
+                |> Maybe.map
+                    (\formInput ->
+                        { name = formInput.name
+                        , value =
+                            config.currentSelection
+                                |> Maybe.map formInput.toValue
+                                |> Maybe.withDefault ""
+                        }
+                    )
+        , selectAttributes = [ class "selection" ]
+        , toggleEvent = OnClick
+        , readOnly = False
         }
 
 
@@ -147,7 +186,18 @@ toHtml layout (Select config) =
     let
         dropdownLayout { toDropdown, toToggle, drawer } =
             layout
-                { toSelect = toDropdown
+                { toSelect =
+                    case config.formInput of
+                        Nothing ->
+                            toDropdown
+
+                        Just formInput ->
+                            \element attrs children ->
+                                toDropdown element
+                                    (config.selectAttributes ++ attrs)
+                                    (input [ name formInput.name, value formInput.value ] []
+                                        :: children
+                                    )
                 , toToggle = toToggle
                 , drawer =
                     drawer
