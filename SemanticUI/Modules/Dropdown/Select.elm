@@ -91,6 +91,8 @@ type alias Config msg option =
     , toggleEvent : ToggleEvent
     , readOnly : Bool
     , selectAttributes : List (Attribute msg)
+    , optionAttributes : option -> List (Attribute msg)
+    , selectLabels : List (Html msg)
     , formInput : Maybe { name : String, value : String }
     }
 
@@ -124,6 +126,10 @@ type alias Builder msg option =
 
 
 {-| A dropdown component with stateful selection.
+
+Serves as the basis for several other select component, including multiple selection.
+It does not highlight the current selection automatically.
+
 -}
 select :
     { config
@@ -142,11 +148,55 @@ select config =
         , toggleEvent = OnClick
         , readOnly = False
         , selectAttributes = []
+        , optionAttributes = \_ -> []
+        , selectLabels = []
         , formInput = Nothing
         }
 
 
-{-| A dropdown select component visually styled as a `<select>` form control with an optional hidden `<input>` for forms.
+{-| A dropdown select component, visually labeled with the current selection.
+-}
+labeled :
+    { config
+        | currentSelection : Maybe option
+        , drawerState : DrawerState
+        , identifier : String
+        , onToggle : DrawerState -> msg
+        , onSelect : option -> msg
+        , defaultLabel : String
+        , optionLabel : option -> String
+    }
+    -> Select msg option
+labeled config =
+    Select
+        { drawerState = config.drawerState
+        , identifier = config.identifier
+        , onToggle = config.onToggle
+        , onSelect = config.onSelect
+        , formInput = Nothing
+        , selectAttributes = [ class "labeled" ]
+        , optionAttributes =
+            \option ->
+                [ classList [ ( "active selected", Just option == config.currentSelection ) ] ]
+        , selectLabels =
+            [ span
+                [ class "text" ]
+                [ text
+                    (config.currentSelection
+                        |> Maybe.map config.optionLabel
+                        |> Maybe.withDefault config.defaultLabel
+                    )
+                ]
+            ]
+        , toggleEvent = OnClick
+        , readOnly = False
+        }
+
+
+{-| A dropdown select component visually styled as a `<select>` form control.
+
+This configuration can e used with an optional hidden `<input>` for forms.
+
 -}
 selection :
     { config
@@ -156,29 +206,54 @@ selection :
         , onToggle : DrawerState -> msg
         , onSelect : option -> msg
         , formInput : Maybe { name : String, toValue : option -> String }
+        , defaultLabel : String
+        , optionLabel : option -> String
     }
     -> Select msg option
 selection config =
+    let
+        (Select labeledConfig) =
+            labeled config
+    in
     Select
-        { drawerState = config.drawerState
-        , identifier = config.identifier
-        , onToggle = config.onToggle
-        , onSelect = config.onSelect
-        , formInput =
-            config.formInput
-                |> Maybe.map
-                    (\formInput ->
-                        { name = formInput.name
-                        , value =
-                            config.currentSelection
-                                |> Maybe.map formInput.toValue
-                                |> Maybe.withDefault ""
-                        }
-                    )
-        , selectAttributes = [ class "selection" ]
-        , toggleEvent = OnClick
-        , readOnly = False
+        { labeledConfig
+            | selectAttributes = [ class "selection" ]
+            , formInput =
+                config.formInput
+                    |> Maybe.map
+                        (\formInput ->
+                            { name = formInput.name
+                            , value =
+                                config.currentSelection
+                                    |> Maybe.map formInput.toValue
+                                    |> Maybe.withDefault ""
+                            }
+                        )
         }
+
+
+{-| A dropdown select component that can be used inline with text.
+-}
+inline :
+    { config
+        | currentSelection : Maybe option
+        , drawerState : DrawerState
+        , identifier : String
+        , onToggle : DrawerState -> msg
+        , onSelect : option -> msg
+        , defaultLabel : String
+        , optionLabel : option -> String
+    }
+    -> Select msg option
+inline config =
+    let
+        (Select labeledConfig) =
+            labeled config
+    in
+    Select
+      { labeledConfig
+          | selectAttributes = [ class "inline" ]
+      }
 
 
 toHtml : (Builder msg option -> Html msg) -> Select msg option -> Html msg
@@ -187,24 +262,22 @@ toHtml layout (Select config) =
         dropdownLayout { toDropdown, toToggle, drawer } =
             layout
                 { toSelect =
-                    case config.formInput of
-                        Nothing ->
-                            toDropdown
-
-                        Just formInput ->
-                            \element attrs children ->
-                                toDropdown element
-                                    (config.selectAttributes ++ attrs)
-                                    (input [ name formInput.name, value formInput.value ] []
-                                        :: children
-                                    )
+                    \element ->
+                        toDropdown element
+                            |> HtmlBuilder.prependChildren
+                                ((config.formInput
+                                    |> Maybe.map (\formInput -> [ input [ name formInput.name, value formInput.value ] [] ])
+                                    |> Maybe.withDefault []
+                                 )
+                                    ++ config.selectLabels
+                                )
                 , toToggle = toToggle
                 , drawer =
                     drawer
                         |> HtmlBuilder.prependAttribute (onClick (config.onToggle Closing))
                 , toOption =
                     \value ->
-                        toItem << HtmlBuilder.prependAttribute (onClick (config.onSelect value))
+                        toItem << HtmlBuilder.prependAttributes (onClick (config.onSelect value) :: config.optionAttributes value)
                 }
     in
     Dropdown.Dropdown
