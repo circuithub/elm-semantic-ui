@@ -4,13 +4,40 @@ module SemanticUI.Modules.Dropdown.Select exposing
     , DrawerState(..)
     , Select(..)
     , ToggleEvent(..)
+    , inline
+    , labeled
     , readOnly
     , select
+    , selection
     , toHtml
     , toggleEvent
     )
 
 {-| Refine a dropdown with selection state
+
+Example of `Select.labeled`:
+
+    let
+        menu { toSelect, toOption, toToggle, drawer } =
+            let
+                option val =
+                    toOption val div [] [ text (toString val) ]
+            in
+            toSelect div
+                []
+                [ toToggle div [] [ i [ class "dropdown icon" ] [] ]
+                , drawer [] (List.map option [ Yes, No ])
+                ]
+    in
+    Select.labeled
+        { identifier = "select1"
+        , onToggle = ToggleSelect1
+        , onSelect = SetSelect1
+        , drawerState = model.select1DrawerState
+        , defaultLabel = text "Select an option"
+        , selectionLabel = text << ToString
+        }
+        |> Select.toHtml menu
 
 Example of `Select.select` :
 
@@ -18,7 +45,7 @@ Example of `Select.select` :
         menu { toSelect, toOption, toToggle, drawer } =
             let
                 option val =
-                    toOption val div [ class "text" ] [ text (toString val) ]
+                    toOption val div [] [ text (toString val) ]
             in
             toSelect div
                 [ class "inline" ]
@@ -27,9 +54,7 @@ Example of `Select.select` :
                     [ text (Maybe.withDefault "Nothing selected" model.select1Selection)
                     , i [ class "dropdown icon" ] []
                     ]
-                , drawer
-                    []
-                    (List.map option [ Yes, No ])
+                , drawer [] (List.map option [ Yes, No ])
                 ]
     in
     Select.select
@@ -72,15 +97,9 @@ type ToggleEvent
     | OnFocus
 
 
-{-| Configuration for a select
+{-| Most general configuration that applies any Select.
 
-  - identifier - unique identifier
-  - onToggle - message to handle dropdown state changes
-  - toggleEvent - what casuse dropdown state change (default OnClick)
-  - readOnly - is the selection read only or not
-  - onSelect - messages to handle selection change (when clicking on option)
-  - layout
-  - layoutOption
+It is recommended that you use `selection`, `inline`, `labeled` or `select` to construct this record.
 
 -}
 type alias Config msg option =
@@ -101,14 +120,14 @@ type Select msg option
     = Select (Config msg option)
 
 
-{-| Set `toggleEvent` on a `Select`
+{-| Set `toggleEvent` on any `Select`
 -}
 toggleEvent : ToggleEvent -> Select msg option -> Select msg option
 toggleEvent a (Select config) =
     Select { config | toggleEvent = a }
 
 
-{-| Set `readOnly` on a `Select`
+{-| Set `readOnly` on any `Select`
 -}
 readOnly : Bool -> Select msg option -> Select msg option
 readOnly a (Select config) =
@@ -116,6 +135,12 @@ readOnly a (Select config) =
 
 
 {-| Everything needed to build the `Html msg` representation of a particular select dropdown.
+
+  - toSelect - converts a `<div>` or an `<a>` element into a SemanticUI dropdown
+  - toToggle - converts an element into a toggle for the dropdown
+  - toOption - takes the option value and converts a `<div>` or an `<a>` element into a selectable option item
+  - drawer - the drawer element that can be toggled open or closed
+
 -}
 type alias Builder msg option =
     { toSelect : HtmlBuilder msg -> HtmlBuilder msg
@@ -127,7 +152,7 @@ type alias Builder msg option =
 
 {-| A dropdown component with stateful selection.
 
-Serves as the basis for several other select component, including multiple selection.
+A vanilla select component, which can be extended in many different ways (including multiple selection).
 It does not highlight the current selection automatically.
 
 -}
@@ -163,8 +188,8 @@ labeled :
         , identifier : String
         , onToggle : DrawerState -> msg
         , onSelect : option -> msg
-        , defaultLabel : String
-        , selectionLabel : option -> String
+        , defaultLabel : Html msg
+        , selectionLabel : option -> Html msg
     }
     -> Select msg option
 labeled config =
@@ -181,10 +206,10 @@ labeled config =
         , selectLabels =
             [ case config.currentSelection of
                 Nothing ->
-                    span [ class "default text" ] [ text config.defaultLabel ]
+                    span [ class "default text" ] [ config.defaultLabel ]
 
                 Just selectedOption ->
-                    span [ class "text" ] [ text (config.selectionLabel selectedOption) ]
+                    span [ class "text" ] [ config.selectionLabel selectedOption ]
             ]
         , toggleEvent = OnClick
         , readOnly = False
@@ -193,7 +218,7 @@ labeled config =
 
 {-| A dropdown select component visually styled as a `<select>` form control.
 
-This configuration can e used with an optional hidden `<input>` for forms.
+This configuration can be used with an optional hidden `<input>` for forms.
 
 -}
 selection :
@@ -204,8 +229,8 @@ selection :
         , onToggle : DrawerState -> msg
         , onSelect : option -> msg
         , formInput : Maybe { name : String, toValue : option -> String }
-        , defaultLabel : String
-        , selectionLabel : option -> String
+        , defaultLabel : Html msg
+        , selectionLabel : option -> Html msg
     }
     -> Select msg option
 selection config =
@@ -239,8 +264,8 @@ inline :
         , identifier : String
         , onToggle : DrawerState -> msg
         , onSelect : option -> msg
-        , defaultLabel : String
-        , selectionLabel : option -> String
+        , defaultLabel : Html msg
+        , selectionLabel : option -> Html msg
     }
     -> Select msg option
 inline config =
@@ -262,7 +287,7 @@ toHtml layout (Select config) =
                 { toSelect =
                     \element ->
                         toDropdown element
-                            |> HtmlBuilder.prependChildren
+                            |> HtmlBuilder.appendChildren
                                 ((config.formInput
                                     |> Maybe.map (\formInput -> [ input [ name formInput.name, value formInput.value ] [] ])
                                     |> Maybe.withDefault []

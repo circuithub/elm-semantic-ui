@@ -124,14 +124,14 @@ type Dropdown msg
     = Dropdown (Config msg)
 
 
-{-| Set toggleEvent on a Dropdown
+{-| Set `toggleEvent` on a `Dropdown`
 -}
 toggleEvent : ToggleEvent -> Dropdown msg -> Dropdown msg
 toggleEvent a (Dropdown config) =
     Dropdown { config | toggleEvent = a }
 
 
-{-| Set readOnly on a Dropdown
+{-| Set `readOnly` on a `Dropdown`
 -}
 readOnly : Bool -> Dropdown msg -> Dropdown msg
 readOnly a (Dropdown config) =
@@ -170,19 +170,6 @@ toHtml layout (Dropdown config) =
         , drawer = drawer config
         }
 
-
-{-| Create the root node for a dropdown containing at least a toggle and a drawer
-
-It takes the following:
-
-  - `Config`
-  - HTML renderer, typically passed in as a simple HTML element constructor e.g. `Html.div`
-  - Node attributes
-  - Node children, some of whitch were created using `toggle` and one using `drawer`
-
-Amongst other things it adds the "ui dropdown" class to the root node.
-
--}
 toRoot :
     { config | drawerState : DrawerState, identifier : String, onToggle : DrawerState -> msg, toggleEvent : ToggleEvent, readOnly : Bool }
     -> HtmlBuilder msg
@@ -222,16 +209,6 @@ toRoot config element attrs children =
         )
 
 
-{-| Create an element for the toggle area that will toggle the drawer on toggle event.
-
-It takes the following:
-
-  - `Config`
-  - HTML renderer, typically passed in as a simple HTML element constructor e.g. `Html.div`
-  - Attributes of node
-  - Children of node
-
--}
 toToggle :
     { config | drawerState : DrawerState, readOnly : Bool, onToggle : DrawerState -> msg, toggleEvent : ToggleEvent }
     -> HtmlBuilder msg
@@ -248,18 +225,6 @@ toToggle config =
             }
 
 
-{-| Create the drawer element which is displayed when the dropdown is expanded/toggled.
-
-It takes the following:
-
-  - `Config`
-  - HTML renderer, typically passed in as a simple HTML element constructor e.g. `Html.div`
-  - Attributes of node
-  - Children of node (some of which may be created with `toItem`)
-
-It adds the "menu" class to the node.
-
--}
 drawer :
     { config | drawerState : DrawerState, readOnly : Bool, onToggle : DrawerState -> msg }
     -> List (Attribute msg)
