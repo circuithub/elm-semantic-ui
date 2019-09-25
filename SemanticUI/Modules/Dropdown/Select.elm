@@ -164,7 +164,7 @@ labeled :
         , onToggle : DrawerState -> msg
         , onSelect : option -> msg
         , defaultLabel : String
-        , optionLabel : option -> String
+        , selectionLabel : option -> String
     }
     -> Select msg option
 labeled config =
@@ -179,14 +179,12 @@ labeled config =
             \option ->
                 [ classList [ ( "active selected", Just option == config.currentSelection ) ] ]
         , selectLabels =
-            [ span
-                [ class "text" ]
-                [ text
-                    (config.currentSelection
-                        |> Maybe.map config.optionLabel
-                        |> Maybe.withDefault config.defaultLabel
-                    )
-                ]
+            [ case config.currentSelection of
+                Nothing ->
+                    span [ class "default text" ] [ text config.defaultLabel ]
+
+                Just selectedOption ->
+                    span [ class "text" ] [ text (config.selectionLabel selectedOption) ]
             ]
         , toggleEvent = OnClick
         , readOnly = False
@@ -207,7 +205,7 @@ selection :
         , onSelect : option -> msg
         , formInput : Maybe { name : String, toValue : option -> String }
         , defaultLabel : String
-        , optionLabel : option -> String
+        , selectionLabel : option -> String
     }
     -> Select msg option
 selection config =
@@ -242,7 +240,7 @@ inline :
         , onToggle : DrawerState -> msg
         , onSelect : option -> msg
         , defaultLabel : String
-        , optionLabel : option -> String
+        , selectionLabel : option -> String
     }
     -> Select msg option
 inline config =
@@ -251,9 +249,9 @@ inline config =
             labeled config
     in
     Select
-      { labeledConfig
-          | selectAttributes = [ class "inline" ]
-      }
+        { labeledConfig
+            | selectAttributes = [ class "inline" ]
+        }
 
 
 toHtml : (Builder msg option -> Html msg) -> Select msg option -> Html msg
