@@ -4,6 +4,7 @@ module SemanticUI.Modules.Dropdown.Select exposing
     , DrawerState(..)
     , Select(..)
     , ToggleEvent(..)
+    , dropdownIcon
     , inline
     , labeled
     , readOnly
@@ -113,6 +114,7 @@ type alias Config msg option =
     , optionAttributes : option -> List (Attribute msg)
     , selectLabels : List (Html msg)
     , formInput : Maybe { name : String, value : String }
+    , dropdownIcon : Bool
     }
 
 
@@ -132,6 +134,13 @@ toggleEvent a (Select config) =
 readOnly : Bool -> Select msg option -> Select msg option
 readOnly a (Select config) =
     Select { config | readOnly = a }
+
+
+{-| Set `dropdownIcon` on a `Select`
+-}
+dropdownIcon : Bool -> Select msg option -> Select msg option
+dropdownIcon a (Select config) =
+    Select { config | dropdownIcon = a }
 
 
 {-| Everything needed to build the `Html msg` representation of a particular select dropdown.
@@ -176,6 +185,7 @@ select config =
         , optionAttributes = \_ -> []
         , selectLabels = []
         , formInput = Nothing
+        , dropdownIcon = False
         }
 
 
@@ -213,6 +223,7 @@ labeled config =
             ]
         , toggleEvent = OnClick
         , readOnly = False
+        , dropdownIcon = False
         }
 
 
@@ -252,6 +263,7 @@ selection config =
                                     |> Maybe.withDefault ""
                             }
                         )
+            , dropdownIcon = True
         }
 
 
@@ -276,6 +288,7 @@ inline config =
     Select
         { labeledConfig
             | selectAttributes = [ class "inline" ]
+            , dropdownIcon = True
         }
 
 
@@ -309,6 +322,7 @@ toHtml layout (Select config) =
         , onToggle = config.onToggle << fromDropdownDrawerState
         , toggleEvent = toDropdownToggleEvent config.toggleEvent
         , readOnly = config.readOnly
+        , dropdownIcon = config.dropdownIcon
         }
         |> Dropdown.toHtml dropdownLayout
 

@@ -5,6 +5,7 @@ module SemanticUI.Modules.Dropdown exposing
     , Dropdown(..)
     , ToggleEvent(..)
     , dropdown
+    , dropdownIcon
     , readOnly
     , toHtml
     , toItem
@@ -20,7 +21,6 @@ As an example a big dropdown menu using layout:
             toDropdown div
                 []
                 [ toToggle div [ class "text" ] [ text "File" ]
-                , toToggle i [ class "dropdown icon" ] []
                 , drawer
                     []
                     [ Dropdown.toItem div [] [ text "New" ]
@@ -38,6 +38,7 @@ As an example a big dropdown menu using layout:
                         , state = model.fileSub
                         }
                         |> Dropdown.toggleEvent Dropdown.OnHover
+                        |> Dropdown.dropdownIcon True
                         |> Dropdown.toHtml subMenu
                     ]
                 ]
@@ -45,7 +46,7 @@ As an example a big dropdown menu using layout:
         subMenu { toDropdown, toToggle, drawer } =
             toDropdown (Dropdown.toItem div)
                 []
-                [ toToggle div [] [ i [ class "dropdown icon" ] [], text "Publish to Web" ]
+                [ toToggle div [] [ text "Publish to Web" ]
                 , drawer
                     []
                     [ Dropdown.toItem div [] [ text "Google Docs" ]
@@ -63,6 +64,7 @@ As an example a big dropdown menu using layout:
         , onToggle = ToggleFile
         , state = model.file
         }
+        |> Dropdown.dropdownIcon True
         |> Dropdown.toHtml mainMenu
 
 -}
@@ -104,6 +106,7 @@ type ToggleEvent
   - onToggle - Handle state change of the dropdown
   - toggleEvent - When should the dropdown expand (default OnClick)
   - readOnly - Is the dropdown read only (default False)
+  - dropdownIcon - Whether a dropdown icon is visible (default False)
 
 -}
 type alias Config msg =
@@ -112,6 +115,7 @@ type alias Config msg =
     , onToggle : DrawerState -> msg
     , toggleEvent : ToggleEvent
     , readOnly : Bool
+    , dropdownIcon : Bool
     }
 
 
@@ -138,6 +142,13 @@ readOnly a (Dropdown config) =
     Dropdown { config | readOnly = a }
 
 
+{-| Set `dropdownIcon` on a `Dropdown`
+-}
+dropdownIcon : Bool -> Dropdown msg -> Dropdown msg
+dropdownIcon a (Dropdown config) =
+    Dropdown { config | dropdownIcon = a }
+
+
 {-| The current state of the dropdown drawer
 -}
 type DrawerState
@@ -155,6 +166,7 @@ dropdown config =
         { drawerState = config.drawerState
         , identifier = config.identifier
         , onToggle = config.onToggle
+        , dropdownIcon = False
         , toggleEvent = OnClick
         , readOnly = False
         }
@@ -170,8 +182,9 @@ toHtml layout (Dropdown config) =
         , drawer = drawer config
         }
 
+
 toRoot :
-    { config | drawerState : DrawerState, identifier : String, onToggle : DrawerState -> msg, toggleEvent : ToggleEvent, readOnly : Bool }
+    { config | drawerState : DrawerState, identifier : String, onToggle : DrawerState -> msg, toggleEvent : ToggleEvent, readOnly : Bool, dropdownIcon : Bool }
     -> HtmlBuilder msg
     -> HtmlBuilder msg
 toRoot config element attrs children =
@@ -206,6 +219,12 @@ toRoot config element attrs children =
             ]
             []
             :: children
+            ++ (if config.dropdownIcon then
+                    [ i [ class "dropdown icon" ] [] ]
+
+                else
+                    []
+               )
         )
 
 
