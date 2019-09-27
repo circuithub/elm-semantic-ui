@@ -6,6 +6,7 @@ module SemanticUI.Modules.Dropdown exposing
     , ToggleEvent(..)
     , dropdown
     , dropdownIcon
+    , fluid
     , readOnly
     , toHtml
     , toItem
@@ -117,6 +118,7 @@ type alias Config msg =
     , toggleEvent : ToggleEvent
     , readOnly : Bool
     , dropdownIcon : Bool
+    , fluid : Bool
     }
 
 
@@ -150,6 +152,14 @@ dropdownIcon a (Dropdown config) =
     Dropdown { config | dropdownIcon = a }
 
 
+{-| The dropdown will stretch horizontally to fill the space that it is in.
+It may also contain floated content.
+-}
+fluid : Bool -> Dropdown msg -> Dropdown msg
+fluid a (Dropdown config) =
+    Dropdown { config | fluid = a }
+
+
 {-| The current state of the dropdown drawer
 -}
 type DrawerState
@@ -170,6 +180,7 @@ dropdown config =
         , dropdownIcon = False
         , toggleEvent = OnClick
         , readOnly = False
+        , fluid = False
         }
 
 
@@ -196,7 +207,7 @@ toSimpleHtml { items } dropdownControl =
 
 
 toRoot :
-    { config | drawerState : DrawerState, identifier : String, onToggle : DrawerState -> msg, toggleEvent : ToggleEvent, readOnly : Bool, dropdownIcon : Bool }
+    { config | drawerState : DrawerState, identifier : String, onToggle : DrawerState -> msg, toggleEvent : ToggleEvent, readOnly : Bool, dropdownIcon : Bool, fluid : Bool }
     -> HtmlBuilder msg
     -> HtmlBuilder msg
 toRoot config element attrs children =
@@ -213,10 +224,11 @@ toRoot config element attrs children =
         element
         (classList
             [ ( "ui", True )
-            , ( "dropdown", True )
             , ( "active", isVisible )
             , ( "visible", isVisible )
             , ( "disabled", config.readOnly )
+            , ( "fluid", config.fluid )
+            , ( "dropdown", True )
             ]
             :: style "position" "relative"
             :: attrs

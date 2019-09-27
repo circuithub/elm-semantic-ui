@@ -330,7 +330,6 @@ toHtml layout (Select config) =
                                     [ ( "inline", config.variation == Inline )
                                     , ( "labeled", config.variation == Labeled )
                                     , ( "selection", config.variation == Selection )
-                                    , ( "fluid", config.fluid )
                                     ]
                                 ]
                             |> HtmlBuilder.appendChildren
@@ -356,6 +355,7 @@ toHtml layout (Select config) =
         , toggleEvent = toDropdownToggleEvent config.toggleEvent
         , readOnly = config.readOnly
         , dropdownIcon = config.dropdownIcon
+        , fluid = config.fluid
         }
         |> Dropdown.toHtml dropdownLayout
 
