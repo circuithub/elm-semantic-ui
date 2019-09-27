@@ -10,6 +10,7 @@ module SemanticUI.Modules.Dropdown exposing
     , fluid
     , linkItem
     , readOnly
+    , scrolling
     , toCustomHtml
     , toHtml
     , toItem
@@ -122,6 +123,7 @@ type alias Config msg =
     , readOnly : Bool
     , dropdownIcon : Bool
     , fluid : Bool
+    , scrolling : Bool
     }
 
 
@@ -171,6 +173,13 @@ fluid a (Dropdown config) =
     Dropdown { config | fluid = a }
 
 
+{-| A scrolling dropdown can have its menu scroll.
+-}
+scrolling : Bool -> Dropdown msg -> Dropdown msg
+scrolling a (Dropdown config) =
+    Dropdown { config | scrolling = a }
+
+
 {-| The current state of the dropdown drawer
 -}
 type DrawerState
@@ -193,6 +202,7 @@ dropdown config =
         , readOnly = False
         , dropdownIcon = False
         , fluid = False
+        , scrolling = False
         }
 
 
@@ -219,7 +229,17 @@ toHtml { items } dropdownControl =
 
 
 toRoot :
-    { config | drawerState : DrawerState, identifier : String, onToggle : DrawerState -> msg, attributes : List (Attribute msg), toggleEvent : ToggleEvent, readOnly : Bool, dropdownIcon : Bool, fluid : Bool }
+    { config
+        | drawerState : DrawerState
+        , identifier : String
+        , onToggle : DrawerState -> msg
+        , attributes : List (Attribute msg)
+        , toggleEvent : ToggleEvent
+        , readOnly : Bool
+        , dropdownIcon : Bool
+        , fluid : Bool
+        , scrolling : Bool
+    }
     -> HtmlBuilder msg
     -> HtmlBuilder msg
 toRoot config element attrs children =
@@ -241,6 +261,7 @@ toRoot config element attrs children =
                     , ( "visible", isVisible )
                     , ( "disabled", config.readOnly )
                     , ( "fluid", config.fluid )
+                    , ( "scrolling", config.scrolling )
                     , ( "dropdown", True )
                     ]
                     :: style "position" "relative"

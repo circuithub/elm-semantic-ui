@@ -10,6 +10,7 @@ module SemanticUI.Modules.Dropdown.Select exposing
     , inline
     , labeled
     , readOnly
+    , scrolling
     , select
     , selection
     , toCustomHtml
@@ -117,6 +118,7 @@ type alias Config msg option =
     , formInput : Maybe { name : String, value : String }
     , dropdownIcon : Bool
     , fluid : Bool
+    , scrolling : Bool
     }
 
 
@@ -167,6 +169,16 @@ fluid a (Select config) =
     Select { config | fluid = a }
 
 
+{-| A scrolling dropdown can have its menu scroll.
+
+Identical to `Dropdown.scrolling`
+
+-}
+scrolling : Bool -> Select msg option -> Select msg option
+scrolling a (Select config) =
+    Select { config | scrolling = a }
+
+
 {-| Everything needed to build the `Html msg` representation of a particular select dropdown.
 
   - toSelect - converts a `<div>` or an `<a>` element into a SemanticUI dropdown
@@ -212,6 +224,7 @@ select config =
         , formInput = Nothing
         , dropdownIcon = False
         , fluid = False
+        , scrolling = False
         }
 
 
@@ -252,6 +265,7 @@ labeled config =
         , readOnly = False
         , dropdownIcon = False
         , fluid = False
+        , scrolling = False
         }
 
 
@@ -373,6 +387,7 @@ toCustomHtml layout (Select config) =
         , readOnly = config.readOnly
         , dropdownIcon = config.dropdownIcon
         , fluid = config.fluid
+        , scrolling = config.scrolling
         }
         |> Dropdown.toCustomHtml dropdownLayout
 
