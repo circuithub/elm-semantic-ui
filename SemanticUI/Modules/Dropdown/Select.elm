@@ -5,6 +5,7 @@ module SemanticUI.Modules.Dropdown.Select exposing
     , Select(..)
     , ToggleEvent(..)
     , attributes
+    , compact
     , dropdownIcon
     , fluid
     , inline
@@ -119,6 +120,7 @@ type alias Config msg option =
     , dropdownIcon : Bool
     , fluid : Bool
     , scrolling : Bool
+    , compact : Bool
     }
 
 
@@ -179,6 +181,13 @@ scrolling a (Select config) =
     Select { config | scrolling = a }
 
 
+{-| A compact selection dropdown has no minimum width.
+-}
+compact : Bool -> Select msg option -> Select msg option
+compact a (Select config) =
+    Select { config | compact = a }
+
+
 {-| Everything needed to build the `Html msg` representation of a particular select dropdown.
 
   - toSelect - converts a `<div>` or an `<a>` element into a SemanticUI dropdown
@@ -225,6 +234,7 @@ select config =
         , dropdownIcon = False
         , fluid = False
         , scrolling = False
+        , compact = False
         }
 
 
@@ -266,6 +276,7 @@ labeled config =
         , dropdownIcon = False
         , fluid = False
         , scrolling = False
+        , compact = False
         }
 
 
@@ -357,7 +368,8 @@ toCustomHtml layout (Select config) =
                         toDropdown element
                             |> HtmlBuilder.appendAttributes
                                 [ classList
-                                    [ ( "inline", config.variation == Inline )
+                                    [ ( "compact", config.compact )
+                                    , ( "inline", config.variation == Inline )
                                     , ( "labeled", config.variation == Labeled )
                                     , ( "selection", config.variation == Selection )
                                     ]
