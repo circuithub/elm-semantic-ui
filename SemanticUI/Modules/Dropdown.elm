@@ -7,6 +7,7 @@ module SemanticUI.Modules.Dropdown exposing
     , dropdown
     , dropdownIcon
     , fluid
+    , linkItem
     , readOnly
     , toHtml
     , toItem
@@ -324,14 +325,26 @@ drawer ({ drawerState } as config) =
                 )
 
 
-{-| Create an item that goes in the drawer.
+{-| Create a menu item that goes in the drawer.
+Converts a `<div>` or an `<a>` element into a SemanticUI dropdown item.
 
 It adds the "item" class to the node.
 
 -}
 toItem : HtmlBuilder msg -> HtmlBuilder msg
 toItem =
-    HtmlBuilder.prependAttribute (class "item")
+    HtmlBuilder.appendAttribute (class "item")
+
+
+{-| Create a menu item that goes in the drawer, formatted as if it were an `<a>` element.
+
+It adds the "link" and "item" classes to the node.
+
+-}
+linkItem : List (Attribute msg) -> List (Html msg) -> Html msg
+linkItem =
+    div
+        |> HtmlBuilder.appendAttribute (class "link item")
 
 
 drawerIsOpen : DrawerState -> Bool

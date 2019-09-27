@@ -1,4 +1,4 @@
-module SemanticUI.Modules.HtmlBuilder exposing (HtmlBuilder, appendChild, appendChildren, prependAttribute, prependAttributes, prependChild, prependChildren)
+module SemanticUI.Modules.HtmlBuilder exposing (HtmlBuilder, appendChild, appendChildren, appendAttribute, appendAttributes, prependAttribute, prependAttributes, prependChild, prependChildren)
 
 import Html exposing (..)
 

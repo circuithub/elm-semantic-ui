@@ -367,7 +367,17 @@ Identical to `Dropdown.toItem`
 -}
 toItem : HtmlBuilder msg -> HtmlBuilder msg
 toItem =
-    HtmlBuilder.prependAttribute (class "item")
+    Dropdown.toItem
+
+
+{-| Create a menu item that goes in the drawer, formatted as if it were an `<a>` element.
+
+Identical to \`Dropdown.linkItem
+
+-}
+linkItem : List (Attribute msg) -> List (Html msg) -> Html msg
+linkItem =
+    Dropdown.linkItem
 
 
 toDropdownDrawerState : DrawerState -> Dropdown.DrawerState
