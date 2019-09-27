@@ -109,7 +109,6 @@ type alias Config msg option =
     , onToggle : DrawerState -> msg
     , toggleEvent : ToggleEvent
     , readOnly : Bool
-    , selectAttributes : List (Attribute msg)
     , optionAttributes : option -> List (Attribute msg)
     , selectLabels : List (Html msg)
     , formInput : Maybe { name : String, value : String }
@@ -193,11 +192,11 @@ select config =
         , onSelect = config.onSelect
         , toggleEvent = OnClick
         , readOnly = False
-        , selectAttributes = []
         , optionAttributes = \_ -> []
         , selectLabels = []
         , formInput = Nothing
         , dropdownIcon = False
+        , fluid = False
         }
 
 
@@ -236,6 +235,7 @@ labeled config =
         , toggleEvent = OnClick
         , readOnly = False
         , dropdownIcon = False
+        , fluid = False
         }
 
 
