@@ -4,7 +4,9 @@ module SemanticUI.Modules.Dropdown.Select exposing
     , DrawerState(..)
     , Select(..)
     , ToggleEvent(..)
+    , attributes
     , dropdownIcon
+    , fluid
     , inline
     , labeled
     , readOnly
@@ -107,6 +109,7 @@ type alias Config msg option =
     , identifier : String
     , onSelect : option -> msg
     , onToggle : DrawerState -> msg
+    , attributes : List (Attribute msg)
     , toggleEvent : ToggleEvent
     , readOnly : Bool
     , optionAttributes : option -> List (Attribute msg)
@@ -119,6 +122,16 @@ type alias Config msg option =
 
 type Select msg option
     = Select (Config msg option)
+
+
+{-| Any other custom `Attribute`s to add to the select. Custom attributes
+will be added before `elm-semantic-ui` attributes.
+
+Identical to `Dropdown.attributes`
+-}
+attributes : List (Attribute msg) -> Select msg option -> Select msg option
+attributes a (Select config) =
+    Select { config | attributes = a }
 
 
 {-| Set `toggleEvent` on any `Select`
@@ -190,6 +203,7 @@ select config =
         , identifier = config.identifier
         , onToggle = config.onToggle
         , onSelect = config.onSelect
+        , attributes = []
         , toggleEvent = OnClick
         , readOnly = False
         , optionAttributes = \_ -> []
@@ -221,6 +235,7 @@ labeled config =
         , onToggle = config.onToggle
         , onSelect = config.onSelect
         , formInput = Nothing
+        , attributes = []
         , optionAttributes =
             \option ->
                 [ classList [ ( "active selected", Just option == config.currentSelection ) ] ]
@@ -352,6 +367,7 @@ toHtml layout (Select config) =
         { drawerState = toDropdownDrawerState config.drawerState
         , identifier = config.identifier
         , onToggle = config.onToggle << fromDropdownDrawerState
+        , attributes = config.attributes
         , toggleEvent = toDropdownToggleEvent config.toggleEvent
         , readOnly = config.readOnly
         , dropdownIcon = config.dropdownIcon

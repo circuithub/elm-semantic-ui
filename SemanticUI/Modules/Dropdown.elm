@@ -4,6 +4,7 @@ module SemanticUI.Modules.Dropdown exposing
     , DrawerState(..)
     , Dropdown(..)
     , ToggleEvent(..)
+    , attributes
     , dropdown
     , dropdownIcon
     , fluid
@@ -116,6 +117,7 @@ type alias Config msg =
     { drawerState : DrawerState
     , identifier : String
     , onToggle : DrawerState -> msg
+    , attributes : List (Attribute msg)
     , toggleEvent : ToggleEvent
     , readOnly : Bool
     , dropdownIcon : Bool
@@ -130,6 +132,14 @@ Use `dropdown` to construct it.
 -}
 type Dropdown msg
     = Dropdown (Config msg)
+
+
+{-| Any other custom `Attribute`s to add to dropdown. Custom attributes
+will be added before `elm-semantic-ui` attributes.
+-}
+attributes : List (Attribute msg) -> Dropdown msg -> Dropdown msg
+attributes a (Dropdown config) =
+    Dropdown { config | attributes = a }
 
 
 {-| Set `toggleEvent` on a `Dropdown`
@@ -178,9 +188,10 @@ dropdown config =
         { drawerState = config.drawerState
         , identifier = config.identifier
         , onToggle = config.onToggle
-        , dropdownIcon = False
+        , attributes = []
         , toggleEvent = OnClick
         , readOnly = False
+        , dropdownIcon = False
         , fluid = False
         }
 
@@ -208,7 +219,7 @@ toSimpleHtml { items } dropdownControl =
 
 
 toRoot :
-    { config | drawerState : DrawerState, identifier : String, onToggle : DrawerState -> msg, toggleEvent : ToggleEvent, readOnly : Bool, dropdownIcon : Bool, fluid : Bool }
+    { config | drawerState : DrawerState, identifier : String, onToggle : DrawerState -> msg, attributes : List (Attribute msg), toggleEvent : ToggleEvent, readOnly : Bool, dropdownIcon : Bool, fluid : Bool }
     -> HtmlBuilder msg
     -> HtmlBuilder msg
 toRoot config element attrs children =
@@ -223,16 +234,18 @@ toRoot config element attrs children =
         , isToggled = drawerIsOpen config.drawerState
         }
         element
-        (classList
-            [ ( "ui", True )
-            , ( "active", isVisible )
-            , ( "visible", isVisible )
-            , ( "disabled", config.readOnly )
-            , ( "fluid", config.fluid )
-            , ( "dropdown", True )
-            ]
-            :: style "position" "relative"
-            :: attrs
+        (config.attributes
+            ++ (classList
+                    [ ( "ui", True )
+                    , ( "active", isVisible )
+                    , ( "visible", isVisible )
+                    , ( "disabled", config.readOnly )
+                    , ( "fluid", config.fluid )
+                    , ( "dropdown", True )
+                    ]
+                    :: style "position" "relative"
+                    :: attrs
+               )
         )
         (toToggle config
             div
