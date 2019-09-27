@@ -114,6 +114,7 @@ type alias Config msg option =
     , selectLabels : List (Html msg)
     , formInput : Maybe { name : String, value : String }
     , dropdownIcon : Bool
+    , fluid : Bool
     }
 
 
@@ -140,6 +141,17 @@ readOnly a (Select config) =
 dropdownIcon : Bool -> Select msg option -> Select msg option
 dropdownIcon a (Select config) =
     Select { config | dropdownIcon = a }
+
+
+{-| The dropdown will stretch horizontally to fill the space that it is in.
+It may also contain floated content.
+
+Identical to `Dropdown.fluid`
+
+-}
+fluid : Bool -> Select msg option -> Select msg option
+fluid a (Select config) =
+    Select { config | fluid = a }
 
 
 {-| Everything needed to build the `Html msg` representation of a particular select dropdown.
@@ -318,6 +330,7 @@ toHtml layout (Select config) =
                                     [ ( "inline", config.variation == Inline )
                                     , ( "labeled", config.variation == Labeled )
                                     , ( "selection", config.variation == Selection )
+                                    , ( "fluid", config.fluid )
                                     ]
                                 ]
                             |> HtmlBuilder.appendChildren
