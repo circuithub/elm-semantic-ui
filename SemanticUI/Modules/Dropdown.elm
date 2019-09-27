@@ -10,9 +10,9 @@ module SemanticUI.Modules.Dropdown exposing
     , fluid
     , linkItem
     , readOnly
+    , toCustomHtml
     , toHtml
     , toItem
-    , toSimpleHtml
     , toggleEvent
     )
 
@@ -43,7 +43,7 @@ As an example a big dropdown menu using layout:
                         }
                         |> Dropdown.toggleEvent Dropdown.OnHover
                         |> Dropdown.dropdownIcon True
-                        |> Dropdown.toHtml subMenu
+                        |> Dropdown.toCustomHtml subMenu
                     ]
                 ]
 
@@ -69,7 +69,7 @@ As an example a big dropdown menu using layout:
         , state = model.file
         }
         |> Dropdown.dropdownIcon True
-        |> Dropdown.toHtml mainMenu
+        |> Dropdown.toCustomHtml mainMenu
 
 -}
 
@@ -198,8 +198,8 @@ dropdown config =
 
 {-| Render a dropdown with the provided layout
 -}
-toHtml : (Builder msg -> Html msg) -> Dropdown msg -> Html msg
-toHtml layout (Dropdown config) =
+toCustomHtml : (Builder msg -> Html msg) -> Dropdown msg -> Html msg
+toCustomHtml layout (Dropdown config) =
     layout
         { toToggle = toToggle config
         , toDropdown = toRoot config
@@ -209,13 +209,13 @@ toHtml layout (Dropdown config) =
 
 {-| Render a dropdown with a simple default layout
 -}
-toSimpleHtml : { builder | items : List (Html msg) } -> Dropdown msg -> Html msg
-toSimpleHtml { items } dropdownControl =
+toHtml : { builder | items : List (Html msg) } -> Dropdown msg -> Html msg
+toHtml { items } dropdownControl =
     let
         layout builder =
             builder.toDropdown div [] [ builder.drawer [] (List.map (toItem div [] << List.singleton) items) ]
     in
-    toHtml layout dropdownControl
+    toCustomHtml layout dropdownControl
 
 
 toRoot :

@@ -12,8 +12,8 @@ module SemanticUI.Modules.Dropdown.Select exposing
     , readOnly
     , select
     , selection
+    , toCustomHtml
     , toHtml
-    , toSimpleHtml
     , toggleEvent
     )
 
@@ -30,7 +30,7 @@ Example of `Select.labeled`:
         , selectionLabel = text << ToString
         , currentSelection = model.select1Selection
         }
-        |> Select.toSimpleHtml
+        |> Select.toHtml
             { optionLabel = text << toString, options = [ Yes, No ] }
 
 Example of `Select.select` :
@@ -57,7 +57,7 @@ Example of `Select.select` :
         , onSelect = SetSelect1
         , drawerState = model.select1DrawerState
         }
-        |> Select.toHtml menu
+        |> Select.toCustomHtml menu
 
 -}
 
@@ -128,6 +128,7 @@ type Select msg option
 will be added before `elm-semantic-ui` attributes.
 
 Identical to `Dropdown.attributes`
+
 -}
 attributes : List (Attribute msg) -> Select msg option -> Select msg option
 attributes a (Select config) =
@@ -319,8 +320,8 @@ inline config =
         }
 
 
-toSimpleHtml : { builder | optionLabel : option -> Html msg, options : List option } -> Select msg option -> Html msg
-toSimpleHtml { optionLabel, options } selectControl =
+toHtml : { builder | optionLabel : option -> Html msg, options : List option } -> Select msg option -> Html msg
+toHtml { optionLabel, options } selectControl =
     let
         layout { toSelect, toOption, drawer } =
             let
@@ -329,11 +330,11 @@ toSimpleHtml { optionLabel, options } selectControl =
             in
             toSelect div [] [ drawer [] (List.map option options) ]
     in
-    toHtml layout selectControl
+    toCustomHtml layout selectControl
 
 
-toHtml : (Builder msg option -> Html msg) -> Select msg option -> Html msg
-toHtml layout (Select config) =
+toCustomHtml : (Builder msg option -> Html msg) -> Select msg option -> Html msg
+toCustomHtml layout (Select config) =
     let
         dropdownLayout { toDropdown, toToggle, drawer } =
             layout
@@ -373,7 +374,7 @@ toHtml layout (Select config) =
         , dropdownIcon = config.dropdownIcon
         , fluid = config.fluid
         }
-        |> Dropdown.toHtml dropdownLayout
+        |> Dropdown.toCustomHtml dropdownLayout
 
 
 {-| Create an item that goes in the drawer.
