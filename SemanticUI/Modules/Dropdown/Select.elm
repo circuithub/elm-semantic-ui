@@ -89,13 +89,21 @@ type ToggleEvent
     | OnFocus
 
 
+type Variation
+    = Ordinary
+    | Labeled
+    | Inline
+    | Selection
+
+
 {-| Most general configuration that applies any Select.
 
 It is recommended that you use `selection`, `inline`, `labeled` or `select` to construct this record.
 
 -}
 type alias Config msg option =
-    { drawerState : DrawerState
+    { variation : Variation
+    , drawerState : DrawerState
     , identifier : String
     , onSelect : option -> msg
     , onToggle : DrawerState -> msg
@@ -166,7 +174,8 @@ select :
     -> Select msg option
 select config =
     Select
-        { drawerState = config.drawerState
+        { variation = Ordinary
+        , drawerState = config.drawerState
         , identifier = config.identifier
         , onToggle = config.onToggle
         , onSelect = config.onSelect
@@ -195,12 +204,12 @@ labeled :
     -> Select msg option
 labeled config =
     Select
-        { drawerState = config.drawerState
+        { variation = Labeled
+        , drawerState = config.drawerState
         , identifier = config.identifier
         , onToggle = config.onToggle
         , onSelect = config.onSelect
         , formInput = Nothing
-        , selectAttributes = [ class "labeled" ]
         , optionAttributes =
             \option ->
                 [ classList [ ( "active selected", Just option == config.currentSelection ) ] ]
@@ -242,7 +251,7 @@ selection config =
     in
     Select
         { labeledConfig
-            | selectAttributes = [ class "selection" ]
+            | variation = Selection
             , formInput =
                 config.formInput
                     |> Maybe.map
@@ -278,7 +287,7 @@ inline config =
     in
     Select
         { labeledConfig
-            | selectAttributes = [ class "inline" ]
+            | variation = Inline
             , dropdownIcon = True
         }
 
@@ -304,6 +313,13 @@ toHtml layout (Select config) =
                 { toSelect =
                     \element ->
                         toDropdown element
+                            |> HtmlBuilder.appendAttributes
+                                [ classList
+                                    [ ( "inline", config.variation == Inline )
+                                    , ( "labeled", config.variation == Labeled )
+                                    , ( "selection", config.variation == Selection )
+                                    ]
+                                ]
                             |> HtmlBuilder.appendChildren
                                 ((config.formInput
                                     |> Maybe.map (\formInput -> [ input [ name formInput.name, value formInput.value ] [] ])
