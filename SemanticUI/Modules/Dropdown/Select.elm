@@ -97,7 +97,7 @@ type Variation
     = Ordinary
     | Labeled
     | Inline
-    | Selection
+    | Selection { compact : Bool }
 
 
 {-| Most general configuration that applies any Select.
@@ -120,7 +120,6 @@ type alias Config msg option =
     , dropdownIcon : Bool
     , fluid : Bool
     , scrolling : Bool
-    , compact : Bool
     }
 
 
@@ -185,7 +184,16 @@ scrolling a (Select config) =
 -}
 compact : Bool -> Select msg option -> Select msg option
 compact a (Select config) =
-    Select { config | compact = a }
+    let
+        variation =
+            case config.variation of
+                Selection sel ->
+                    Selection { sel | compact = a }
+
+                _ ->
+                    config.variation
+    in
+    Select { config | variation = variation }
 
 
 {-| Everything needed to build the `Html msg` representation of a particular select dropdown.
@@ -234,7 +242,6 @@ select config =
         , dropdownIcon = False
         , fluid = False
         , scrolling = False
-        , compact = False
         }
 
 
@@ -276,7 +283,6 @@ labeled config =
         , dropdownIcon = False
         , fluid = False
         , scrolling = False
-        , compact = False
         }
 
 
@@ -304,7 +310,7 @@ selection config =
     in
     Select
         { labeledConfig
-            | variation = Selection
+            | variation = Selection { compact = False }
             , formInput =
                 config.formInput
                     |> Maybe.map
@@ -367,12 +373,24 @@ toCustomHtml layout (Select config) =
                     \element ->
                         toDropdown element
                             |> HtmlBuilder.appendAttributes
-                                [ classList
-                                    [ ( "compact", config.compact )
-                                    , ( "inline", config.variation == Inline )
-                                    , ( "labeled", config.variation == Labeled )
-                                    , ( "selection", config.variation == Selection )
-                                    ]
+                                [ class
+                                    (case config.variation of
+                                        Labeled ->
+                                            "labeled"
+
+                                        Inline ->
+                                            "inline"
+
+                                        Selection sel ->
+                                            if sel.compact then
+                                                "compact selection"
+
+                                            else
+                                                "selection"
+
+                                        Ordinary ->
+                                            ""
+                                    )
                                 ]
                             |> HtmlBuilder.appendChildren
                                 ((config.formInput
