@@ -9,6 +9,7 @@ module SemanticUI.Modules.Dropdown exposing
     , readOnly
     , toHtml
     , toItem
+    , toSimpleHtml
     , toggleEvent
     )
 
@@ -181,6 +182,17 @@ toHtml layout (Dropdown config) =
         , toDropdown = toRoot config
         , drawer = drawer config
         }
+
+
+{-| Render a dropdown with a simple default layout
+-}
+toSimpleHtml : { builder | items : List (Html msg) } -> Dropdown msg -> Html msg
+toSimpleHtml { items } dropdownControl =
+    let
+        layout builder =
+            builder.toDropdown div [] [ builder.drawer [] (List.map (toItem div [] << List.singleton) items) ]
+    in
+    toHtml layout dropdownControl
 
 
 toRoot :

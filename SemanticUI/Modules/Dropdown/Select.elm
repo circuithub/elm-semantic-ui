@@ -11,6 +11,7 @@ module SemanticUI.Modules.Dropdown.Select exposing
     , select
     , selection
     , toHtml
+    , toSimpleHtml
     , toggleEvent
     )
 
@@ -18,18 +19,6 @@ module SemanticUI.Modules.Dropdown.Select exposing
 
 Example of `Select.labeled`:
 
-    let
-        menu { toSelect, toOption, toToggle, drawer } =
-            let
-                option val =
-                    toOption val div [] [ text (toString val) ]
-            in
-            toSelect div
-                []
-                [ toToggle div [] [ i [ class "dropdown icon" ] [] ]
-                , drawer [] (List.map option [ Yes, No ])
-                ]
-    in
     Select.labeled
         { identifier = "select1"
         , onToggle = ToggleSelect1
@@ -37,8 +26,10 @@ Example of `Select.labeled`:
         , drawerState = model.select1DrawerState
         , defaultLabel = text "Select an option"
         , selectionLabel = text << ToString
+        , currentSelection = model.select1Selection
         }
-        |> Select.toHtml menu
+        |> Select.toSimpleHtml
+            { optionLabel = text << toString, options = [ Yes, No ] }
 
 Example of `Select.select` :
 
@@ -290,6 +281,19 @@ inline config =
             | selectAttributes = [ class "inline" ]
             , dropdownIcon = True
         }
+
+
+toSimpleHtml : { builder | optionLabel : option -> Html msg, options : List option } -> Select msg option -> Html msg
+toSimpleHtml { optionLabel, options } selectControl =
+    let
+        layout { toSelect, toOption, drawer } =
+            let
+                option val =
+                    toOption val div [] [ optionLabel val ]
+            in
+            toSelect div [] [ drawer [] (List.map option options) ]
+    in
+    toHtml layout selectControl
 
 
 toHtml : (Builder msg option -> Html msg) -> Select msg option -> Html msg
