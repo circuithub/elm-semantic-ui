@@ -5,6 +5,7 @@ module SemanticUI.Modules.Dropdown.Select exposing
     , Select(..)
     , ToggleEvent(..)
     , attributes
+    , button
     , compact
     , dropdownIcon
     , fluid
@@ -197,8 +198,8 @@ compact a (Select config) =
                 Selection sel ->
                     Selection { sel | compact = a }
 
-                Button button ->
-                    Button (Button.compact a button)
+                Button but ->
+                    Button (Button.compact a but)
 
                 _ ->
                     config.variation
@@ -294,6 +295,26 @@ single config =
         , fluid = False
         , scrolling = False
         }
+
+
+{-| A button dropdown select
+-}
+button :
+    { config
+        | button : Button.Config msg
+        , drawerState : DrawerState
+        , identifier : String
+        , onToggle : DrawerState -> msg
+        , onSelect : option -> msg
+    }
+    -> Select msg option
+button config =
+    let
+        (Select ordinaryConfig) =
+            select config
+    in
+    Select { ordinaryConfig | variation = Button config.button }
+
 
 
 {-| A dropdown select component visually styled as a `<select>` form control.
@@ -415,8 +436,8 @@ toCustomHtml layout (Select config) =
     Dropdown.Dropdown
         { variation =
             case config.variation of
-                Button button ->
-                    Dropdown.Button button
+                Button but ->
+                    Dropdown.Button but
 
                 _ ->
                     Dropdown.Ordinary
