@@ -304,7 +304,7 @@ icon cfg theIcon =
                             "arrow right"
 
                         ArrowLeft ->
-                            "left arrow"
+                            "arrow left"
 
                         Search ->
                             "search"
