@@ -4,6 +4,7 @@ module SemanticUI.Modules.Dropdown exposing
     , DrawerState(..)
     , Dropdown(..)
     , ToggleEvent(..)
+    , Variation(..)
     , attributes
     , dropdown
     , dropdownIcon
@@ -79,6 +80,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Decode
+import SemanticUI.Elements.Button as Button
 import SemanticUI.Modules.HtmlBuilder as HtmlBuilder exposing (HtmlBuilder)
 
 
@@ -104,6 +106,16 @@ type ToggleEvent
     | OnFocus
 
 
+{-| Dropdown variations
+
+Identical to `Dropdown.Variation`
+
+-}
+type Variation msg
+    = Ordinary
+    | Button (Button.Config msg)
+
+
 {-| Configuration for a dropdown
 
   - drawerState - Current state of the dropdown
@@ -115,7 +127,8 @@ type ToggleEvent
 
 -}
 type alias Config msg =
-    { drawerState : DrawerState
+    { variation : Variation msg
+    , drawerState : DrawerState
     , identifier : String
     , onToggle : DrawerState -> msg
     , attributes : List (Attribute msg)
@@ -194,7 +207,8 @@ dropdown :
     -> Dropdown msg
 dropdown config =
     Dropdown
-        { drawerState = config.drawerState
+        { variation = Ordinary
+        , drawerState = config.drawerState
         , identifier = config.identifier
         , onToggle = config.onToggle
         , attributes = []
@@ -206,15 +220,43 @@ dropdown config =
         }
 
 
+{-| A button dropdown variation
+-}
+button :
+    { config | button : Button.Config msg, drawerState : DrawerState, identifier : String, onToggle : DrawerState -> msg }
+    -> Dropdown msg
+button config =
+    let
+        (Dropdown ordinaryConfig) =
+            dropdown config
+    in
+    Dropdown { ordinaryConfig | variation = Button config.button }
+
+
 {-| Render a dropdown with the provided layout
 -}
 toCustomHtml : (Builder msg -> Html msg) -> Dropdown msg -> Html msg
 toCustomHtml layout (Dropdown config) =
-    layout
-        { toToggle = toToggle config
-        , toDropdown = toRoot config
-        , drawer = drawer config
-        }
+    case config.variation of
+        Ordinary ->
+            layout
+                { toToggle = toToggle config
+                , toDropdown = toRoot config
+                , drawer = drawer config
+                }
+
+        Button but ->
+            layout
+                { toToggle = toToggle config
+                , toDropdown =
+                    \element attrs ->
+                        Button.viewAs
+                            (toRoot config element
+                                |> HtmlBuilder.prependAttributes attrs
+                            )
+                            but
+                , drawer = drawer config
+                }
 
 
 {-| Render a dropdown with a simple default layout

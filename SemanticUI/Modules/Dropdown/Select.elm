@@ -66,6 +66,7 @@ Example of `Select.select` :
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import SemanticUI.Elements.Button as Button
 import SemanticUI.Modules.Dropdown as Dropdown
 import SemanticUI.Modules.HtmlBuilder as HtmlBuilder exposing (HtmlBuilder)
 
@@ -93,19 +94,25 @@ type ToggleEvent
     | OnFocus
 
 
-type Variation
+{-| Select variations
+
+Similar to `Dropdown.Variation`
+
+-}
+type Variation msg
     = Ordinary
+    | Button (Button.Config msg)
     | Inline
     | Selection { compact : Bool }
 
 
 {-| Most general configuration that applies any Select.
 
-It is recommended that you use `selection`, `inline`, `single` or `select` to construct this record.
+It is recommended that you use `selection`, `inline`, `button`, `single` or `select` to construct this record.
 
 -}
 type alias Config msg option =
-    { variation : Variation
+    { variation : Variation msg
     , drawerState : DrawerState
     , identifier : String
     , onSelect : option -> msg
@@ -179,7 +186,7 @@ scrolling a (Select config) =
     Select { config | scrolling = a }
 
 
-{-| A compact selection dropdown has no minimum width.
+{-| A compact selection/button dropdown has no minimum width.
 -}
 compact : Bool -> Select msg option -> Select msg option
 compact a (Select config) =
@@ -189,6 +196,8 @@ compact a (Select config) =
                 Selection sel ->
                     Selection { sel | compact = a }
 
+                -- Button button ->
+                --     Button { button | compact = a }
                 _ ->
                     config.variation
     in
@@ -376,6 +385,8 @@ toCustomHtml layout (Select config) =
                                     Ordinary ->
                                         classList []
 
+                                    Button _ ->
+                                        classList []
 
                                     Inline ->
                                         class "inline"
@@ -400,7 +411,14 @@ toCustomHtml layout (Select config) =
                 }
     in
     Dropdown.Dropdown
-        { drawerState = toDropdownDrawerState config.drawerState
+        { variation =
+            case config.variation of
+                Button button ->
+                    Dropdown.Button button
+
+                _ ->
+                    Dropdown.Ordinary
+        , drawerState = toDropdownDrawerState config.drawerState
         , identifier = config.identifier
         , onToggle = config.onToggle << fromDropdownDrawerState
         , attributes = config.attributes
