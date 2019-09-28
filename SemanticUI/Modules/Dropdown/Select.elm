@@ -186,7 +186,8 @@ scrolling a (Select config) =
     Select { config | scrolling = a }
 
 
-{-| A compact selection/button dropdown has no minimum width.
+{-| A compact selection dropdown has no minimum width.
+A compact button dropdown has reduced padding.
 -}
 compact : Bool -> Select msg option -> Select msg option
 compact a (Select config) =
@@ -196,8 +197,9 @@ compact a (Select config) =
                 Selection sel ->
                     Selection { sel | compact = a }
 
-                -- Button button ->
-                --     Button { button | compact = a }
+                Button button ->
+                    Button (Button.compact a button)
+
                 _ ->
                     config.variation
     in
