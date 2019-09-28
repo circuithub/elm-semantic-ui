@@ -1,31 +1,20 @@
-module SemanticUI.Elements.Button
-    exposing
-        ( Animation
-        , Config
-        , Emphasis(..)
-        , HiddenContent
-        , IconSide(..)
-        , active
-        , attached
-        , attributes
-        , basic
-        , button
-        , disabled
-        , emphasis
-        , floated
-        , fluid
-        , hiddenContent
-        , icon
-        , iconSide
-        , init
-        , inverted
-        , link
-        , loading
-        , primary
-        , secondary
-        , size
-        , viewAs
-        )
+module SemanticUI.Elements.Button exposing
+    ( button, link, viewAs
+    , Config, init, attributes
+    , attached
+    , primary, secondary, Emphasis(..), emphasis
+    , hiddenContent, HiddenContent, Animation
+    , fluid
+    , size
+    , basic
+    , loading
+    , inverted
+    , floated
+    , compact
+    , icon, iconSide, IconSide(..)
+    , active
+    , disabled
+    )
 
 {-| Provides the [button](https://semantic-ui.com/elements/button.html) element
 from Semantic UI.
@@ -117,6 +106,13 @@ A button can be aligned to the left or right of its container.
 @docs floated
 
 
+## Compact
+
+A button can reduce its padding to fit into tighter spaces
+
+@docs compact
+
+
 ## Icons
 
 Buttons can have icons associated with them. If a button has icon and no content,
@@ -185,6 +181,7 @@ type alias Config msg =
     , iconSide : IconSide
     , icon : Maybe Icon.Icon
     , floated : Maybe Floated
+    , compact : Bool
     , active : Bool
     , attached : Maybe Attached
     , disabled : Bool
@@ -248,6 +245,7 @@ init =
     , size = Medium
     , iconSide = IconLeft
     , floated = Nothing
+    , compact = False
     , icon = Nothing
     , active = False
     , attached = Nothing
@@ -325,8 +323,8 @@ link =
 function allows you to supply an element and use it as a button. For example,
 
     Button.viewAs Html.input
-      (Button.init |> Button.attributes [ Html.type_ "submit"])
-      [ text "Submit" ]
+        (Button.init |> Button.attributes [ Html.type_ "submit" ])
+        [ text "Submit" ]
 
 -}
 viewAs :
@@ -365,6 +363,7 @@ viewAs element cfg label =
                     , ( "icon", cfg.icon /= Nothing )
                     , ( "active", cfg.active )
                     , ( "disabled", cfg.disabled )
+                    , ( "compact", cfg.compact )
                     ]
               , sizeClass cfg.size
               ]
@@ -445,6 +444,13 @@ iconSide a model =
 floated : Maybe Floated -> Config msg -> Config msg
 floated a model =
     { model | floated = a }
+
+
+{-| Whether or not this button is rendered compactly.
+-}
+compact : Bool -> Config msg -> Config msg
+compact a model =
+    { model | compact = a }
 
 
 {-| Associate an icon with a button.
