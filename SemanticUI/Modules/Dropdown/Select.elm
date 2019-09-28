@@ -9,11 +9,11 @@ module SemanticUI.Modules.Dropdown.Select exposing
     , dropdownIcon
     , fluid
     , inline
-    , labeled
     , readOnly
     , scrolling
     , select
     , selection
+    , single
     , toCustomHtml
     , toHtml
     , toggleEvent
@@ -21,9 +21,9 @@ module SemanticUI.Modules.Dropdown.Select exposing
 
 {-| Refine a dropdown with selection state
 
-Example of `Select.labeled`:
+Example of `Select.single`:
 
-    Select.labeled
+    Select.single
         { identifier = "select1"
         , onToggle = ToggleSelect1
         , onSelect = SetSelect1
@@ -33,7 +33,7 @@ Example of `Select.labeled`:
         , currentSelection = model.select1Selection
         }
         |> Select.toHtml
-            { optionLabel = text << toString, options = [ Yes, No ] }
+            { options = [ Yes, No ], optionLabel = text << toString }
 
 Example of `Select.select` :
 
@@ -95,14 +95,13 @@ type ToggleEvent
 
 type Variation
     = Ordinary
-    | Labeled
     | Inline
     | Selection { compact : Bool }
 
 
 {-| Most general configuration that applies any Select.
 
-It is recommended that you use `selection`, `inline`, `labeled` or `select` to construct this record.
+It is recommended that you use `selection`, `inline`, `single` or `select` to construct this record.
 
 -}
 type alias Config msg option =
@@ -245,9 +244,9 @@ select config =
         }
 
 
-{-| A dropdown select component, visually labeled with the current selection.
+{-| A dropdown select component with a single current selection, visually labeled with that selection.
 -}
-labeled :
+single :
     { config
         | currentSelection : Maybe option
         , drawerState : DrawerState
@@ -258,9 +257,9 @@ labeled :
         , selectionLabel : option -> Html msg
     }
     -> Select msg option
-labeled config =
+single config =
     Select
-        { variation = Labeled
+        { variation = Ordinary
         , drawerState = config.drawerState
         , identifier = config.identifier
         , onToggle = config.onToggle
@@ -305,11 +304,11 @@ selection :
     -> Select msg option
 selection config =
     let
-        (Select labeledConfig) =
-            labeled config
+        (Select singleConfig) =
+            single config
     in
     Select
-        { labeledConfig
+        { singleConfig
             | variation = Selection { compact = False }
             , formInput =
                 config.formInput
@@ -341,11 +340,11 @@ inline :
     -> Select msg option
 inline config =
     let
-        (Select labeledConfig) =
-            labeled config
+        (Select singleConfig) =
+            single config
     in
     Select
-        { labeledConfig
+        { singleConfig
             | variation = Inline
             , dropdownIcon = True
         }
@@ -373,24 +372,16 @@ toCustomHtml layout (Select config) =
                     \element ->
                         toDropdown element
                             |> HtmlBuilder.appendAttributes
-                                [ class
-                                    (case config.variation of
-                                        Labeled ->
-                                            "labeled"
+                                [ case config.variation of
+                                    Ordinary ->
+                                        classList []
 
-                                        Inline ->
-                                            "inline"
 
-                                        Selection sel ->
-                                            if sel.compact then
-                                                "compact selection"
+                                    Inline ->
+                                        class "inline"
 
-                                            else
-                                                "selection"
-
-                                        Ordinary ->
-                                            ""
-                                    )
+                                    Selection sel ->
+                                        classList [ ( "compact", sel.compact ), ( "selection", True ) ]
                                 ]
                             |> HtmlBuilder.appendChildren
                                 ((config.formInput
