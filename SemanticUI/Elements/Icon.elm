@@ -61,6 +61,8 @@ type Icon
     | AlignJustify
     | ArrowLeft
     | ArrowRight
+    | ArrowUp
+    | ArrowDown
     | ArrowsAlternate
     | Calendar
     | Camera
@@ -305,6 +307,12 @@ icon cfg theIcon =
 
                         ArrowLeft ->
                             "arrow left"
+
+                        ArrowUp ->
+                            "arrow up"
+
+                        ArrowDown ->
+                            "arrow down"
 
                         Search ->
                             "search"
