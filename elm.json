@@ -28,6 +28,7 @@
         "SemanticUI.Modules.HtmlBuilder",
         "SemanticUI.Modules.Dropdown",
         "SemanticUI.Modules.Dropdown.Select",
+        "SemanticUI.Modules.Dropdown.Selection",
         "SemanticUI.Views.Cards.Card"
     ],
     "elm-version": "0.19.0 <= v < 0.20.0",

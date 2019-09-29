@@ -10,7 +10,7 @@ module SemanticUI.Modules.Dropdown exposing
     , dropdownIcon
     , fluid
     , linkItem
-    , readOnly
+    , disabled
     , scrolling
     , toCustomHtml
     , toHtml
@@ -106,10 +106,7 @@ type ToggleEvent
     | OnFocus
 
 
-{-| Dropdown variations
-
-Identical to `Dropdown.Variation`
-
+{-| Dropdown variations. For internal use only.
 -}
 type Variation msg
     = Ordinary
@@ -122,7 +119,7 @@ type Variation msg
   - identifier - Unique identifier for the dropdown
   - onToggle - Handle state change of the dropdown
   - toggleEvent - When should the dropdown expand (default OnClick)
-  - readOnly - Is the dropdown read only (default False)
+  - disabled - Is the dropdown disabled (default False)
   - dropdownIcon - Whether a dropdown icon is visible (default False)
 
 -}
@@ -133,7 +130,7 @@ type alias Config msg =
     , onToggle : DrawerState -> msg
     , attributes : List (Attribute msg)
     , toggleEvent : ToggleEvent
-    , readOnly : Bool
+    , disabled : Bool
     , dropdownIcon : Bool
     , fluid : Bool
     , scrolling : Bool
@@ -164,11 +161,11 @@ toggleEvent a (Dropdown config) =
     Dropdown { config | toggleEvent = a }
 
 
-{-| Set `readOnly` on a `Dropdown`
+{-| Set `disabled` on a `Dropdown`
 -}
-readOnly : Bool -> Dropdown msg -> Dropdown msg
-readOnly a (Dropdown config) =
-    Dropdown { config | readOnly = a }
+disabled : Bool -> Dropdown msg -> Dropdown msg
+disabled a (Dropdown config) =
+    Dropdown { config | disabled = a }
 
 
 {-| Set `dropdownIcon` on a `Dropdown`
@@ -213,7 +210,7 @@ dropdown config =
         , onToggle = config.onToggle
         , attributes = []
         , toggleEvent = OnClick
-        , readOnly = False
+        , disabled = False
         , dropdownIcon = False
         , fluid = False
         , scrolling = False
@@ -277,7 +274,7 @@ toRoot :
         , onToggle : DrawerState -> msg
         , attributes : List (Attribute msg)
         , toggleEvent : ToggleEvent
-        , readOnly : Bool
+        , disabled : Bool
         , dropdownIcon : Bool
         , fluid : Bool
         , scrolling : Bool
@@ -301,7 +298,7 @@ toRoot config element attrs children =
                     [ ( "ui", True )
                     , ( "active", isVisible )
                     , ( "visible", isVisible )
-                    , ( "disabled", config.readOnly )
+                    , ( "disabled", config.disabled )
                     , ( "fluid", config.fluid )
                     , ( "scrolling", config.scrolling )
                     , ( "dropdown", True )
@@ -330,11 +327,11 @@ toRoot config element attrs children =
 
 
 toToggle :
-    { config | drawerState : DrawerState, readOnly : Bool, onToggle : DrawerState -> msg, toggleEvent : ToggleEvent }
+    { config | drawerState : DrawerState, disabled : Bool, onToggle : DrawerState -> msg, toggleEvent : ToggleEvent }
     -> HtmlBuilder msg
     -> HtmlBuilder msg
 toToggle config =
-    if config.readOnly then
+    if config.disabled then
         identity
 
     else
@@ -346,7 +343,7 @@ toToggle config =
 
 
 drawer :
-    { config | drawerState : DrawerState, readOnly : Bool, onToggle : DrawerState -> msg }
+    { config | drawerState : DrawerState, disabled : Bool, onToggle : DrawerState -> msg }
     -> List (Attribute msg)
     -> List (Html msg)
     -> Html msg
@@ -369,7 +366,7 @@ drawer ({ drawerState } as config) =
                 _ ->
                     drawerState
     in
-    if config.readOnly then
+    if config.disabled then
         div
             |> HtmlBuilder.prependAttribute (classList [ ( "menu", True ) ])
 
