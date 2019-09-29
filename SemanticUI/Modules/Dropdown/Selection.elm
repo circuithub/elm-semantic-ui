@@ -1,8 +1,6 @@
 module SemanticUI.Modules.Dropdown.Selection exposing
     ( Builder
     , Config
-    , DrawerState
-    , ToggleEvent
     , attributes
     , button
     , compact
@@ -41,26 +39,10 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import SemanticUI.Elements.Button as Button
 import SemanticUI.Modules.Dropdown as Dropdown
-import SemanticUI.Modules.Dropdown.Select as Select exposing (DrawerState(..), Select(..), ToggleEvent(..), Variation(..))
+import SemanticUI.Modules.Dropdown.Drawer as Drawer
+import SemanticUI.Modules.Dropdown.Select as Select exposing (Select(..), Variation(..))
+import SemanticUI.Modules.Dropdown.Toggle as Toggle
 import SemanticUI.Modules.HtmlBuilder as HtmlBuilder exposing (HtmlBuilder)
-
-
-{-| The current state of the dropdown drawer.
-
-Identical to `Dropdown.DrawerState`
-
--}
-type alias DrawerState =
-    Select.DrawerState
-
-
-{-| Define when the dropdown drawer should open.
-
-Identical to `Dropdown.ToggleEvent`
-
--}
-type alias ToggleEvent =
-    Select.ToggleEvent
 
 
 {-| Most general configuration that applies any `Selection`.
@@ -95,7 +77,7 @@ attributes =
 
 {-| Set `toggleEvent` on any `Selection`
 -}
-toggleEvent : ToggleEvent -> Selection msg option -> Selection msg option
+toggleEvent : Toggle.Event -> Selection msg option -> Selection msg option
 toggleEvent =
     Select.toggleEvent
 
@@ -161,9 +143,9 @@ compact a (Select config) =
 single :
     { config
         | currentSelection : Maybe option
-        , drawerState : DrawerState
+        , drawerState : Drawer.State
         , identifier : String
-        , onToggle : DrawerState -> msg
+        , onToggle : Drawer.State -> msg
         , onSelect : option -> msg
         , defaultLabel : Html msg
         , selectionLabel : option -> Html msg
@@ -189,7 +171,7 @@ single config =
                 Just selectedOption ->
                     span [ class "text" ] [ config.selectionLabel selectedOption ]
             ]
-        , toggleEvent = OnClick
+        , toggleEvent = Toggle.OnClick
         , disabled = False
         , dropdownIcon = False
         , fluid = False
@@ -203,9 +185,9 @@ button :
     { config
         | button : Button.Config msg
         , currentSelection : Maybe option
-        , drawerState : DrawerState
+        , drawerState : Drawer.State
         , identifier : String
-        , onToggle : DrawerState -> msg
+        , onToggle : Drawer.State -> msg
         , onSelect : option -> msg
         , defaultLabel : Html msg
         , selectionLabel : option -> Html msg
@@ -227,9 +209,9 @@ This configuration can be used with an optional hidden `<input>` for forms.
 selection :
     { config
         | currentSelection : Maybe option
-        , drawerState : DrawerState
+        , drawerState : Drawer.State
         , identifier : String
-        , onToggle : DrawerState -> msg
+        , onToggle : Drawer.State -> msg
         , onSelect : option -> msg
         , formInput : Maybe { name : String, toValue : option -> String }
         , defaultLabel : Html msg
@@ -264,9 +246,9 @@ selection config =
 inline :
     { config
         | currentSelection : Maybe option
-        , drawerState : DrawerState
+        , drawerState : Drawer.State
         , identifier : String
-        , onToggle : DrawerState -> msg
+        , onToggle : Drawer.State -> msg
         , onSelect : option -> msg
         , defaultLabel : Html msg
         , selectionLabel : option -> Html msg

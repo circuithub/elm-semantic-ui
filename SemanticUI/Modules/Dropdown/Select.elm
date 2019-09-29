@@ -1,9 +1,7 @@
 module SemanticUI.Modules.Dropdown.Select exposing
     ( Builder
     , Config
-    , DrawerState(..)
     , Select(..)
-    , ToggleEvent(..)
     , Variation(..)
     , attributes
     , button
@@ -42,30 +40,9 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import SemanticUI.Elements.Button as Button
 import SemanticUI.Modules.Dropdown as Dropdown
+import SemanticUI.Modules.Dropdown.Drawer as Drawer
+import SemanticUI.Modules.Dropdown.Toggle as Toggle
 import SemanticUI.Modules.HtmlBuilder as HtmlBuilder exposing (HtmlBuilder)
-
-
-{-| The current state of the dropdown drawer.
-
-Identical to `Dropdown.DrawerState`
-
--}
-type DrawerState
-    = Closed
-    | Opening
-    | Opened
-    | Closing
-
-
-{-| Define when the dropdown drawer should open.
-
-Identical to `Dropdown.ToggleEvent`
-
--}
-type ToggleEvent
-    = OnClick
-    | OnHover
-    | OnFocus
 
 
 {-| Select variations. For internal use only.
@@ -87,12 +64,12 @@ It is recommended that you use `inline`, `button`, or `select` to construct this
 -}
 type alias Config msg option =
     { variation : Variation msg
-    , drawerState : DrawerState
+    , drawerState : Drawer.State
     , identifier : String
     , onSelect : option -> msg
-    , onToggle : DrawerState -> msg
+    , onToggle : Drawer.State -> msg
     , attributes : List (Attribute msg)
-    , toggleEvent : ToggleEvent
+    , toggleEvent : Toggle.Event
     , disabled : Bool
     , optionAttributes : option -> List (Attribute msg)
     , selectLabels : List (Html msg)
@@ -120,7 +97,7 @@ attributes a (Select config) =
 
 {-| Set `toggleEvent` on any `Select`
 -}
-toggleEvent : ToggleEvent -> Select msg option -> Select msg option
+toggleEvent : Toggle.Event -> Select msg option -> Select msg option
 toggleEvent a (Select config) =
     Select { config | toggleEvent = a }
 
@@ -184,9 +161,9 @@ It does not highlight the current selection automatically, see `SemanticUI.Modul
 -}
 select :
     { config
-        | drawerState : DrawerState
+        | drawerState : Drawer.State
         , identifier : String
-        , onToggle : DrawerState -> msg
+        , onToggle : Drawer.State -> msg
         , onSelect : option -> msg
     }
     -> Select msg option
@@ -198,7 +175,7 @@ select config =
         , onToggle = config.onToggle
         , onSelect = config.onSelect
         , attributes = []
-        , toggleEvent = OnClick
+        , toggleEvent = Toggle.OnClick
         , disabled = False
         , optionAttributes = \_ -> []
         , selectLabels = []
@@ -214,9 +191,9 @@ select config =
 button :
     { config
         | button : Button.Config msg
-        , drawerState : DrawerState
+        , drawerState : Drawer.State
         , identifier : String
-        , onToggle : DrawerState -> msg
+        , onToggle : Drawer.State -> msg
         , onSelect : option -> msg
     }
     -> Select msg option
@@ -232,9 +209,9 @@ button config =
 -}
 inline :
     { config
-        | drawerState : DrawerState
+        | drawerState : Drawer.State
         , identifier : String
-        , onToggle : DrawerState -> msg
+        , onToggle : Drawer.State -> msg
         , onSelect : option -> msg
     }
     -> Select msg option
@@ -291,7 +268,7 @@ toCustomHtml layout (Select config) =
                 , toToggle = toToggle
                 , drawer =
                     drawer
-                        |> HtmlBuilder.prependAttribute (onClick (config.onToggle Closing))
+                        |> HtmlBuilder.prependAttribute (onClick (config.onToggle Drawer.Closing))
                 , toOption =
                     \value ->
                         toItem << HtmlBuilder.prependAttributes (onClick (config.onSelect value) :: config.optionAttributes value)
@@ -305,11 +282,11 @@ toCustomHtml layout (Select config) =
 
                 _ ->
                     Dropdown.Ordinary
-        , drawerState = toDropdownDrawerState config.drawerState
+        , drawerState = config.drawerState
         , identifier = config.identifier
-        , onToggle = config.onToggle << fromDropdownDrawerState
+        , onToggle = config.onToggle
         , attributes = config.attributes
-        , toggleEvent = toDropdownToggleEvent config.toggleEvent
+        , toggleEvent = config.toggleEvent
         , disabled = config.disabled
         , dropdownIcon = config.dropdownIcon
         , fluid = config.fluid
@@ -336,48 +313,3 @@ Identical to `Dropdown.linkItem`
 linkItem : List (Attribute msg) -> List (Html msg) -> Html msg
 linkItem =
     Dropdown.linkItem
-
-
-toDropdownDrawerState : DrawerState -> Dropdown.DrawerState
-toDropdownDrawerState state =
-    case state of
-        Opening ->
-            Dropdown.Opening
-
-        Closing ->
-            Dropdown.Closing
-
-        Opened ->
-            Dropdown.Opened
-
-        Closed ->
-            Dropdown.Closed
-
-
-fromDropdownDrawerState : Dropdown.DrawerState -> DrawerState
-fromDropdownDrawerState state =
-    case state of
-        Dropdown.Opening ->
-            Opening
-
-        Dropdown.Closing ->
-            Closing
-
-        Dropdown.Opened ->
-            Opened
-
-        Dropdown.Closed ->
-            Closed
-
-
-toDropdownToggleEvent : ToggleEvent -> Dropdown.ToggleEvent
-toDropdownToggleEvent event =
-    case event of
-        OnClick ->
-            Dropdown.OnClick
-
-        OnHover ->
-            Dropdown.OnHover
-
-        OnFocus ->
-            Dropdown.OnFocus

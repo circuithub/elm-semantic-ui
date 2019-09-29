@@ -1,16 +1,14 @@
 module SemanticUI.Modules.Dropdown exposing
     ( Builder
     , Config
-    , DrawerState(..)
     , Dropdown(..)
-    , ToggleEvent(..)
     , Variation(..)
     , attributes
+    , disabled
     , dropdown
     , dropdownIcon
     , fluid
     , linkItem
-    , disabled
     , scrolling
     , toCustomHtml
     , toHtml
@@ -43,7 +41,7 @@ As an example a big dropdown menu using layout:
                         , onToggle = ToggleFileSub
                         , state = model.fileSub
                         }
-                        |> Dropdown.toggleEvent Dropdown.OnHover
+                        |> Dropdown.toggleEvent Toggle.OnHover
                         |> Dropdown.dropdownIcon True
                         |> Dropdown.toCustomHtml subMenu
                     ]
@@ -81,6 +79,8 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Decode
 import SemanticUI.Elements.Button as Button
+import SemanticUI.Modules.Dropdown.Drawer as Drawer
+import SemanticUI.Modules.Dropdown.Toggle as Toggle
 import SemanticUI.Modules.HtmlBuilder as HtmlBuilder exposing (HtmlBuilder)
 
 
@@ -98,14 +98,6 @@ type alias Builder msg =
     }
 
 
-{-| Define when the dropdown should open
--}
-type ToggleEvent
-    = OnClick
-    | OnHover
-    | OnFocus
-
-
 {-| Dropdown variations. For internal use only.
 -}
 type Variation msg
@@ -118,18 +110,18 @@ type Variation msg
   - drawerState - Current state of the dropdown
   - identifier - Unique identifier for the dropdown
   - onToggle - Handle state change of the dropdown
-  - toggleEvent - When should the dropdown expand (default OnClick)
+  - toggleEvent - When should the dropdown expand (default Toggle.OnClick)
   - disabled - Is the dropdown disabled (default False)
   - dropdownIcon - Whether a dropdown icon is visible (default False)
 
 -}
 type alias Config msg =
     { variation : Variation msg
-    , drawerState : DrawerState
+    , drawerState : Drawer.State
     , identifier : String
-    , onToggle : DrawerState -> msg
+    , onToggle : Drawer.State -> msg
     , attributes : List (Attribute msg)
-    , toggleEvent : ToggleEvent
+    , toggleEvent : Toggle.Event
     , disabled : Bool
     , dropdownIcon : Bool
     , fluid : Bool
@@ -156,7 +148,7 @@ attributes a (Dropdown config) =
 
 {-| Set `toggleEvent` on a `Dropdown`
 -}
-toggleEvent : ToggleEvent -> Dropdown msg -> Dropdown msg
+toggleEvent : Toggle.Event -> Dropdown msg -> Dropdown msg
 toggleEvent a (Dropdown config) =
     Dropdown { config | toggleEvent = a }
 
@@ -190,17 +182,8 @@ scrolling a (Dropdown config) =
     Dropdown { config | scrolling = a }
 
 
-{-| The current state of the dropdown drawer
--}
-type DrawerState
-    = Closed
-    | Opening
-    | Opened
-    | Closing
-
-
 dropdown :
-    { config | drawerState : DrawerState, identifier : String, onToggle : DrawerState -> msg }
+    { config | drawerState : Drawer.State, identifier : String, onToggle : Drawer.State -> msg }
     -> Dropdown msg
 dropdown config =
     Dropdown
@@ -209,7 +192,7 @@ dropdown config =
         , identifier = config.identifier
         , onToggle = config.onToggle
         , attributes = []
-        , toggleEvent = OnClick
+        , toggleEvent = Toggle.OnClick
         , disabled = False
         , dropdownIcon = False
         , fluid = False
@@ -220,7 +203,7 @@ dropdown config =
 {-| A button dropdown variation
 -}
 button :
-    { config | button : Button.Config msg, drawerState : DrawerState, identifier : String, onToggle : DrawerState -> msg }
+    { config | button : Button.Config msg, drawerState : Drawer.State, identifier : String, onToggle : Drawer.State -> msg }
     -> Dropdown msg
 button config =
     let
@@ -269,11 +252,11 @@ toHtml { items } dropdownControl =
 
 toRoot :
     { config
-        | drawerState : DrawerState
+        | drawerState : Drawer.State
         , identifier : String
-        , onToggle : DrawerState -> msg
+        , onToggle : Drawer.State -> msg
         , attributes : List (Attribute msg)
-        , toggleEvent : ToggleEvent
+        , toggleEvent : Toggle.Event
         , disabled : Bool
         , dropdownIcon : Bool
         , fluid : Bool
@@ -284,13 +267,13 @@ toRoot :
 toRoot config element attrs children =
     let
         isVisible =
-            drawerIsVisible config.drawerState
+            Drawer.isVisible config.drawerState
     in
     Dropdown.root
         { identifier = config.identifier
         , onToggle = toDropdownOnToggle config.drawerState config.onToggle
         , toggleEvent = toDropdownToggleEvent config.toggleEvent
-        , isToggled = drawerIsOpen config.drawerState
+        , isToggled = Drawer.isToggled config.drawerState
         }
         element
         (config.attributes
@@ -327,7 +310,7 @@ toRoot config element attrs children =
 
 
 toToggle :
-    { config | drawerState : DrawerState, disabled : Bool, onToggle : DrawerState -> msg, toggleEvent : ToggleEvent }
+    { config | drawerState : Drawer.State, disabled : Bool, onToggle : Drawer.State -> msg, toggleEvent : Toggle.Event }
     -> HtmlBuilder msg
     -> HtmlBuilder msg
 toToggle config =
@@ -338,30 +321,30 @@ toToggle config =
         Dropdown.toggle
             { onToggle = toDropdownOnToggle config.drawerState config.onToggle
             , toggleEvent = toDropdownToggleEvent config.toggleEvent
-            , isToggled = drawerIsOpen config.drawerState
+            , isToggled = Drawer.isToggled config.drawerState
             }
 
 
 drawer :
-    { config | drawerState : DrawerState, disabled : Bool, onToggle : DrawerState -> msg }
+    { config | drawerState : Drawer.State, disabled : Bool, onToggle : Drawer.State -> msg }
     -> List (Attribute msg)
     -> List (Html msg)
     -> Html msg
 drawer ({ drawerState } as config) =
     let
         isTransitioning =
-            drawerIsTransitioning drawerState
+            Drawer.isTransitioning drawerState
 
         isVisible =
-            drawerIsVisible drawerState
+            Drawer.isVisible drawerState
 
         finalState =
             case drawerState of
-                Opening ->
-                    Opened
+                Drawer.Opening ->
+                    Drawer.Opened
 
-                Closing ->
-                    Closed
+                Drawer.Closing ->
+                    Drawer.Closed
 
                 _ ->
                     drawerState
@@ -373,7 +356,7 @@ drawer ({ drawerState } as config) =
     else
         Dropdown.drawer
             { drawerVisibleAttribute = classList []
-            , isToggled = drawerIsOpen drawerState
+            , isToggled = Drawer.isToggled drawerState
             }
             div
             |> HtmlBuilder.prependAttributes
@@ -386,8 +369,8 @@ drawer ({ drawerState } as config) =
                     , ( "transition", True )
                     , ( "slide", isTransitioning )
                     , ( "down", isTransitioning )
-                    , ( "in", drawerState == Opening )
-                    , ( "out", drawerState == Closing )
+                    , ( "in", drawerState == Drawer.Opening )
+                    , ( "out", drawerState == Drawer.Closing )
                     ]
                     :: (if isTransitioning then
                             [ on "animationend" (Decode.succeed (config.onToggle finalState)) ]
@@ -420,47 +403,32 @@ linkItem =
         |> HtmlBuilder.appendAttribute (class "link item")
 
 
-drawerIsOpen : DrawerState -> Bool
-drawerIsOpen state =
-    state == Opening || state == Opened
-
-
-drawerIsTransitioning : DrawerState -> Bool
-drawerIsTransitioning state =
-    state == Opening || state == Closing
-
-
-drawerIsVisible : DrawerState -> Bool
-drawerIsVisible state =
-    state /= Closed
-
-
-toDropdownToggleEvent : ToggleEvent -> Dropdown.ToggleEvent
+toDropdownToggleEvent : Toggle.Event -> Dropdown.ToggleEvent
 toDropdownToggleEvent event =
     case event of
-        OnClick ->
+        Toggle.OnClick ->
             Dropdown.OnClick
 
-        OnHover ->
+        Toggle.OnHover ->
             Dropdown.OnHover
 
-        OnFocus ->
+        Toggle.OnFocus ->
             Dropdown.OnFocus
 
 
-toDrawerState : DrawerState -> Dropdown.State -> DrawerState
+toDrawerState : Drawer.State -> Dropdown.State -> Drawer.State
 toDrawerState currentState toggleOpen =
-    case ( toggleOpen, drawerIsOpen currentState ) of
+    case ( toggleOpen, Drawer.isToggled currentState ) of
         ( True, False ) ->
-            Opening
+            Drawer.Opening
 
         ( False, True ) ->
-            Closing
+            Drawer.Closing
 
         _ ->
             currentState
 
 
-toDropdownOnToggle : DrawerState -> (DrawerState -> msg) -> Dropdown.State -> msg
+toDropdownOnToggle : Drawer.State -> (Drawer.State -> msg) -> Dropdown.State -> msg
 toDropdownOnToggle currentState onToggle toggleOpen =
     onToggle (toDrawerState currentState toggleOpen)
