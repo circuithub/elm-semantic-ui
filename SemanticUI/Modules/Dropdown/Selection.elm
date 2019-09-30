@@ -9,11 +9,13 @@ module SemanticUI.Modules.Dropdown.Selection exposing
     , dropdownIcon
     , fluid
     , inline
+    , linkItem
     , scrolling
     , selection
     , single
     , toCustomHtml
     , toHtml
+    , toItem
     , toggleEvent
     )
 
