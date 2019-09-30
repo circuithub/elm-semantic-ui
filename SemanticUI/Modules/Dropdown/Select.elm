@@ -39,7 +39,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import SemanticUI.Elements.Button as Button
-import SemanticUI.Modules.Dropdown as Dropdown
+import SemanticUI.Modules.Dropdown as Dropdown exposing (Dropdown(..))
 import SemanticUI.Modules.Dropdown.Drawer as Drawer
 import SemanticUI.Modules.Dropdown.Toggle as Toggle
 import SemanticUI.Modules.HtmlBuilder as HtmlBuilder exposing (HtmlBuilder)
@@ -72,8 +72,7 @@ type alias Config msg option =
     , toggleEvent : Toggle.Event
     , disabled : Bool
     , optionAttributes : option -> List (Attribute msg)
-    , selectLabels : List (Html msg)
-    , formInput : Maybe { name : String, value : String }
+    , labels : List (Html msg)
     , dropdownIcon : Bool
     , fluid : Bool
     , scrolling : Bool
@@ -165,24 +164,28 @@ select :
         , identifier : String
         , onToggle : Drawer.State -> msg
         , onSelect : option -> msg
+        , label : Maybe (Html msg)
     }
     -> Select msg option
 select config =
+    let
+        (Dropdown dropdownConfig) =
+            Dropdown.dropdown config
+    in
     Select
         { variation = Ordinary
-        , drawerState = config.drawerState
-        , identifier = config.identifier
-        , onToggle = config.onToggle
+        , drawerState = dropdownConfig.drawerState
+        , identifier = dropdownConfig.identifier
+        , onToggle = dropdownConfig.onToggle
         , onSelect = config.onSelect
-        , attributes = []
-        , toggleEvent = Toggle.OnClick
-        , disabled = False
+        , attributes = dropdownConfig.attributes
+        , toggleEvent = dropdownConfig.toggleEvent
+        , disabled = dropdownConfig.disabled
+        , dropdownIcon = dropdownConfig.dropdownIcon
+        , labels = dropdownConfig.labels
+        , fluid = dropdownConfig.fluid
+        , scrolling = dropdownConfig.scrolling
         , optionAttributes = \_ -> []
-        , selectLabels = []
-        , formInput = Nothing
-        , dropdownIcon = False
-        , fluid = False
-        , scrolling = False
         }
 
 
@@ -195,6 +198,7 @@ button :
         , identifier : String
         , onToggle : Drawer.State -> msg
         , onSelect : option -> msg
+        , label : Maybe (Html msg)
     }
     -> Select msg option
 button config =
@@ -213,6 +217,7 @@ inline :
         , identifier : String
         , onToggle : Drawer.State -> msg
         , onSelect : option -> msg
+        , label : Maybe (Html msg)
     }
     -> Select msg option
 inline config =
@@ -258,13 +263,6 @@ toCustomHtml layout (Select config) =
                                     Selection sel ->
                                         classList [ ( "compact", sel.compact ), ( "selection", True ) ]
                                 ]
-                            |> HtmlBuilder.appendChildren
-                                ((config.formInput
-                                    |> Maybe.map (\formInput -> [ input [ name formInput.name, value formInput.value ] [] ])
-                                    |> Maybe.withDefault []
-                                 )
-                                    ++ config.selectLabels
-                                )
                 , toToggle = toToggle
                 , drawer =
                     drawer
@@ -274,7 +272,7 @@ toCustomHtml layout (Select config) =
                         toItem << HtmlBuilder.prependAttributes (onClick (config.onSelect value) :: config.optionAttributes value)
                 }
     in
-    Dropdown.Dropdown
+    Dropdown
         { variation =
             case config.variation of
                 Button but ->
@@ -289,6 +287,7 @@ toCustomHtml layout (Select config) =
         , toggleEvent = config.toggleEvent
         , disabled = config.disabled
         , dropdownIcon = config.dropdownIcon
+        , labels = config.labels
         , fluid = config.fluid
         , scrolling = config.scrolling
         }

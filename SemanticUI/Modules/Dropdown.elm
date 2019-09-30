@@ -124,6 +124,7 @@ type alias Config msg =
     , toggleEvent : Toggle.Event
     , disabled : Bool
     , dropdownIcon : Bool
+    , labels : List (Html msg)
     , fluid : Bool
     , scrolling : Bool
     }
@@ -183,7 +184,7 @@ scrolling a (Dropdown config) =
 
 
 dropdown :
-    { config | drawerState : Drawer.State, identifier : String, onToggle : Drawer.State -> msg }
+    { config | drawerState : Drawer.State, identifier : String, onToggle : Drawer.State -> msg, label : Maybe (Html msg) }
     -> Dropdown msg
 dropdown config =
     Dropdown
@@ -195,6 +196,7 @@ dropdown config =
         , toggleEvent = Toggle.OnClick
         , disabled = False
         , dropdownIcon = False
+        , labels = Maybe.withDefault [] (Maybe.map List.singleton config.label)
         , fluid = False
         , scrolling = False
         }
@@ -203,7 +205,7 @@ dropdown config =
 {-| A button dropdown variation
 -}
 button :
-    { config | button : Button.Config msg, drawerState : Drawer.State, identifier : String, onToggle : Drawer.State -> msg }
+    { config | button : Button.Config msg, drawerState : Drawer.State, identifier : String, onToggle : Drawer.State -> msg, label : Maybe (Html msg) }
     -> Dropdown msg
 button config =
     let
@@ -259,6 +261,7 @@ toRoot :
         , toggleEvent : Toggle.Event
         , disabled : Bool
         , dropdownIcon : Bool
+        , labels : List (Html msg)
         , fluid : Bool
         , scrolling : Bool
     }
@@ -300,6 +303,7 @@ toRoot config element attrs children =
             ]
             []
             :: children
+            ++ config.labels
             ++ (if config.dropdownIcon then
                     [ i [ class "dropdown icon" ] [] ]
 

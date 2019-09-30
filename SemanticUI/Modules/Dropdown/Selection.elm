@@ -1,6 +1,7 @@
 module SemanticUI.Modules.Dropdown.Selection exposing
     ( Builder
     , Config
+    , Selection(..)
     , attributes
     , button
     , compact
@@ -51,7 +52,21 @@ It is recommended that you use `selection`, `inline`, `button`, `single` to cons
 
 -}
 type alias Config msg option =
-    Select.Config msg option
+    { variation : Variation msg
+    , drawerState : Drawer.State
+    , identifier : String
+    , onSelect : option -> msg
+    , onToggle : Drawer.State -> msg
+    , attributes : List (Attribute msg)
+    , toggleEvent : Toggle.Event
+    , disabled : Bool
+    , optionAttributes : option -> List (Attribute msg)
+    , labels : List (Html msg)
+    , dropdownIcon : Bool
+    , fluid : Bool
+    , scrolling : Bool
+    , formInput : Maybe { name : String, value : String }
+    }
 
 
 type Selection msg option
@@ -64,15 +79,6 @@ type alias Builder msg option =
     Select.Builder msg option
 
 
-fromSelectSetter : (Select msg option -> Select msg option) -> Selection msg option -> Selection msg option
-fromSelectSetter f (Selection config) =
-    let
-        (Select newConfig) =
-            f (Select config)
-    in
-    Selection newConfig
-
-
 {-| Any other custom `Attribute`s to add to the select. Custom attributes
 will be added before `elm-semantic-ui` attributes.
 
@@ -80,29 +86,29 @@ Identical to `Dropdown.attributes`, and `Select.attributes`
 
 -}
 attributes : List (Attribute msg) -> Selection msg option -> Selection msg option
-attributes =
-    fromSelectSetter << Select.attributes
+attributes a (Selection config) =
+    Selection { config | attributes = a }
 
 
 {-| Set `toggleEvent` on any `Selection`
 -}
 toggleEvent : Toggle.Event -> Selection msg option -> Selection msg option
-toggleEvent =
-    fromSelectSetter << Select.toggleEvent
+toggleEvent a (Selection config) =
+    Selection { config | toggleEvent = a }
 
 
 {-| Set `disabled` on any `Selection`
 -}
 disabled : Bool -> Selection msg option -> Selection msg option
-disabled =
-    fromSelectSetter << Select.disabled
+disabled a (Selection config) =
+    Selection { config | disabled = a }
 
 
 {-| Set `dropdownIcon` on a `Selection`
 -}
 dropdownIcon : Bool -> Selection msg option -> Selection msg option
-dropdownIcon =
-    fromSelectSetter << Select.dropdownIcon
+dropdownIcon a (Selection config) =
+    Selection { config | dropdownIcon = a }
 
 
 {-| The dropdown will stretch horizontally to fill the space that it is in.
@@ -112,8 +118,8 @@ Identical to `Dropdown.fluid`, and `Select.fluid`
 
 -}
 fluid : Bool -> Selection msg option -> Selection msg option
-fluid =
-    fromSelectSetter << Select.fluid
+fluid a (Selection config) =
+    Selection { config | fluid = a }
 
 
 {-| A scrolling dropdown can have its menu scroll.
@@ -122,8 +128,8 @@ Identical to `Dropdown.scrolling`, and `Select.scrolling`
 
 -}
 scrolling : Bool -> Selection msg option -> Selection msg option
-scrolling =
-    fromSelectSetter << Select.scrolling
+scrolling a (Selection config) =
+    Selection { config | scrolling = a }
 
 
 {-| Reduce the space used by a select component.
@@ -161,30 +167,41 @@ single :
     }
     -> Selection msg option
 single config =
+    let
+        (Select selectConfig) =
+            Select.select
+                { drawerState = config.drawerState
+                , identifier = config.identifier
+                , onToggle = config.onToggle
+                , onSelect = config.onSelect
+                , label =
+                    Just
+                        (case config.currentSelection of
+                            Nothing ->
+                                span [ class "default text" ] [ config.defaultLabel ]
+
+                            Just selectedOption ->
+                                span [ class "text" ] [ config.selectionLabel selectedOption ]
+                        )
+                }
+    in
     Selection
-        { variation = Select.Ordinary
-        , drawerState = config.drawerState
-        , identifier = config.identifier
-        , onToggle = config.onToggle
+        { variation = selectConfig.variation
+        , drawerState = selectConfig.drawerState
+        , identifier = selectConfig.identifier
+        , onToggle = selectConfig.onToggle
         , onSelect = config.onSelect
+        , attributes = selectConfig.attributes
+        , toggleEvent = selectConfig.toggleEvent
+        , disabled = selectConfig.disabled
+        , dropdownIcon = selectConfig.dropdownIcon
+        , labels = selectConfig.labels
+        , fluid = selectConfig.fluid
+        , scrolling = selectConfig.scrolling
         , formInput = Nothing
-        , attributes = []
         , optionAttributes =
             \option ->
                 [ classList [ ( "active selected", Just option == config.currentSelection ) ] ]
-        , selectLabels =
-            [ case config.currentSelection of
-                Nothing ->
-                    span [ class "default text" ] [ config.defaultLabel ]
-
-                Just selectedOption ->
-                    span [ class "text" ] [ config.selectionLabel selectedOption ]
-            ]
-        , toggleEvent = Toggle.OnClick
-        , disabled = False
-        , dropdownIcon = False
-        , fluid = False
-        , scrolling = False
         }
 
 
@@ -276,13 +293,54 @@ inline config =
 
 
 toHtml : { builder | optionLabel : option -> Html msg, options : List option } -> Selection msg option -> Html msg
-toHtml builder (Selection config) =
-    Select.toHtml builder (Select config)
+toHtml { optionLabel, options } selectionControl =
+    let
+        layout { toDropdown, toOption, drawer } =
+            let
+                option val =
+                    toOption val div [] [ optionLabel val ]
+            in
+            toDropdown div [] [ drawer [] (List.map option options) ]
+    in
+    toCustomHtml layout selectionControl
 
 
 toCustomHtml : (Builder msg option -> Html msg) -> Selection msg option -> Html msg
-toCustomHtml builder (Selection config) =
-    Select.toCustomHtml builder (Select config)
+toCustomHtml layout (Selection config) =
+    let
+        selectLayout { toDropdown, toToggle, toOption, drawer } =
+            layout
+                { toDropdown =
+                    case config.formInput of
+                        Nothing ->
+                            toDropdown
+
+                        Just formInput ->
+                            \element ->
+                                toDropdown element
+                                    |> HtmlBuilder.appendChild
+                                        (input [ hidden True, name formInput.name, value formInput.value ] [])
+                , toToggle = toToggle
+                , drawer = drawer
+                , toOption = toOption
+                }
+    in
+    Select
+        { variation = config.variation
+        , drawerState = config.drawerState
+        , identifier = config.identifier
+        , onToggle = config.onToggle
+        , onSelect = config.onSelect
+        , attributes = config.attributes
+        , toggleEvent = config.toggleEvent
+        , disabled = config.disabled
+        , optionAttributes = config.optionAttributes
+        , dropdownIcon = config.dropdownIcon
+        , labels = config.labels
+        , fluid = config.fluid
+        , scrolling = config.scrolling
+        }
+        |> Select.toCustomHtml selectLayout
 
 
 {-| Create an item that goes in the drawer.
