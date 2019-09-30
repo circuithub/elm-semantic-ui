@@ -40,7 +40,7 @@ import Html.Events exposing (..)
 import SemanticUI.Elements.Button as Button
 import SemanticUI.Modules.Dropdown as Dropdown
 import SemanticUI.Modules.Dropdown.Drawer as Drawer
-import SemanticUI.Modules.Dropdown.Select as Select exposing (Select(..), Variation(..))
+import SemanticUI.Modules.Dropdown.Select as Select exposing (Select(..), Variation)
 import SemanticUI.Modules.Dropdown.Toggle as Toggle
 import SemanticUI.Modules.HtmlBuilder as HtmlBuilder exposing (HtmlBuilder)
 
@@ -54,14 +54,23 @@ type alias Config msg option =
     Select.Config msg option
 
 
-type alias Selection msg option =
-    Select msg option
+type Selection msg option
+    = Selection (Config msg option)
 
 
 {-| Everything needed to build the `Html msg` representation of a particular selection dropdown.
 -}
 type alias Builder msg option =
     Select.Builder msg option
+
+
+fromSelectSetter : (Select msg option -> Select msg option) -> Selection msg option -> Selection msg option
+fromSelectSetter f (Selection config) =
+    let
+        (Select newConfig) =
+            f (Select config)
+    in
+    Selection newConfig
 
 
 {-| Any other custom `Attribute`s to add to the select. Custom attributes
@@ -72,28 +81,28 @@ Identical to `Dropdown.attributes`, and `Select.attributes`
 -}
 attributes : List (Attribute msg) -> Selection msg option -> Selection msg option
 attributes =
-    Select.attributes
+    fromSelectSetter << Select.attributes
 
 
 {-| Set `toggleEvent` on any `Selection`
 -}
 toggleEvent : Toggle.Event -> Selection msg option -> Selection msg option
 toggleEvent =
-    Select.toggleEvent
+    fromSelectSetter << Select.toggleEvent
 
 
 {-| Set `disabled` on any `Selection`
 -}
 disabled : Bool -> Selection msg option -> Selection msg option
 disabled =
-    Select.disabled
+    fromSelectSetter << Select.disabled
 
 
 {-| Set `dropdownIcon` on a `Selection`
 -}
 dropdownIcon : Bool -> Selection msg option -> Selection msg option
 dropdownIcon =
-    Select.dropdownIcon
+    fromSelectSetter << Select.dropdownIcon
 
 
 {-| The dropdown will stretch horizontally to fill the space that it is in.
@@ -104,7 +113,7 @@ Identical to `Dropdown.fluid`, and `Select.fluid`
 -}
 fluid : Bool -> Selection msg option -> Selection msg option
 fluid =
-    Select.fluid
+    fromSelectSetter << Select.fluid
 
 
 {-| A scrolling dropdown can have its menu scroll.
@@ -114,7 +123,7 @@ Identical to `Dropdown.scrolling`, and `Select.scrolling`
 -}
 scrolling : Bool -> Selection msg option -> Selection msg option
 scrolling =
-    Select.scrolling
+    fromSelectSetter << Select.scrolling
 
 
 {-| Reduce the space used by a select component.
@@ -122,20 +131,20 @@ A compact selection dropdown has no minimum width.
 A compact button dropdown has reduced padding.
 -}
 compact : Bool -> Selection msg option -> Selection msg option
-compact a (Select config) =
+compact a (Selection config) =
     let
         variation =
             case config.variation of
-                Selection sel ->
-                    Selection { sel | compact = a }
+                Select.Selection sel ->
+                    Select.Selection { sel | compact = a }
 
-                Button but ->
-                    Button (Button.compact a but)
+                Select.Button but ->
+                    Select.Button (Button.compact a but)
 
                 _ ->
                     config.variation
     in
-    Select { config | variation = variation }
+    Selection { config | variation = variation }
 
 
 {-| A dropdown select component with a single active selection.
@@ -152,8 +161,8 @@ single :
     }
     -> Selection msg option
 single config =
-    Select
-        { variation = Ordinary
+    Selection
+        { variation = Select.Ordinary
         , drawerState = config.drawerState
         , identifier = config.identifier
         , onToggle = config.onToggle
@@ -195,10 +204,10 @@ button :
     -> Selection msg option
 button config =
     let
-        (Select singleConfig) =
+        (Selection singleConfig) =
             single config
     in
-    Select { singleConfig | variation = Button config.button }
+    Selection { singleConfig | variation = Select.Button config.button }
 
 
 {-| A single selection dropdown component that is styled similarly to a `<select>` form control.
@@ -220,12 +229,12 @@ selection :
     -> Selection msg option
 selection config =
     let
-        (Select singleConfig) =
+        (Selection singleConfig) =
             single config
     in
-    Select
+    Selection
         { singleConfig
-            | variation = Selection { compact = False }
+            | variation = Select.Selection { compact = False }
             , formInput =
                 config.formInput
                     |> Maybe.map
@@ -256,24 +265,24 @@ inline :
     -> Selection msg option
 inline config =
     let
-        (Select singleConfig) =
+        (Selection singleConfig) =
             single config
     in
-    Select
+    Selection
         { singleConfig
-            | variation = Inline
+            | variation = Select.Inline
             , dropdownIcon = True
         }
 
 
 toHtml : { builder | optionLabel : option -> Html msg, options : List option } -> Selection msg option -> Html msg
-toHtml =
-    Select.toHtml
+toHtml builder (Selection config) =
+    Select.toHtml builder (Select config)
 
 
 toCustomHtml : (Builder msg option -> Html msg) -> Selection msg option -> Html msg
-toCustomHtml =
-    Select.toCustomHtml
+toCustomHtml builder (Selection config) =
+    Select.toCustomHtml builder (Select config)
 
 
 {-| Create an item that goes in the drawer.
