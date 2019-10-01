@@ -278,7 +278,7 @@ toRoot config element attrs children =
         , toggleEvent = toDropdownToggleEvent config.toggleEvent
         , isToggled = Drawer.isToggled config.drawerState
         }
-        element
+        (toToggle config element)
         (config.attributes
             ++ (classList
                     [ ( "ui", True )
@@ -293,23 +293,14 @@ toRoot config element attrs children =
                     :: attrs
                )
         )
-        (toToggle config
-            div
-            [ style "position" "absolute"
-            , style "width" "100%"
-            , style "height" "100%"
-            , style "left" "0%"
-            , style "top" "0%"
-            ]
-            []
-            :: children
-            ++ config.labels
+        (config.labels
             ++ (if config.dropdownIcon then
                     [ i [ class "dropdown icon" ] [] ]
 
                 else
                     []
                )
+            ++ children
         )
 
 
