@@ -39,12 +39,12 @@ See also `SematicUI.Modules.Dropdown.Selection` for dropdowns that indicate a cu
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Builder as Html
 import Html.Events exposing (..)
 import SemanticUI.Elements.Button as Button
 import SemanticUI.Modules.Dropdown as Dropdown exposing (Dropdown(..))
 import SemanticUI.Modules.Dropdown.Drawer as Drawer
 import SemanticUI.Modules.Dropdown.Toggle as Toggle
-import SemanticUI.Modules.HtmlBuilder as HtmlBuilder exposing (HtmlBuilder)
 
 
 {-| Select variations. For internal use only.
@@ -163,10 +163,10 @@ scrolling a (Select config) =
 
 -}
 type alias Builder msg option =
-    { toDropdown : HtmlBuilder msg -> HtmlBuilder msg
-    , toToggle : HtmlBuilder msg -> HtmlBuilder msg
-    , toOption : option -> HtmlBuilder msg -> HtmlBuilder msg
-    , drawer : HtmlBuilder msg
+    { toDropdown : Html.Builder msg -> Html.Builder msg
+    , toToggle : Html.Builder msg -> Html.Builder msg
+    , toOption : option -> Html.Builder msg -> Html.Builder msg
+    , drawer : Html.Builder msg
     }
 
 
@@ -268,10 +268,10 @@ toCustomHtml layout (Select config) =
                 , toToggle = toToggle
                 , drawer =
                     drawer
-                        |> HtmlBuilder.prependAttribute (onClick (config.onToggle Drawer.Closing))
+                        |> Html.prependAttribute (onClick (config.onToggle Drawer.Closing))
                 , toOption =
                     \value ->
-                        toItem << HtmlBuilder.prependAttributes (onClick (config.onSelect value) :: config.optionAttributes value)
+                        toItem << Html.prependAttributes (onClick (config.onSelect value) :: config.optionAttributes value)
                 }
     in
     Dropdown
@@ -302,7 +302,7 @@ toCustomHtml layout (Select config) =
 Identical to `Dropdown.toItem`
 
 -}
-toItem : HtmlBuilder msg -> HtmlBuilder msg
+toItem : Html.Builder msg -> Html.Builder msg
 toItem =
     Dropdown.toItem
 

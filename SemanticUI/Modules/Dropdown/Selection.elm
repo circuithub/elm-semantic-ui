@@ -39,13 +39,13 @@ Example of `Selection.selection`:
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Builder as Html
 import Html.Events exposing (..)
 import SemanticUI.Elements.Button as Button
 import SemanticUI.Modules.Dropdown as Dropdown
 import SemanticUI.Modules.Dropdown.Drawer as Drawer
 import SemanticUI.Modules.Dropdown.Select as Select exposing (Select(..), Variation)
 import SemanticUI.Modules.Dropdown.Toggle as Toggle
-import SemanticUI.Modules.HtmlBuilder as HtmlBuilder exposing (HtmlBuilder)
 
 
 {-| Most general configuration that applies any `Selection`.
@@ -320,7 +320,7 @@ toCustomHtml layout (Selection config) =
                         Just formInput ->
                             \element ->
                                 toDropdown element
-                                    |> HtmlBuilder.appendChild
+                                    |> Html.appendChild
                                         (input [ hidden True, name formInput.name, value formInput.value ] [])
                 , toToggle = toToggle
                 , drawer = drawer
@@ -350,7 +350,7 @@ toCustomHtml layout (Selection config) =
 Identical to `Dropdown.toItem`, and `Select.toItem`
 
 -}
-toItem : HtmlBuilder msg -> HtmlBuilder msg
+toItem : Html.Builder msg -> Html.Builder msg
 toItem =
     Dropdown.toItem
 

@@ -5,6 +5,7 @@
     "license": "BSD-3-Clause",
     "version": "1.0.0",
     "exposed-modules": [
+        "Html.Builder",
         "SemanticUI",
         "SemanticUI.Elements.Button",
         "SemanticUI.Elements.Container",
@@ -25,7 +26,6 @@
         "SemanticUI.Collections.Message",
         "SemanticUI.Modules.Modal",
         "SemanticUI.Modules.Checkbox",
-        "SemanticUI.Modules.HtmlBuilder",
         "SemanticUI.Modules.Dropdown",
         "SemanticUI.Modules.Dropdown.Drawer",
         "SemanticUI.Modules.Dropdown.Select",

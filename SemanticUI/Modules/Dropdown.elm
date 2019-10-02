@@ -76,12 +76,12 @@ As an example a big dropdown menu using layout:
 import Dropdown
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Builder as Html
 import Html.Events exposing (..)
 import Json.Decode as Decode
 import SemanticUI.Elements.Button as Button
 import SemanticUI.Modules.Dropdown.Drawer as Drawer
 import SemanticUI.Modules.Dropdown.Toggle as Toggle
-import SemanticUI.Modules.HtmlBuilder as HtmlBuilder exposing (HtmlBuilder)
 
 
 {-| Everything needed to build the `Html msg` representation of a particular dropdown.
@@ -92,9 +92,9 @@ import SemanticUI.Modules.HtmlBuilder as HtmlBuilder exposing (HtmlBuilder)
 
 -}
 type alias Builder msg =
-    { toDropdown : HtmlBuilder msg -> HtmlBuilder msg
-    , toToggle : HtmlBuilder msg -> HtmlBuilder msg
-    , drawer : HtmlBuilder msg
+    { toDropdown : Html.Builder msg -> Html.Builder msg
+    , toToggle : Html.Builder msg -> Html.Builder msg
+    , drawer : Html.Builder msg
     }
 
 
@@ -247,7 +247,7 @@ toCustomHtml layout (Dropdown config) =
         , toDropdown =
             case config.variation of
                 Ordinary ->
-                    toToggle config << toDropdown << HtmlBuilder.prependChildren config.labels
+                    toToggle config << toDropdown << Html.prependChildren config.labels
 
                 Button but ->
                     let
@@ -285,8 +285,8 @@ toRoot :
         , toggleEvent : Toggle.Event
         , dropdownIcon : Bool
     }
-    -> HtmlBuilder msg
-    -> HtmlBuilder msg
+    -> Html.Builder msg
+    -> Html.Builder msg
 toRoot config element attrs children =
     Dropdown.root
         { identifier = config.identifier
@@ -314,8 +314,8 @@ toRoot config element attrs children =
 
 toToggle :
     { config | drawerState : Drawer.State, disabled : Bool, onToggle : Drawer.State -> msg, toggleEvent : Toggle.Event }
-    -> HtmlBuilder msg
-    -> HtmlBuilder msg
+    -> Html.Builder msg
+    -> Html.Builder msg
 toToggle config =
     if config.disabled then
         identity
@@ -354,7 +354,7 @@ drawer ({ drawerState } as config) =
     in
     if config.disabled then
         div
-            |> HtmlBuilder.prependAttribute (classList [ ( "menu", True ) ])
+            |> Html.prependAttribute (classList [ ( "menu", True ) ])
 
     else
         Dropdown.drawer
@@ -362,7 +362,7 @@ drawer ({ drawerState } as config) =
             , isToggled = Drawer.isToggled drawerState
             }
             div
-            |> HtmlBuilder.prependAttributes
+            |> Html.prependAttributes
                 (classList
                     [ ( "menu", True )
                     , ( "active", True )
@@ -390,9 +390,9 @@ Converts a `<div>` or an `<a>` element into a SemanticUI dropdown item.
 It adds the "item" class to the node.
 
 -}
-toItem : HtmlBuilder msg -> HtmlBuilder msg
+toItem : Html.Builder msg -> Html.Builder msg
 toItem =
-    HtmlBuilder.appendAttribute (class "item")
+    Html.appendAttribute (class "item")
 
 
 {-| Create a menu item that goes in the drawer, formatted as if it were an `<a>` element.
@@ -403,7 +403,7 @@ It adds the "link" and "item" classes to the node.
 linkItem : List (Attribute msg) -> List (Html msg) -> Html msg
 linkItem =
     div
-        |> HtmlBuilder.appendAttribute (class "link item")
+        |> Html.appendAttribute (class "link item")
 
 
 toDropdownToggleEvent : Toggle.Event -> Dropdown.ToggleEvent
