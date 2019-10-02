@@ -240,7 +240,6 @@ toCustomHtml layout (Dropdown config) =
                 , onToggle = config.onToggle
                 , toggleEvent = config.toggleEvent
                 , dropdownIcon = config.dropdownIcon
-                , labels = config.labels
                 }
     in
     layout
@@ -248,18 +247,18 @@ toCustomHtml layout (Dropdown config) =
         , toDropdown =
             case config.variation of
                 Ordinary ->
-                    toToggle config << toDropdown
+                    toToggle config << toDropdown << HtmlBuilder.prependChildren config.labels
 
                 Button but ->
                     let
                         toButton =
                             \element attrs children ->
                                 Button.viewAs
-                                    (element
-                                        |> HtmlBuilder.prependAttributes attrs
+                                    (\buttonAttrs buttonChildren ->
+                                        element (attrs ++ buttonAttrs) (buttonChildren ++ children)
                                     )
                                     but
-                                    children
+                                    config.labels
                     in
                     toToggle config << toDropdown << toButton
         , drawer = drawer config
@@ -284,7 +283,6 @@ toRoot :
         , identifier : String
         , onToggle : Drawer.State -> msg
         , toggleEvent : Toggle.Event
-        , labels : List (Html msg)
         , dropdownIcon : Bool
     }
     -> HtmlBuilder msg
@@ -304,13 +302,12 @@ toRoot config element attrs children =
                , class "dropdown"
                ]
         )
-        (config.labels
-            ++ (if config.dropdownIcon then
-                    [ i [ class "dropdown icon" ] [] ]
+        ((if config.dropdownIcon then
+            [ i [ class "dropdown icon" ] [] ]
 
-                else
-                    []
-               )
+          else
+            []
+         )
             ++ children
         )
 
