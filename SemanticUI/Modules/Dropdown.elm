@@ -117,6 +117,7 @@ type Variation msg
 -}
 type alias Config msg =
     { variation : Variation msg
+    , uiClassList : List ( String, Bool )
     , drawerState : Drawer.State
     , identifier : String
     , onToggle : Drawer.State -> msg
@@ -189,6 +190,7 @@ dropdown :
 dropdown config =
     Dropdown
         { variation = Ordinary
+        , uiClassList = []
         , drawerState = config.drawerState
         , identifier = config.identifier
         , onToggle = config.onToggle
@@ -219,26 +221,49 @@ button config =
 -}
 toCustomHtml : (Builder msg -> Html msg) -> Dropdown msg -> Html msg
 toCustomHtml layout (Dropdown config) =
-    case config.variation of
-        Ordinary ->
-            layout
-                { toToggle = toToggle config
-                , toDropdown = toRoot config
-                , drawer = drawer config
-                }
+    let
+        isVisible =
+            Drawer.isVisible config.drawerState
 
-        Button but ->
-            layout
-                { toToggle = toToggle config
-                , toDropdown =
-                    \element attrs ->
-                        Button.viewAs
-                            (toRoot config element
-                                |> HtmlBuilder.prependAttributes attrs
-                            )
-                            but
-                , drawer = drawer config
+        toDropdown =
+            toRoot
+                { uiClassList =
+                    [ ( "active", isVisible )
+                    , ( "visible", isVisible )
+                    , ( "disabled", config.disabled )
+                    , ( "fluid", config.fluid )
+                    , ( "scrolling", config.scrolling )
+                    ]
+                        ++ config.uiClassList
+                , drawerState = config.drawerState
+                , identifier = config.identifier
+                , onToggle = config.onToggle
+                , toggleEvent = config.toggleEvent
+                , dropdownIcon = config.dropdownIcon
+                , labels = config.labels
                 }
+    in
+    layout
+        { toToggle = toToggle config
+        , toDropdown =
+            case config.variation of
+                Ordinary ->
+                    toToggle config << toDropdown
+
+                Button but ->
+                    let
+                        toButton =
+                            \element attrs children ->
+                                Button.viewAs
+                                    (element
+                                        |> HtmlBuilder.prependAttributes attrs
+                                    )
+                                    but
+                                    children
+                    in
+                    toToggle config << toDropdown << toButton
+        , drawer = drawer config
+        }
 
 
 {-| Render a dropdown with a simple default layout
@@ -254,44 +279,30 @@ toHtml { items } dropdownControl =
 
 toRoot :
     { config
-        | drawerState : Drawer.State
+        | uiClassList : List ( String, Bool )
+        , drawerState : Drawer.State
         , identifier : String
         , onToggle : Drawer.State -> msg
-        , attributes : List (Attribute msg)
         , toggleEvent : Toggle.Event
-        , disabled : Bool
-        , dropdownIcon : Bool
         , labels : List (Html msg)
-        , fluid : Bool
-        , scrolling : Bool
+        , dropdownIcon : Bool
     }
     -> HtmlBuilder msg
     -> HtmlBuilder msg
 toRoot config element attrs children =
-    let
-        isVisible =
-            Drawer.isVisible config.drawerState
-    in
     Dropdown.root
         { identifier = config.identifier
         , onToggle = toDropdownOnToggle config.drawerState config.onToggle
         , toggleEvent = toDropdownToggleEvent config.toggleEvent
         , isToggled = Drawer.isToggled config.drawerState
         }
-        (toToggle config element)
-        (config.attributes
-            ++ (classList
-                    [ ( "ui", True )
-                    , ( "active", isVisible )
-                    , ( "visible", isVisible )
-                    , ( "disabled", config.disabled )
-                    , ( "fluid", config.fluid )
-                    , ( "scrolling", config.scrolling )
-                    , ( "dropdown", True )
-                    ]
-                    :: style "position" "relative"
-                    :: attrs
-               )
+        element
+        (attrs
+            ++ [ style "position" "relative"
+               , class "ui"
+               , classList config.uiClassList
+               , class "dropdown"
+               ]
         )
         (config.labels
             ++ (if config.dropdownIcon then
@@ -359,7 +370,7 @@ drawer ({ drawerState } as config) =
                     [ ( "menu", True )
                     , ( "active", True )
                     , ( "visible", isVisible )
-                    , ( "hiden", not isVisible )
+                    , ( "hidden", not isVisible )
                     , ( "animating", isTransitioning )
                     , ( "transition", True )
                     , ( "slide", isTransitioning )

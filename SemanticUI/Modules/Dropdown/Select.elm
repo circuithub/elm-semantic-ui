@@ -59,6 +59,22 @@ type Variation msg
     | Selection { compact : Bool }
 
 
+variationClassList : Variation msg -> List ( String, Bool )
+variationClassList variation =
+    case variation of
+        Ordinary ->
+            []
+
+        Button _ ->
+            []
+
+        Inline ->
+            [ ( "inline", True ) ]
+
+        Selection { compact } ->
+            [ ( "compact", compact ), ( "selection", True ) ]
+
+
 {-| Most general configuration that applies any `Select`.
 
 It is recommended that you use `inline`, `button`, or `select` to construct this record.
@@ -248,23 +264,7 @@ toCustomHtml layout (Select config) =
     let
         dropdownLayout { toDropdown, toToggle, drawer } =
             layout
-                { toDropdown =
-                    \element ->
-                        toDropdown element
-                            |> HtmlBuilder.appendAttributes
-                                [ case config.variation of
-                                    Ordinary ->
-                                        classList []
-
-                                    Button _ ->
-                                        classList []
-
-                                    Inline ->
-                                        class "inline"
-
-                                    Selection sel ->
-                                        classList [ ( "compact", sel.compact ), ( "selection", True ) ]
-                                ]
+                { toDropdown = toDropdown
                 , toToggle = toToggle
                 , drawer =
                     drawer
@@ -282,6 +282,7 @@ toCustomHtml layout (Select config) =
 
                 _ ->
                     Dropdown.Ordinary
+        , uiClassList = variationClassList config.variation
         , drawerState = config.drawerState
         , identifier = config.identifier
         , onToggle = config.onToggle
