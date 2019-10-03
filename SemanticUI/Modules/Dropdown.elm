@@ -225,29 +225,32 @@ toCustomHtml layout (Dropdown config) =
         isVisible =
             Drawer.isVisible config.drawerState
 
-        toDropdown =
-            toRoot
-                { uiClassList =
-                    [ ( "active", isVisible )
-                    , ( "visible", isVisible )
-                    , ( "disabled", config.disabled )
-                    , ( "fluid", config.fluid )
-                    , ( "scrolling", config.scrolling )
-                    ]
-                        ++ config.uiClassList
-                , drawerState = config.drawerState
-                , identifier = config.identifier
-                , onToggle = config.onToggle
-                , toggleEvent = config.toggleEvent
-                , dropdownIcon = config.dropdownIcon
-                }
+        toDropdown element =
+            element
+                |> toRoot
+                    { uiClassList =
+                        [ ( "active", isVisible )
+                        , ( "visible", isVisible )
+                        , ( "disabled", config.disabled )
+                        , ( "fluid", config.fluid )
+                        , ( "scrolling", config.scrolling )
+                        ]
+                            ++ config.uiClassList
+                    , drawerState = config.drawerState
+                    , identifier = config.identifier
+                    , onToggle = config.onToggle
+                    , toggleEvent = config.toggleEvent
+                    , dropdownIcon = config.dropdownIcon
+                    }
+                |> toToggle config
+                |> Html.prependAttributes config.attributes
     in
     layout
         { toToggle = toToggle config
         , toDropdown =
             case config.variation of
                 Ordinary ->
-                    toToggle config << toDropdown << Html.prependChildren config.labels
+                    toDropdown << Html.prependChildren config.labels
 
                 Button but ->
                     let
@@ -260,7 +263,7 @@ toCustomHtml layout (Dropdown config) =
                                     but
                                     config.labels
                     in
-                    toToggle config << toDropdown << toButton
+                    toDropdown << toButton
         , drawer = drawer config
         }
 
