@@ -178,12 +178,19 @@ single config =
                 , onSelect = config.onSelect
                 , label =
                     Just
-                        (case config.currentSelection of
-                            Nothing ->
-                                span [ class "default text" ] [ config.defaultLabel ]
+                        (span
+                            [ classList [ ( "default", config.currentSelection == Nothing ), ( "text", True ) ]
+                            , -- pointer-events: none ensures that an underlying input will be brought into focus, even with the label on top
+                              -- this is helpful for search dropdowns, though search is not directly implemented as of yet
+                              attribute "pointer-events" "none"
+                            ]
+                            [ case config.currentSelection of
+                                Nothing ->
+                                    config.defaultLabel
 
-                            Just selectedOption ->
-                                span [ class "text" ] [ config.selectionLabel selectedOption ]
+                                Just selectedOption ->
+                                    config.selectionLabel selectedOption
+                            ]
                         )
                 }
     in
