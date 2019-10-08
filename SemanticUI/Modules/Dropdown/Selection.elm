@@ -9,6 +9,7 @@ module SemanticUI.Modules.Dropdown.Selection exposing
     , dropdownIcon
     , fluid
     , inline
+    , label
     , linkItem
     , scrolling
     , selection
@@ -17,6 +18,8 @@ module SemanticUI.Modules.Dropdown.Selection exposing
     , toHtml
     , toItem
     , toggleEvent
+    , valueLabel
+    , valueLabelWithDefault
     )
 
 {-| A dropdown with an active selection state.
@@ -28,10 +31,9 @@ Example of `Selection.selection`:
         , onToggle = ToggleYesNoDrawer
         , onSelect = SetYesNo
         , drawerState = model.YesNoDrawerState
-        , defaultLabel = text "Select yes/no"
-        , selectionLabel = text << ynToString
-        , currentSelection = model.yesNoSelection
+        , value = model.yesNoSelection
         }
+        |> Selection.valueLabel = Ok << text << ynToString
         |> Selection.toHtml
             { options = [ Yes, No ], optionLabel = text << toString }
 
@@ -53,7 +55,7 @@ import SemanticUI.Modules.Dropdown.Toggle as Toggle
 It is recommended that you use `selection`, `inline`, `button`, `single` to construct this record.
 
 -}
-type alias Config msg option =
+type alias Config msg option selection =
     { variation : Variation msg
     , drawerState : Drawer.State
     , identifier : String
@@ -63,6 +65,7 @@ type alias Config msg option =
     , toggleEvent : Toggle.Event
     , disabled : Bool
     , optionAttributes : option -> List (Attribute msg)
+    , value : selection
     , labels : List (Html msg)
     , dropdownIcon : Bool
     , fluid : Bool
@@ -71,8 +74,8 @@ type alias Config msg option =
     }
 
 
-type Selection msg option
-    = Selection (Config msg option)
+type Selection msg option selection
+    = Selection (Config msg option selection)
 
 
 {-| Everything needed to build the `Html msg` representation of a particular selection dropdown.
@@ -87,28 +90,28 @@ will be added before `elm-semantic-ui` attributes.
 Identical to `Dropdown.attributes`, and `Select.attributes`
 
 -}
-attributes : List (Attribute msg) -> Selection msg option -> Selection msg option
+attributes : List (Attribute msg) -> Selection msg option selection -> Selection msg option selection
 attributes a (Selection config) =
     Selection { config | attributes = a }
 
 
 {-| Set `toggleEvent` on any `Selection`
 -}
-toggleEvent : Toggle.Event -> Selection msg option -> Selection msg option
+toggleEvent : Toggle.Event -> Selection msg option selection -> Selection msg option selection
 toggleEvent a (Selection config) =
     Selection { config | toggleEvent = a }
 
 
 {-| Set `disabled` on any `Selection`
 -}
-disabled : Bool -> Selection msg option -> Selection msg option
+disabled : Bool -> Selection msg option selection -> Selection msg option selection
 disabled a (Selection config) =
     Selection { config | disabled = a }
 
 
 {-| Set `dropdownIcon` on a `Selection`
 -}
-dropdownIcon : Bool -> Selection msg option -> Selection msg option
+dropdownIcon : Bool -> Selection msg option selection -> Selection msg option selection
 dropdownIcon a (Selection config) =
     Selection { config | dropdownIcon = a }
 
@@ -119,7 +122,7 @@ It may also contain floated content.
 Identical to `Dropdown.fluid`, and `Select.fluid`
 
 -}
-fluid : Bool -> Selection msg option -> Selection msg option
+fluid : Bool -> Selection msg option selection -> Selection msg option selection
 fluid a (Selection config) =
     Selection { config | fluid = a }
 
@@ -129,7 +132,7 @@ fluid a (Selection config) =
 Identical to `Dropdown.scrolling`, and `Select.scrolling`
 
 -}
-scrolling : Bool -> Selection msg option -> Selection msg option
+scrolling : Bool -> Selection msg option selection -> Selection msg option selection
 scrolling a (Selection config) =
     Selection { config | scrolling = a }
 
@@ -138,7 +141,7 @@ scrolling a (Selection config) =
 A compact selection dropdown has no minimum width.
 A compact button dropdown has reduced padding.
 -}
-compact : Bool -> Selection msg option -> Selection msg option
+compact : Bool -> Selection msg option selection -> Selection msg option selection
 compact a (Selection config) =
     let
         variation =
@@ -155,19 +158,63 @@ compact a (Selection config) =
     Selection { config | variation = variation }
 
 
+{-| Sets a label on the selection control.
+Note that this creates a completely free-form label without any SemanitcUI classes.
+Use `valueLabel` or `valueLabelWithDefault` for labels that reflect the current selection.
+-}
+label : Maybe (Html msg) -> Selection msg option selection -> Selection msg option selection
+label a (Selection config) =
+    Selection { config | labels = Maybe.withDefault [] (Maybe.map List.singleton a) }
+
+
+{-| Generate a label for the current selection.
+If the current selection is not a selected option, return `Err` to generate a default label.
+-}
+valueLabel : (selection -> Result (Html msg) (Html msg)) -> Selection msg option selection -> Selection msg option selection
+valueLabel a ((Selection config) as sel) =
+    let
+        ( isPlaceholder, labelHtml ) =
+            case a config.value of
+                Err html ->
+                    ( True, html )
+
+                Ok html ->
+                    ( False, html )
+    in
+    sel
+        |> label
+            (Just
+                (span
+                    [ classList [ ( "default", isPlaceholder ), ( "text", True ) ]
+                    , -- pointer-events: none ensures that an underlying input will be brought into focus, even with the label on top
+                      -- this is helpful for search dropdowns, though search is not directly implemented as of yet
+                      attribute "pointer-events" "none"
+                    ]
+                    [ labelHtml ]
+                )
+            )
+
+
+{-| Generate a label for the selection values wrapped in `Maybe`.
+Supports the common use-case where no value is selected and a default placeholder label needs to be supplied.
+-}
+valueLabelWithDefault : Html msg -> (selection -> Html msg) -> Selection msg option (Maybe selection) -> Selection msg option (Maybe selection)
+valueLabelWithDefault defaultHtml valueToHtml =
+    valueLabel (Result.fromMaybe defaultHtml << Maybe.map valueToHtml)
+
+
 {-| A dropdown select component with a single active selection.
 -}
 single :
     { config
-        | currentSelection : Maybe option
+        | value : selection
+        , isSelected : option -> Bool
         , drawerState : Drawer.State
         , identifier : String
         , onToggle : Drawer.State -> msg
         , onSelect : option -> msg
-        , defaultLabel : Html msg
-        , selectionLabel : option -> Html msg
     }
-    -> Selection msg option
+    -> Selection msg option selection
 single config =
     let
         (Select selectConfig) =
@@ -176,22 +223,7 @@ single config =
                 , identifier = config.identifier
                 , onToggle = config.onToggle
                 , onSelect = config.onSelect
-                , label =
-                    Just
-                        (span
-                            [ classList [ ( "default", config.currentSelection == Nothing ), ( "text", True ) ]
-                            , -- pointer-events: none ensures that an underlying input will be brought into focus, even with the label on top
-                              -- this is helpful for search dropdowns, though search is not directly implemented as of yet
-                              attribute "pointer-events" "none"
-                            ]
-                            [ case config.currentSelection of
-                                Nothing ->
-                                    config.defaultLabel
-
-                                Just selectedOption ->
-                                    config.selectionLabel selectedOption
-                            ]
-                        )
+                , label = Nothing
                 }
     in
     Selection
@@ -207,10 +239,11 @@ single config =
         , labels = selectConfig.labels
         , fluid = selectConfig.fluid
         , scrolling = selectConfig.scrolling
+        , value = config.value
         , formInput = Nothing
         , optionAttributes =
             \option ->
-                [ classList [ ( "active selected", Just option == config.currentSelection ) ] ]
+                [ classList [ ( "active selected", config.isSelected option ) ] ]
         }
 
 
@@ -219,15 +252,14 @@ single config =
 button :
     { config
         | button : Button.Config msg
-        , currentSelection : Maybe option
+        , value : selection
         , drawerState : Drawer.State
         , identifier : String
         , onToggle : Drawer.State -> msg
         , onSelect : option -> msg
-        , defaultLabel : Html msg
-        , selectionLabel : option -> Html msg
+        , isSelected : option -> Bool
     }
-    -> Selection msg option
+    -> Selection msg option selection
 button config =
     let
         (Selection singleConfig) =
@@ -243,16 +275,15 @@ This configuration can be used with an optional hidden `<input>` for forms.
 -}
 selection :
     { config
-        | currentSelection : Maybe option
+        | value : selection
         , drawerState : Drawer.State
         , identifier : String
         , onToggle : Drawer.State -> msg
         , onSelect : option -> msg
-        , formInput : Maybe { name : String, toValue : option -> String }
-        , defaultLabel : Html msg
-        , selectionLabel : option -> Html msg
+        , isSelected : option -> Bool
+        , formInput : Maybe { name : String, toValue : selection -> String }
     }
-    -> Selection msg option
+    -> Selection msg option selection
 selection config =
     let
         (Selection singleConfig) =
@@ -266,10 +297,7 @@ selection config =
                     |> Maybe.map
                         (\formInput ->
                             { name = formInput.name
-                            , value =
-                                config.currentSelection
-                                    |> Maybe.map formInput.toValue
-                                    |> Maybe.withDefault ""
+                            , value = formInput.toValue config.value
                             }
                         )
             , dropdownIcon = True
@@ -280,15 +308,14 @@ selection config =
 -}
 inline :
     { config
-        | currentSelection : Maybe option
+        | value : selection
         , drawerState : Drawer.State
         , identifier : String
         , onToggle : Drawer.State -> msg
         , onSelect : option -> msg
-        , defaultLabel : Html msg
-        , selectionLabel : option -> Html msg
+        , isSelected : option -> Bool
     }
-    -> Selection msg option
+    -> Selection msg option selection
 inline config =
     let
         (Selection singleConfig) =
@@ -301,7 +328,7 @@ inline config =
         }
 
 
-toHtml : { builder | optionLabel : option -> Html msg, options : List option } -> Selection msg option -> Html msg
+toHtml : { builder | optionLabel : option -> Html msg, options : List option } -> Selection msg option selection -> Html msg
 toHtml { optionLabel, options } selectionControl =
     let
         layout { toDropdown, toOption, drawer } =
@@ -314,7 +341,7 @@ toHtml { optionLabel, options } selectionControl =
     toCustomHtml layout selectionControl
 
 
-toCustomHtml : (Builder msg option -> Html msg) -> Selection msg option -> Html msg
+toCustomHtml : (Builder msg option -> Html msg) -> Selection msg option selection -> Html msg
 toCustomHtml layout (Selection config) =
     let
         selectLayout { toDropdown, toToggle, toOption, drawer } =
