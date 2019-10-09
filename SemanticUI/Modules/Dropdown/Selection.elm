@@ -344,7 +344,7 @@ toHtml { optionLabel, options } selectionControl =
 toCustomHtml : (Builder msg option -> Html msg) -> Selection msg option selection -> Html msg
 toCustomHtml layout (Selection config) =
     let
-        selectLayout { toDropdown, toToggle, toOption, drawer } =
+        selectLayout { toDropdown, toOption, drawer } =
             layout
                 { toDropdown =
                     case config.formInput of
@@ -356,7 +356,6 @@ toCustomHtml layout (Selection config) =
                                 toDropdown element
                                     |> Html.appendChild
                                         (input [ hidden True, name formInput.name, value formInput.value ] [])
-                , toToggle = toToggle
                 , drawer = drawer
                 , toOption = toOption
                 }

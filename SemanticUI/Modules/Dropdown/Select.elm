@@ -157,14 +157,12 @@ scrolling a (Select config) =
 {-| Everything needed to build the `Html msg` representation of a particular select dropdown.
 
   - toDropdown - converts a `<div>` or an `<a>` element into a SemanticUI dropdown
-  - toToggle - converts an element into a toggle for the dropdown
   - toOption - takes the option value and converts a `<div>` or an `<a>` element into a selectable option item
   - drawer - the drawer element that can be toggled open or closed
 
 -}
 type alias Builder msg option =
     { toDropdown : Html.Builder msg -> Html.Builder msg
-    , toToggle : Html.Builder msg -> Html.Builder msg
     , toOption : option -> Html.Builder msg -> Html.Builder msg
     , drawer : Html.Builder msg
     }
@@ -262,10 +260,9 @@ toHtml { optionLabel, options } selectControl =
 toCustomHtml : (Builder msg option -> Html msg) -> Select msg option -> Html msg
 toCustomHtml layout (Select config) =
     let
-        dropdownLayout { toDropdown, toToggle, drawer } =
+        dropdownLayout { toDropdown, drawer } =
             layout
                 { toDropdown = toDropdown
-                , toToggle = toToggle
                 , drawer =
                     drawer
                         |> Html.prependAttribute (onClick (config.onToggle Drawer.Closing))

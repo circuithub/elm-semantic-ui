@@ -21,10 +21,10 @@ module SemanticUI.Modules.Dropdown exposing
 As an example a big dropdown menu using layout:
 
     let
-        mainMenu { toDropdown, toToggle, drawer } =
+        mainMenu { toDropdown, drawer } =
             toDropdown div
                 []
-                [ toToggle div [ class "text" ] [ text "File" ]
+                [ div [ class "text" ] [ text "File" ]
                 , drawer
                     []
                     [ Dropdown.toItem div [] [ text "New" ]
@@ -47,10 +47,10 @@ As an example a big dropdown menu using layout:
                     ]
                 ]
 
-        subMenu { toDropdown, toToggle, drawer } =
+        subMenu { toDropdown, drawer } =
             toDropdown (Dropdown.toItem div)
                 []
-                [ toToggle div [] [ text "Publish to Web" ]
+                [ div [] [ text "Publish to Web" ]
                 , drawer
                     []
                     [ Dropdown.toItem div [] [ text "Google Docs" ]
@@ -87,13 +87,11 @@ import SemanticUI.Modules.Dropdown.Toggle as Toggle
 {-| Everything needed to build the `Html msg` representation of a particular dropdown.
 
   - toDropdown - converts a `<div>` or an `<a>` element into a SemanticUI dropdown
-  - toToggle - converts an element into a toggle for the dropdown
   - drawer - the drawer element that can be toggled open or closed
 
 -}
 type alias Builder msg =
     { toDropdown : Html.Builder msg -> Html.Builder msg
-    , toToggle : Html.Builder msg -> Html.Builder msg
     , drawer : Html.Builder msg
     }
 
@@ -246,8 +244,7 @@ toCustomHtml layout (Dropdown config) =
                 |> Html.prependAttributes config.attributes
     in
     layout
-        { toToggle = toToggle config
-        , toDropdown =
+        { toDropdown =
             case config.variation of
                 Ordinary ->
                     toDropdown << Html.prependChildren config.labels
