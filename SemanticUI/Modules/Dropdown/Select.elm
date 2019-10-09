@@ -5,8 +5,8 @@ module SemanticUI.Modules.Dropdown.Select exposing
     , Variation(..)
     , attributes
     , button
+    , caret
     , disabled
-    , dropdownIcon
     , fluid
     , inline
     , linkItem
@@ -18,7 +18,7 @@ module SemanticUI.Modules.Dropdown.Select exposing
     , toggleEvent
     )
 
-{-| A dropdown with selectable options in its drawer.
+{-| A [dropdown](https://semantic-ui.com/modules/dropdown.html) with selectable options in its drawer.
 
 Example of `Select.select` :
 
@@ -33,7 +33,7 @@ Example of `Select.select` :
             , optionLabel = text << navToString
             }
 
-See also `SematicUI.Modules.Dropdown.Selection` for dropdowns that indicate a current selection state.
+See `SematicUI.Modules.Dropdown.Selection` for dropdowns that indicate a current selection state.
 
 -}
 
@@ -91,12 +91,17 @@ type alias Config msg option =
     , disabled : Bool
     , optionAttributes : option -> List (Attribute msg)
     , labels : List (Html msg)
-    , dropdownIcon : Bool
+    , caret : Bool
     , fluid : Bool
     , scrolling : Bool
     }
 
 
+{-| A type that represents the dropdown select.
+
+Use `inline`, `button`, or `select` to construct this record and `toHtml` or `toCustomHtml` to render it.
+
+-}
 type Select msg option
     = Select (Config msg option)
 
@@ -113,28 +118,36 @@ attributes a (Select config) =
 
 
 {-| Set `toggleEvent` on any `Select`
+
+Identical to `Dropdown.toggleEvent`
+
 -}
 toggleEvent : Toggle.Event -> Select msg option -> Select msg option
 toggleEvent a (Select config) =
     Select { config | toggleEvent = a }
 
 
-{-| Set `disabled` on any `Select`
+{-| Set `disabled` on any `Select`.
+
+Identical to `Dropdown.disabled`
+
 -}
 disabled : Bool -> Select msg option -> Select msg option
 disabled a (Select config) =
     Select { config | disabled = a }
 
 
-{-| Set `dropdownIcon` on a `Select`
+{-| Set `caret` on a `Select`.
+
+Identical to `Dropdown.caret`
+
 -}
-dropdownIcon : Bool -> Select msg option -> Select msg option
-dropdownIcon a (Select config) =
-    Select { config | dropdownIcon = a }
+caret : Bool -> Select msg option -> Select msg option
+caret a (Select config) =
+    Select { config | caret = a }
 
 
-{-| The dropdown will stretch horizontally to fill the space that it is in.
-It may also contain floated content.
+{-| Set `fluid on a`Select\`.
 
 Identical to `Dropdown.fluid`
 
@@ -144,7 +157,7 @@ fluid a (Select config) =
     Select { config | fluid = a }
 
 
-{-| A scrolling dropdown can have its menu scroll.
+{-| Set `scrolling` on a `Select`.
 
 Identical to `Dropdown.scrolling`
 
@@ -170,7 +183,7 @@ type alias Builder msg option =
 
 {-| A dropdown component with selectable options.
 
-A vanilla select component, which can be extended in many different ways (including multiple selection).
+This is a vanilla select component that can be extended in many different ways (including multiple selection).
 It does not highlight the current selection automatically, see `SemanticUI.Modules.Dropdown.Selection` for this.
 
 -}
@@ -197,7 +210,7 @@ select config =
         , attributes = dropdownConfig.attributes
         , toggleEvent = dropdownConfig.toggleEvent
         , disabled = dropdownConfig.disabled
-        , dropdownIcon = dropdownConfig.dropdownIcon
+        , caret = dropdownConfig.caret
         , labels = dropdownConfig.labels
         , fluid = dropdownConfig.fluid
         , scrolling = dropdownConfig.scrolling
@@ -286,7 +299,7 @@ toCustomHtml layout (Select config) =
         , attributes = config.attributes
         , toggleEvent = config.toggleEvent
         , disabled = config.disabled
-        , dropdownIcon = config.dropdownIcon
+        , caret = config.caret
         , labels = config.labels
         , fluid = config.fluid
         , scrolling = config.scrolling

@@ -4,9 +4,9 @@ module SemanticUI.Modules.Dropdown.Selection exposing
     , Selection(..)
     , attributes
     , button
+    , caret
     , compact
     , disabled
-    , dropdownIcon
     , fluid
     , inline
     , label
@@ -22,7 +22,7 @@ module SemanticUI.Modules.Dropdown.Selection exposing
     , valueLabelWithDefault
     )
 
-{-| A dropdown with an active selection state.
+{-| A [dropdown](https://semantic-ui.com/modules/dropdown.html) with an active selection state. This component is exemplified by Semantic UI's [selection](https://semantic-ui.com/modules/dropdown.html#selection) CSS class rendered in the style of a `<select>` form element, but may never-the-less be used with other dropdown variations like `button` and `inline`.
 
 Example of `Selection.selection`:
 
@@ -36,6 +36,8 @@ Example of `Selection.selection`:
         |> Selection.valueLabel = Ok << text << ynToString
         |> Selection.toHtml
             { options = [ Yes, No ], optionLabel = text << toString }
+
+Currently this module only directly supports single selection, but can be extended with multi selection.
 
 -}
 
@@ -67,13 +69,20 @@ type alias Config msg option selection =
     , optionAttributes : option -> List (Attribute msg)
     , value : selection
     , labels : List (Html msg)
-    , dropdownIcon : Bool
+    , caret : Bool
     , fluid : Bool
     , scrolling : Bool
     , formInput : Maybe { name : String, value : String }
     }
 
 
+{-| A type that represents the selection dropdown. Note that, the type of the selected value does not need to be identical to the option type.
+In fact, `Selection msg option (Maybe option)` is a very common pattern, used for optional single selection.
+Similarly, `Selection msg option (Set option)` may be used in order to represent unordered multi selection.
+
+Use `selection`, `inline`, `button`, `single` to construct it and `toHtml` or `toCustomHtml` to render it.
+
+-}
 type Selection msg option selection
     = Selection (Config msg option selection)
 
@@ -87,7 +96,7 @@ type alias Builder msg option =
 {-| Any other custom `Attribute`s to add to the select. Custom attributes
 will be added before `elm-semantic-ui` attributes.
 
-Identical to `Dropdown.attributes`, and `Select.attributes`
+Identical to `Dropdown.attributes` and `Select.attributes`
 
 -}
 attributes : List (Attribute msg) -> Selection msg option selection -> Selection msg option selection
@@ -96,30 +105,39 @@ attributes a (Selection config) =
 
 
 {-| Set `toggleEvent` on any `Selection`
+
+Identical to `Dropdown.toggleEvent` and `Select.toggleEvent`
+
 -}
 toggleEvent : Toggle.Event -> Selection msg option selection -> Selection msg option selection
 toggleEvent a (Selection config) =
     Selection { config | toggleEvent = a }
 
 
-{-| Set `disabled` on any `Selection`
+{-| Set `disabled` on any `Selection`.
+
+Identical to `Dropdown.disabled` and `Select.disabled`
+
 -}
 disabled : Bool -> Selection msg option selection -> Selection msg option selection
 disabled a (Selection config) =
     Selection { config | disabled = a }
 
 
-{-| Set `dropdownIcon` on a `Selection`
+{-| Set `caret` on a `Selection`.
+
+Identical to `Dropdown.caret` and `Select.caret`
+
 -}
-dropdownIcon : Bool -> Selection msg option selection -> Selection msg option selection
-dropdownIcon a (Selection config) =
-    Selection { config | dropdownIcon = a }
+caret : Bool -> Selection msg option selection -> Selection msg option selection
+caret a (Selection config) =
+    Selection { config | caret = a }
 
 
 {-| The dropdown will stretch horizontally to fill the space that it is in.
 It may also contain floated content.
 
-Identical to `Dropdown.fluid`, and `Select.fluid`
+Identical to `Dropdown.fluid` and `Select.fluid`
 
 -}
 fluid : Bool -> Selection msg option selection -> Selection msg option selection
@@ -129,7 +147,7 @@ fluid a (Selection config) =
 
 {-| A scrolling dropdown can have its menu scroll.
 
-Identical to `Dropdown.scrolling`, and `Select.scrolling`
+Identical to `Dropdown.scrolling` and `Select.scrolling`
 
 -}
 scrolling : Bool -> Selection msg option selection -> Selection msg option selection
@@ -235,7 +253,7 @@ single config =
         , attributes = selectConfig.attributes
         , toggleEvent = selectConfig.toggleEvent
         , disabled = selectConfig.disabled
-        , dropdownIcon = selectConfig.dropdownIcon
+        , caret = selectConfig.caret
         , labels = selectConfig.labels
         , fluid = selectConfig.fluid
         , scrolling = selectConfig.scrolling
@@ -300,7 +318,7 @@ selection config =
                             , value = formInput.toValue config.value
                             }
                         )
-            , dropdownIcon = True
+            , caret = True
         }
 
 
@@ -324,7 +342,7 @@ inline config =
     Selection
         { singleConfig
             | variation = Select.Inline
-            , dropdownIcon = True
+            , caret = True
         }
 
 
@@ -370,7 +388,7 @@ toCustomHtml layout (Selection config) =
         , toggleEvent = config.toggleEvent
         , disabled = config.disabled
         , optionAttributes = config.optionAttributes
-        , dropdownIcon = config.dropdownIcon
+        , caret = config.caret
         , labels = config.labels
         , fluid = config.fluid
         , scrolling = config.scrolling
@@ -380,7 +398,7 @@ toCustomHtml layout (Selection config) =
 
 {-| Create an item that goes in the drawer.
 
-Identical to `Dropdown.toItem`, and `Select.toItem`
+Identical to `Dropdown.toItem` and `Select.toItem`
 
 -}
 toItem : Html.Builder msg -> Html.Builder msg
@@ -390,7 +408,7 @@ toItem =
 
 {-| Create a menu item that goes in the drawer, formatted as if it were an `<a>` element.
 
-Identical to `Dropdown.linkItem`, and `Select.linkItem`
+Identical to `Dropdown.linkItem` and `Select.linkItem`
 
 -}
 linkItem : List (Attribute msg) -> List (Html msg) -> Html msg

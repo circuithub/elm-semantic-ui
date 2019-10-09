@@ -4,9 +4,9 @@ module SemanticUI.Modules.Dropdown exposing
     , Dropdown(..)
     , Variation(..)
     , attributes
+    , caret
     , disabled
     , dropdown
-    , dropdownIcon
     , fluid
     , linkItem
     , scrolling
@@ -16,9 +16,11 @@ module SemanticUI.Modules.Dropdown exposing
     , toggleEvent
     )
 
-{-| Helper to create semantic-ui animated dropowns without the need for external JS.
+{-| Provides a free-form [dropdown](https://semantic-ui.com/modules/dropdown.html) Semantic UI component.
 
-As an example a big dropdown menu using layout:
+Use this module to create dropdowns that have drawers that contain mostly custom components like checkboxes / radio buttons etc. For more typical dropdowns with selectable menu items see `SemanticUI.Modules.Dropdown.Select` or `SemanticUI.Modules.Dropdown.Selection`.
+
+Example of two dropdown menus in a nested layout configuration:
 
     let
         mainMenu { toDropdown, drawer } =
@@ -42,7 +44,7 @@ As an example a big dropdown menu using layout:
                         , state = model.fileSub
                         }
                         |> Dropdown.toggleEvent Toggle.OnHover
-                        |> Dropdown.dropdownIcon True
+                        |> Dropdown.caret True
                         |> Dropdown.toCustomHtml subMenu
                     ]
                 ]
@@ -68,7 +70,7 @@ As an example a big dropdown menu using layout:
         , onToggle = ToggleFile
         , state = model.file
         }
-        |> Dropdown.dropdownIcon True
+        |> Dropdown.caret True
         |> Dropdown.toCustomHtml mainMenu
 
 -}
@@ -103,14 +105,9 @@ type Variation msg
     | Button (Button.Config msg)
 
 
-{-| Configuration for a dropdown
+{-| Most general configuration that applies any `Dropdown`.
 
-  - drawerState - Current state of the dropdown
-  - identifier - Unique identifier for the dropdown
-  - onToggle - Handle state change of the dropdown
-  - toggleEvent - When should the dropdown expand (default Toggle.OnClick)
-  - disabled - Is the dropdown disabled (default False)
-  - dropdownIcon - Whether a dropdown icon is visible (default False)
+It is recommended that you use `dropdown` or `button` to properly initialize this config.
 
 -}
 type alias Config msg =
@@ -122,7 +119,7 @@ type alias Config msg =
     , attributes : List (Attribute msg)
     , toggleEvent : Toggle.Event
     , disabled : Bool
-    , dropdownIcon : Bool
+    , caret : Bool
     , labels : List (Html msg)
     , fluid : Bool
     , scrolling : Bool
@@ -131,7 +128,7 @@ type alias Config msg =
 
 {-| A type that represents the dropdown.
 
-Use `dropdown` to construct it.
+Use `dropdown` or `button` to construct it and `toHtml` or `toCustomHtml` to render it.
 
 -}
 type Dropdown msg
@@ -146,25 +143,25 @@ attributes a (Dropdown config) =
     Dropdown { config | attributes = a }
 
 
-{-| Set `toggleEvent` on a `Dropdown`
+{-| The toggle event indicates when the dropdown should expand (default `Toggle.OnClick`)
 -}
 toggleEvent : Toggle.Event -> Dropdown msg -> Dropdown msg
 toggleEvent a (Dropdown config) =
     Dropdown { config | toggleEvent = a }
 
 
-{-| Set `disabled` on a `Dropdown`
+{-| Disabled dropdowns cannot be toggled and indicates a read-only or inactive state. (default `False`)
 -}
 disabled : Bool -> Dropdown msg -> Dropdown msg
 disabled a (Dropdown config) =
     Dropdown { config | disabled = a }
 
 
-{-| Set `dropdownIcon` on a `Dropdown`
+{-| A caret icon may be rendered inside the dropdown toggle (default value depends on the type of dropdown being constructed).
 -}
-dropdownIcon : Bool -> Dropdown msg -> Dropdown msg
-dropdownIcon a (Dropdown config) =
-    Dropdown { config | dropdownIcon = a }
+caret : Bool -> Dropdown msg -> Dropdown msg
+caret a (Dropdown config) =
+    Dropdown { config | caret = a }
 
 
 {-| The dropdown will stretch horizontally to fill the space that it is in.
@@ -175,13 +172,21 @@ fluid a (Dropdown config) =
     Dropdown { config | fluid = a }
 
 
-{-| A scrolling dropdown can have its menu scroll.
+{-| A scrolling dropdown can have its menu scroll (default `False`).
 -}
 scrolling : Bool -> Dropdown msg -> Dropdown msg
 scrolling a (Dropdown config) =
     Dropdown { config | scrolling = a }
 
 
+{-| Construct a dropdown component. Render it with `toHtml` or `toCustomHtml`.
+
+  - drawerState - Current state of the dropdown drawer
+  - identifier - Unique identifier for the dropdown
+  - onToggle - A state change in the dropdown drawer
+  - label - The label rendered inside the dropdown toggle component
+
+-}
 dropdown :
     { config | drawerState : Drawer.State, identifier : String, onToggle : Drawer.State -> msg, label : Maybe (Html msg) }
     -> Dropdown msg
@@ -195,14 +200,17 @@ dropdown config =
         , attributes = []
         , toggleEvent = Toggle.OnClick
         , disabled = False
-        , dropdownIcon = False
+        , caret = False
         , labels = Maybe.withDefault [] (Maybe.map List.singleton config.label)
         , fluid = False
         , scrolling = False
         }
 
 
-{-| A button dropdown variation
+{-| A button variation of the basic `dropdown` component.
+
+  - button - Button configuration and customization
+
 -}
 button :
     { config | button : Button.Config msg, drawerState : Drawer.State, identifier : String, onToggle : Drawer.State -> msg, label : Maybe (Html msg) }
@@ -215,7 +223,11 @@ button config =
     Dropdown { ordinaryConfig | variation = Button config.button }
 
 
-{-| Render a dropdown with the provided layout
+{-| Render a dropdown with the provided layout. Use this when `toHtml` doesn't offer enough flexibility.
+Use `toItem` and `linkItem` to apply Semantic UI styles to items in the drawer.
+
+  - layout - A function that is supplied with a dropdown `Builder`. Use the supplied builder functions to layout the dropdown however you wish!
+
 -}
 toCustomHtml : (Builder msg -> Html msg) -> Dropdown msg -> Html msg
 toCustomHtml layout (Dropdown config) =
@@ -238,7 +250,7 @@ toCustomHtml layout (Dropdown config) =
                     , identifier = config.identifier
                     , onToggle = config.onToggle
                     , toggleEvent = config.toggleEvent
-                    , dropdownIcon = config.dropdownIcon
+                    , caret = config.caret
                     }
                 |> toToggle config
                 |> Html.prependAttributes config.attributes
@@ -266,6 +278,9 @@ toCustomHtml layout (Dropdown config) =
 
 
 {-| Render a dropdown with a simple default layout
+
+  - items - A list of items to display in the drawer (typically supplied as simple `Html.text` nodes)
+
 -}
 toHtml : { builder | items : List (Html msg) } -> Dropdown msg -> Html msg
 toHtml { items } dropdownControl =
@@ -283,7 +298,7 @@ toRoot :
         , identifier : String
         , onToggle : Drawer.State -> msg
         , toggleEvent : Toggle.Event
-        , dropdownIcon : Bool
+        , caret : Bool
     }
     -> Html.Builder msg
     -> Html.Builder msg
@@ -302,7 +317,7 @@ toRoot config element attrs children =
                , class "dropdown"
                ]
         )
-        ((if config.dropdownIcon then
+        ((if config.caret then
             [ i [ class "dropdown icon" ] [] ]
 
           else
