@@ -10,8 +10,8 @@ module SemanticUI.Modules.Dropdown.Select exposing
     , fluid
     , inline
     , linkItem
+    , ordinary
     , scrolling
-    , select
     , toCustomHtml
     , toHtml
     , toItem
@@ -20,9 +20,9 @@ module SemanticUI.Modules.Dropdown.Select exposing
 
 {-| A [dropdown](https://semantic-ui.com/modules/dropdown.html) with selectable options in its drawer.
 
-Example of `Select.select` :
+Example of `Select.ordinary` :
 
-    Select.select
+    Select.ordinary
         { identifier = "nav-select"
         , onToggle = ToggleNavSelect
         , onSelect = identity
@@ -185,7 +185,7 @@ type alias Builder msg option =
 
 This is a vanilla Select component that can be extended in many different ways.
 -}
-select :
+ordinary :
     { config
         | drawerState : Drawer.State
         , identifier : String
@@ -194,7 +194,7 @@ select :
         , label : Maybe (Html msg)
     }
     -> Select msg option
-select config =
+ordinary config =
     let
         (Dropdown dropdownConfig) =
             Dropdown.dropdown config

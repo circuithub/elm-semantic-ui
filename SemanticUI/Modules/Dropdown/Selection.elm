@@ -236,7 +236,7 @@ single :
 single config =
     let
         (Select selectConfig) =
-            Select.select
+            Select.ordinary
                 { drawerState = config.drawerState
                 , identifier = config.identifier
                 , onToggle = config.onToggle
