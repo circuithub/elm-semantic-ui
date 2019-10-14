@@ -169,8 +169,8 @@ scrolling a (Select config) =
 
 {-| Everything needed to build the `Html msg` representation of a particular select dropdown.
 
-  - toDropdown - converts a `<div>` or an `<a>` element into a SemanticUI dropdown
-  - toOption - takes the option value and converts a `<div>` or an `<a>` element into a selectable option item
+  - toDropdown - converts a Html element into a SemanticUI dropdown. Often used with `div` or `a`.
+  - toOption - converts a Html element into a selectable menu item for the given option value.
   - drawer - the drawer element that can be toggled open or closed
 
 -}
@@ -183,9 +183,7 @@ type alias Builder msg option =
 
 {-| A dropdown component with selectable options.
 
-This is a vanilla select component that can be extended in many different ways (including multiple selection).
-It does not highlight the current selection automatically, see `SemanticUI.Modules.Dropdown.Selection` for this.
-
+This is a vanilla Select component that can be extended in many different ways.
 -}
 select :
     { config
@@ -307,20 +305,18 @@ toCustomHtml layout (Select config) =
         |> Dropdown.toCustomHtml dropdownLayout
 
 
-{-| Create an item that goes in the drawer.
+{-| Converts a HTML element into a SemanticUI menu item. Often used with `div` or `a`.
 
 Identical to `Dropdown.toItem`
-
 -}
 toItem : Html.Builder msg -> Html.Builder msg
 toItem =
     Dropdown.toItem
 
 
-{-| Create a menu item that goes in the drawer, formatted as if it were an `<a>` element.
+{-| Create a menu item that goes into the dropdown drawer, styled as if it were an `a` element.
 
 Identical to `Dropdown.linkItem`
-
 -}
 linkItem : List (Attribute msg) -> List (Html msg) -> Html msg
 linkItem =

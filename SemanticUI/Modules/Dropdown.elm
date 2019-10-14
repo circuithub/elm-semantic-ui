@@ -88,8 +88,8 @@ import SemanticUI.Modules.Dropdown.Toggle as Toggle
 
 {-| Everything needed to build the `Html msg` representation of a particular dropdown.
 
-  - toDropdown - converts a `<div>` or an `<a>` element into a SemanticUI dropdown
-  - drawer - the drawer element that can be toggled open or closed
+  - toDropdown - converts a Html element into a SemanticUI dropdown. Often used with `div` or `a`.
+  - drawer - an animated dropdown drawer that may be toggled to an open or closed state
 
 -}
 type alias Builder msg =
@@ -98,7 +98,9 @@ type alias Builder msg =
     }
 
 
-{-| Dropdown variations. For internal use only.
+{-| Dropdown variations.
+
+It is recommended that you use `dropdown` or `button` in order to properly initialize this.
 -}
 type Variation msg
     = Ordinary
@@ -108,7 +110,6 @@ type Variation msg
 {-| Most general configuration that applies any `Dropdown`.
 
 It is recommended that you use `dropdown` or `button` to properly initialize this config.
-
 -}
 type alias Config msg =
     { variation : Variation msg
@@ -129,7 +130,6 @@ type alias Config msg =
 {-| A type that represents the dropdown.
 
 Use `dropdown` or `button` to construct it and `toHtml` or `toCustomHtml` to render it.
-
 -}
 type Dropdown msg
     = Dropdown (Config msg)
@@ -399,21 +399,18 @@ drawer ({ drawerState } as config) =
                 )
 
 
-{-| Create a menu item that goes in the drawer.
-Converts a `<div>` or an `<a>` element into a SemanticUI dropdown item.
+{-| Converts a HTML element into a SemanticUI menu item. Often used with `div` or `a`.
 
-It adds the "item" class to the node.
-
+It adds the "item" class to the element.
 -}
 toItem : Html.Builder msg -> Html.Builder msg
 toItem =
     Html.appendAttribute (class "item")
 
 
-{-| Create a menu item that goes in the drawer, formatted as if it were an `<a>` element.
+{-| Create a menu item that goes into the dropdown drawer, styled as if it were an `a` element.
 
-It adds the "link" and "item" classes to the node.
-
+It creates a `div` with "link" and "item" classes.
 -}
 linkItem : List (Attribute msg) -> List (Html msg) -> Html msg
 linkItem =

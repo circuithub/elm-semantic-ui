@@ -396,20 +396,18 @@ toCustomHtml layout (Selection config) =
         |> Select.toCustomHtml selectLayout
 
 
-{-| Create an item that goes in the drawer.
+{-| Converts a HTML element into a SemanticUI menu item. Often used with `div` or `a`.
 
 Identical to `Dropdown.toItem` and `Select.toItem`
-
 -}
 toItem : Html.Builder msg -> Html.Builder msg
 toItem =
     Dropdown.toItem
 
 
-{-| Create a menu item that goes in the drawer, formatted as if it were an `<a>` element.
+{-| Create a menu item that goes into the dropdown drawer, styled as if it were an `a` element.
 
 Identical to `Dropdown.linkItem` and `Select.linkItem`
-
 -}
 linkItem : List (Attribute msg) -> List (Html msg) -> Html msg
 linkItem =
