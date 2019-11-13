@@ -1,31 +1,19 @@
-module SemanticUI.Elements.Button
-    exposing
-        ( Animation
-        , Config
-        , Emphasis(..)
-        , HiddenContent
-        , IconSide(..)
-        , active
-        , attached
-        , attributes
-        , basic
-        , button
-        , disabled
-        , emphasis
-        , floated
-        , fluid
-        , hiddenContent
-        , icon
-        , iconSide
-        , init
-        , inverted
-        , link
-        , loading
-        , primary
-        , secondary
-        , size
-        , viewAs
-        )
+module SemanticUI.Elements.Button exposing
+    ( button, link, viewAs
+    , Config, init, attributes
+    , attached
+    , primary, secondary, Emphasis(..), emphasis
+    , hiddenContent, HiddenContent, Animation
+    , fluid
+    , size
+    , basic
+    , loading
+    , inverted
+    , floated
+    , icon, iconSide, IconSide(..)
+    , active
+    , disabled
+    )
 
 {-| Provides the [button](https://semantic-ui.com/elements/button.html) element
 from Semantic UI.
@@ -153,6 +141,7 @@ type Emphasis
     = Primary
     | Secondary
     | Negative
+    | Positive
 
 
 {-| How hidden content should be revealed.
@@ -325,8 +314,8 @@ link =
 function allows you to supply an element and use it as a button. For example,
 
     Button.viewAs Html.input
-      (Button.init |> Button.attributes [ Html.type_ "submit"])
-      [ text "Submit" ]
+        (Button.init |> Button.attributes [ Html.type_ "submit" ])
+        [ text "Submit" ]
 
 -}
 viewAs :
@@ -386,6 +375,9 @@ viewAs element cfg label =
 
                 Just Negative ->
                     [ class "negative" ]
+
+                Just Positive ->
+                    [ class "positive" ]
             , case cfg.floated of
                 Nothing ->
                     []
