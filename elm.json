@@ -19,6 +19,7 @@
         "SemanticUI.Elements.Rail",
         "SemanticUI.Elements.Segment",
         "SemanticUI.Elements.Step",
+        "SemanticUI.Collections.Breadcrumb",
         "SemanticUI.Collections.Form",
         "SemanticUI.Collections.Grid",
         "SemanticUI.Collections.Grid.Column",
