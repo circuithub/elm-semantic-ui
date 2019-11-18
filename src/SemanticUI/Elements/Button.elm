@@ -149,6 +149,7 @@ type Emphasis
     = Primary
     | Secondary
     | Negative
+    | Positive
 
 
 {-| How hidden content should be revealed.
@@ -385,6 +386,9 @@ viewAs element cfg label =
 
                 Just Negative ->
                     [ class "negative" ]
+
+                Just Positive ->
+                    [ class "positive" ]
             , case cfg.floated of
                 Nothing ->
                     []

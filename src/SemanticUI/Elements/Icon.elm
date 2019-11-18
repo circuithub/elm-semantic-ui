@@ -71,6 +71,7 @@ type Icon
     | ChevronUp
     | CircleOutline
     | Close
+    | Cog
     | DotCircleOutline
     | Download
     | Dropbox
@@ -93,6 +94,7 @@ type Icon
     | QuestionCircleOutline
     | Remove
     | Retweet
+    | Save
     | Search
     | Settings
     | Sort
@@ -442,6 +444,12 @@ icon cfg theIcon =
 
                         Industry ->
                             "industry"
+
+                        Cog ->
+                            "cog"
+
+                        Save ->
+                            "save"
               ]
             ]
         )

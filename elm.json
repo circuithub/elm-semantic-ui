@@ -1,7 +1,7 @@
 {
     "type": "package",
     "name": "circuithub/elm-semantic-ui",
-     "summary": "A reasonable type safe interface to creating Semantic UI based applications",
+    "summary": "A reasonable type safe interface to creating Semantic UI based applications",
     "license": "BSD-3-Clause",
     "version": "1.0.0",
     "exposed-modules": [
@@ -20,6 +20,7 @@
         "SemanticUI.Elements.Rail",
         "SemanticUI.Elements.Segment",
         "SemanticUI.Elements.Step",
+        "SemanticUI.Collections.Breadcrumb",
         "SemanticUI.Collections.Form",
         "SemanticUI.Collections.Grid",
         "SemanticUI.Collections.Grid.Column",
