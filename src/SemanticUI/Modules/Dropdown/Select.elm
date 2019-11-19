@@ -231,7 +231,7 @@ button :
 button config =
     let
         (Select ordinaryConfig) =
-            select config
+            ordinary config
     in
     Select { ordinaryConfig | variation = Button config.button }
 
@@ -250,7 +250,7 @@ inline :
 inline config =
     let
         (Select ordinaryConfig) =
-            select config
+            ordinary config
     in
     Select { ordinaryConfig | variation = Inline }
 
