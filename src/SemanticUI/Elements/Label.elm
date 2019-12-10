@@ -1,20 +1,15 @@
-module SemanticUI.Elements.Label
-    exposing
-        ( Config
-        , Pointing
-        , basic
-        , circular
-        , color
-        , detail
-        , horizontal
-        , icon
-        , image
-        , init
-        , label
-        , link
-        , pointing
-        , size
-        )
+module SemanticUI.Elements.Label exposing
+    ( label
+    , init, Config
+    , image
+    , color
+    , detail
+    , pointing, Pointing(..)
+    , basic
+    , circular
+    , size
+    , horizontal, icon, link
+    )
 
 {-| A label displays content classification.
 
