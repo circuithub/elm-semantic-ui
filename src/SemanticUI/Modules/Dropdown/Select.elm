@@ -57,6 +57,7 @@ type Variation msg
     | Button (Button.Config msg)
     | Inline
     | Selection { compact : Bool }
+    | MenuItem
 
 
 variationClassList : Variation msg -> List ( String, Bool )
@@ -73,6 +74,9 @@ variationClassList variation =
 
         Selection { compact } ->
             [ ( "compact", compact ), ( "selection", True ) ]
+
+        MenuItem ->
+            [ ( "inline", True ), ( "item", True ) ]
 
 
 {-| Most general configuration that applies any `Select`.
