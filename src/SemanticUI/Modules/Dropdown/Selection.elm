@@ -11,6 +11,7 @@ module SemanticUI.Modules.Dropdown.Selection exposing
     , inline
     , label
     , linkItem
+    , menuItem
     , scrolling
     , selection
     , single
@@ -342,6 +343,29 @@ inline config =
     Selection
         { singleConfig
             | variation = Select.Inline
+            , caret = True
+        }
+
+{-| A single selection dropdown component that can be used as a menu item.
+-}
+menuItem :
+    { config
+        | value : selection
+        , drawerState : Drawer.State
+        , identifier : String
+        , onToggle : Drawer.State -> msg
+        , onSelect : option -> msg
+        , isSelected : option -> Bool
+    }
+    -> Selection msg option selection
+menuItem config =
+    let
+        (Selection singleConfig) =
+            single config
+    in
+    Selection
+        { singleConfig
+            | variation = Select.MenuItem
             , caret = True
         }
 
