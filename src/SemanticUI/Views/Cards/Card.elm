@@ -65,6 +65,7 @@ linkCard :
     ->
         { image : Maybe String
         , content : List (Html msg)
+        , button : Maybe (Html msg)
         , extraContent : List (Html msg)
         }
     -> Html msg
@@ -77,6 +78,7 @@ divCard :
     ->
         { image : Maybe String
         , content : List (Html msg)
+        , button : Maybe (Html msg)
         , extraContent : List (Html msg)
         }
     -> Html msg
@@ -94,20 +96,26 @@ viewCard el cfg content =
             ]
         )
         (List.concat
-            [ (case content.image of
+            [ case content.image of
                 Nothing ->
                     []
                 Just url ->
                     [ div [ class "image" ]
                           [ img [ src url ] [] ]
                     ]
-              )
             , case content.content of
                 [] ->
                     []
 
                 _ ->
                     [ div [ class "content" ] content.content ]
+            , case content.button of
+                Nothing ->
+                    []
+
+                Just button ->
+                    [button]
+
             , case content.extraContent of
                 [] ->
                     []
