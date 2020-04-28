@@ -8,7 +8,7 @@ module SemanticUI.Elements.Label exposing
     , basic
     , circular
     , size
-    , horizontal, icon, link
+    , attributes, horizontal, icon, link
     )
 
 {-| A label displays content classification.
@@ -92,7 +92,7 @@ import SemanticUI.Elements.Icon as Icon
 
 {-| The configuration of a label.
 -}
-type alias Config =
+type alias Config msg =
     { image : Maybe String
     , color : Maybe Color
     , detail : Maybe String
@@ -103,7 +103,16 @@ type alias Config =
     , circular : Bool
     , size : Size
     , icon : Maybe Icon.Icon
+    , attributes : List (Attribute msg)
     }
+
+
+{-| Any other custom `Attribute`s to add to this button. Custom attributes
+will be added before `elm-semantic-ui` attributes.
+-}
+attributes : List (Attribute msg) -> Config msg -> Config msg
+attributes a model =
+    { model | attributes = a }
 
 
 {-| Which direction a label can point.
@@ -117,71 +126,71 @@ type Pointing
 
 {-| Specify the size of a label.
 -}
-size : Size -> Config -> Config
+size : Size -> Config msg -> Config msg
 size a model =
     { model | size = a }
 
 
 {-| Specify whether or not a label is circular.
 -}
-circular : Bool -> Config -> Config
+circular : Bool -> Config msg -> Config msg
 circular a model =
     { model | circular = a }
 
 
-tag : Bool -> Config -> Config
+tag : Bool -> Config msg -> Config msg
 tag a model =
     { model | tag = a }
 
 
 {-| Specify whether or not a label is basic.
 -}
-basic : Bool -> Config -> Config
+basic : Bool -> Config msg -> Config msg
 basic a model =
     { model | basic = a }
 
 
 {-| Specify whether a label should point to surrounding content.
 -}
-pointing : Maybe Pointing -> Config -> Config
+pointing : Maybe Pointing -> Config msg -> Config msg
 pointing a model =
     { model | pointing = a }
 
 
 {-| Specify the colour of a label.
 -}
-color : Maybe Color -> Config -> Config
+color : Maybe Color -> Config msg -> Config msg
 color a model =
     { model | color = a }
 
 
 {-| Specify extra detail to display in this label.
 -}
-detail : Maybe String -> Config -> Config
+detail : Maybe String -> Config msg -> Config msg
 detail a model =
     { model | detail = a }
 
 
 {-| Specify the URL to an image to display in this label.
 -}
-image : Maybe String -> Config -> Config
+image : Maybe String -> Config msg -> Config msg
 image a model =
     { model | image = a }
 
 
-horizontal : Bool -> Config -> Config
+horizontal : Bool -> Config msg -> Config msg
 horizontal a model =
     { model | horizontal = a }
 
 
-icon : Maybe Icon.Icon -> Config -> Config
+icon : Maybe Icon.Icon -> Config msg -> Config msg
 icon a model =
     { model | icon = a }
 
 
 {-| A label with the simplest configuration. Corresponds to just `class="ui label"`.
 -}
-init : Config
+init : Config msg
 init =
     { image = Nothing
     , color = Nothing
@@ -193,15 +202,16 @@ init =
     , circular = False
     , size = Medium
     , icon = Nothing
+    , attributes = []
     }
 
 
-link : Config -> String -> String -> Html msg
+link : Config msg -> String -> String -> Html msg
 link cfg url =
     viewAs (\attrs -> a (href url :: attrs)) cfg
 
 
-label : Config -> String -> Html msg
+label : Config msg -> String -> Html msg
 label =
     viewAs div
 
@@ -246,6 +256,7 @@ viewAs el cfg message =
 
                 Nothing ->
                     []
+            , cfg.attributes
             ]
         )
     <|
@@ -257,12 +268,21 @@ viewAs el cfg message =
                 Nothing ->
                     []
             , case cfg.icon of
+                Just Icon.Close ->
+                    []
+
                 Just a ->
                     [ Icon.icon Icon.init a ]
 
                 Nothing ->
                     []
             , content
+            , case cfg.icon of
+                Just Icon.Close ->
+                    [ Icon.icon Icon.init Icon.Close ]
+
+                _ ->
+                    []
             , case cfg.detail of
                 Just a ->
                     [ div [ class "detail" ] [ Html.text a ] ]
