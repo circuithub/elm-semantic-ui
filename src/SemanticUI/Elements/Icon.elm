@@ -85,6 +85,7 @@ type Icon
     | ImageOutline
     | Industry
     | Info
+    | InfoCircle
     | Legal
     | PauseCircleOutline
     | Pencil
@@ -105,6 +106,7 @@ type Icon
     | Stopwatch
     | TimesCircleOutline
     | Trash
+    | ThumbsUpOutline
     | Upload
     | User
     | Warning
@@ -325,6 +327,9 @@ icon cfg theIcon =
                         Info ->
                             "info"
 
+                        InfoCircle ->
+                            "info circle"
+
                         User ->
                             "user"
 
@@ -414,6 +419,9 @@ icon cfg theIcon =
 
                         PauseCircleOutline ->
                             "pause circle outline"
+
+                        ThumbsUpOutline ->
+                            "thumbs up outline"
 
                         TimesCircleOutline ->
                             "times circle outline"
