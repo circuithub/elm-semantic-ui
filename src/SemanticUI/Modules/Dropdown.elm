@@ -1,20 +1,4 @@
-module SemanticUI.Modules.Dropdown exposing
-    ( Builder
-    , Config
-    , Dropdown(..)
-    , Variation(..)
-    , attributes
-    , caret
-    , disabled
-    , dropdown
-    , fluid
-    , linkItem
-    , scrolling
-    , toCustomHtml
-    , toHtml
-    , toItem
-    , toggleEvent
-    )
+module SemanticUI.Modules.Dropdown exposing (Builder, Config, Dropdown(..), Variation(..), attributes, caret, disabled, dropdown, fluid, linkItem, scrolling, toCustomHtml, toHtml, toItem, toggleEvent)
 
 {-| Provides a free-form [dropdown](https://semantic-ui.com/modules/dropdown.html) Semantic UI component.
 
@@ -73,6 +57,8 @@ Example of two dropdown menus in a nested layout configuration:
         |> Dropdown.caret True
         |> Dropdown.toCustomHtml mainMenu
 
+@docs Builder, Config, Dropdown, Variation, attributes, caret, disabled, dropdown, fluid, linkItem, scrolling, toCustomHtml, toHtml, toItem, toggleEvent
+
 -}
 
 import Dropdown
@@ -101,6 +87,7 @@ type alias Builder msg =
 {-| Dropdown variations.
 
 It is recommended that you use `dropdown` or `button` in order to properly initialize this.
+
 -}
 type Variation msg
     = Ordinary
@@ -110,6 +97,7 @@ type Variation msg
 {-| Most general configuration that applies any `Dropdown`.
 
 It is recommended that you use `dropdown` or `button` to properly initialize this config.
+
 -}
 type alias Config msg =
     { variation : Variation msg
@@ -130,6 +118,7 @@ type alias Config msg =
 {-| A type that represents the dropdown.
 
 Use `dropdown` or `button` to construct it and `toHtml` or `toCustomHtml` to render it.
+
 -}
 type Dropdown msg
     = Dropdown (Config msg)
@@ -402,6 +391,7 @@ drawer ({ drawerState } as config) =
 {-| Converts a HTML element into a SemanticUI menu item. Often used with `div` or `a`.
 
 It adds the "item" class to the element.
+
 -}
 toItem : Html.Builder msg -> Html.Builder msg
 toItem =
@@ -411,6 +401,7 @@ toItem =
 {-| Create a menu item that goes into the dropdown drawer, styled as if it were an `a` element.
 
 It creates a `div` with "link" and "item" classes.
+
 -}
 linkItem : List (Attribute msg) -> List (Html msg) -> Html msg
 linkItem =

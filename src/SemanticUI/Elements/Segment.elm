@@ -1,6 +1,7 @@
 module SemanticUI.Elements.Segment exposing
-    ( segment, raised
+    ( segment
     , init, Config, attributes
+    , raised
     , attached
     , textAlignment
     , clearing, loading
@@ -11,7 +12,7 @@ module SemanticUI.Elements.Segment exposing
 
 # Viewing segments
 
-@docs segment, raised
+@docs segment
 
 
 # Segment properties
@@ -38,6 +39,8 @@ A segment can be attached to other content on a page.
 A segment can have its text aligned to a side.
 
 @docs textAlignment
+
+@docs clearing, loading
 
 -}
 
@@ -100,11 +103,15 @@ attributes a model =
     { model | attributes = a }
 
 
+{-| TODO
+-}
 clearing : Bool -> Config msg -> Config msg
 clearing c model =
     { model | clearing = c }
 
 
+{-| TODO
+-}
 loading : Bool -> Config msg -> Config msg
 loading c model =
     { model | loading = c }

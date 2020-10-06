@@ -1,4 +1,10 @@
-module SemanticUI.Modules.Modal exposing (..)
+module SemanticUI.Modules.Modal exposing (Config, init, fullscreen, view)
+
+{-| TODO
+
+@docs Config, init, fullscreen, view
+
+-}
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -6,12 +12,16 @@ import Html.Events exposing (..)
 import SemanticUI exposing (Size(..), sizeClass)
 
 
+{-| TODO
+-}
 type alias Config =
     { fullscreen : Bool
     , size : Size
     }
 
 
+{-| TODO
+-}
 init : Config
 init =
     { fullscreen = False
@@ -19,11 +29,15 @@ init =
     }
 
 
+{-| TODO
+-}
 fullscreen : Bool -> Config -> Config
 fullscreen a config =
     { config | fullscreen = a }
 
 
+{-| TODO
+-}
 view :
     Config
     ->

@@ -1,13 +1,9 @@
-module SemanticUI.Elements.Step
-    exposing
-        ( Config
-        , Step
-        , StepConfig
-        , StepCount(..)
-        , step
-        , link
-        , steps
-        )
+module SemanticUI.Elements.Step exposing
+    ( Config, steps
+    , StepCount(..)
+    , step, StepConfig, Step
+    , link
+    )
 
 {-| A step shows the completion status of an activity in a series of activities.
 
@@ -25,6 +21,8 @@ module SemanticUI.Elements.Step
 # Steps
 
 @docs step, StepConfig, Step
+
+@docs link
 
 -}
 
@@ -136,34 +134,40 @@ type Step msg
 -}
 step : StepConfig msg -> List (Html msg) -> Step msg
 step stepconfig content =
-  viewAs div stepconfig content
+    viewAs div stepconfig content
 
+
+{-| TODO
+-}
 link : StepConfig msg -> List (Html msg) -> Step msg
 link stepconfig content =
-  viewAs a stepconfig content
+    viewAs a stepconfig content
+
 
 viewAs el { icon, title, completed, active, attributes } content =
-  Step <|
-      el
-          ([ class "step"
-          , classList [ ( "completed", completed ), ("active", active) ]
-          ] ++ attributes)
-          (List.concat
-              [ case icon of
-                  Nothing ->
-                      []
+    Step <|
+        el
+            ([ class "step"
+             , classList [ ( "completed", completed ), ( "active", active ) ]
+             ]
+                ++ attributes
+            )
+            (List.concat
+                [ case icon of
+                    Nothing ->
+                        []
 
-                  Just i ->
-                      [ Icon.icon Icon.init i ]
-              , [ div [ class "content" ] <|
-                      case title of
-                          Nothing ->
-                              content
+                    Just i ->
+                        [ Icon.icon Icon.init i ]
+                , [ div [ class "content" ] <|
+                        case title of
+                            Nothing ->
+                                content
 
-                          Just t ->
-                              [ div [ class "title" ] [ text t ]
-                              , div [ class "description" ] content
-                              ]
+                            Just t ->
+                                [ div [ class "title" ] [ text t ]
+                                , div [ class "description" ] content
+                                ]
+                  ]
                 ]
-              ]
-          )
+            )

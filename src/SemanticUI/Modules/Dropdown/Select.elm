@@ -1,22 +1,4 @@
-module SemanticUI.Modules.Dropdown.Select exposing
-    ( Builder
-    , Config
-    , Select(..)
-    , Variation(..)
-    , attributes
-    , button
-    , caret
-    , disabled
-    , fluid
-    , inline
-    , linkItem
-    , ordinary
-    , scrolling
-    , toCustomHtml
-    , toHtml
-    , toItem
-    , toggleEvent
-    )
+module SemanticUI.Modules.Dropdown.Select exposing (Builder, Config, Select(..), Variation(..), attributes, button, caret, disabled, fluid, inline, linkItem, ordinary, scrolling, toCustomHtml, toHtml, toItem, toggleEvent)
 
 {-| A [dropdown](https://semantic-ui.com/modules/dropdown.html) with selectable options in its drawer.
 
@@ -34,6 +16,8 @@ Example of `Select.ordinary` :
             }
 
 See `SematicUI.Modules.Dropdown.Selection` for dropdowns that indicate a current selection state.
+
+@docs Builder, Config, Select, Variation, attributes, button, caret, disabled, fluid, inline, linkItem, ordinary, scrolling, toCustomHtml, toHtml, toItem, toggleEvent
 
 -}
 
@@ -188,6 +172,7 @@ type alias Builder msg option =
 {-| A dropdown component with selectable options.
 
 This is a vanilla Select component that can be extended in many different ways.
+
 -}
 ordinary :
     { config
@@ -259,6 +244,8 @@ inline config =
     Select { ordinaryConfig | variation = Inline }
 
 
+{-| TODO
+-}
 toHtml : { builder | optionLabel : option -> Html msg, options : List option } -> Select msg option -> Html msg
 toHtml { optionLabel, options } selectControl =
     let
@@ -272,6 +259,8 @@ toHtml { optionLabel, options } selectControl =
     toCustomHtml layout selectControl
 
 
+{-| TODO
+-}
 toCustomHtml : (Builder msg option -> Html msg) -> Select msg option -> Html msg
 toCustomHtml layout (Select config) =
     let
@@ -312,6 +301,7 @@ toCustomHtml layout (Select config) =
 {-| Converts a HTML element into a SemanticUI menu item. Often used with `div` or `a`.
 
 Identical to `Dropdown.toItem`
+
 -}
 toItem : Html.Builder msg -> Html.Builder msg
 toItem =
@@ -321,6 +311,7 @@ toItem =
 {-| Create a menu item that goes into the dropdown drawer, styled as if it were an `a` element.
 
 Identical to `Dropdown.linkItem`
+
 -}
 linkItem : List (Attribute msg) -> List (Html msg) -> Html msg
 linkItem =

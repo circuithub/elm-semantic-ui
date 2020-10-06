@@ -1,27 +1,4 @@
-module SemanticUI.Modules.Dropdown.Selection exposing
-    ( Builder
-    , Config
-    , Selection(..)
-    , attributes
-    , button
-    , caret
-    , compact
-    , disabled
-    , fluid
-    , inline
-    , label
-    , linkItem
-    , menuItem
-    , scrolling
-    , selection
-    , single
-    , toCustomHtml
-    , toHtml
-    , toItem
-    , toggleEvent
-    , valueLabel
-    , valueLabelWithDefault
-    )
+module SemanticUI.Modules.Dropdown.Selection exposing (Builder, Config, Selection(..), attributes, button, caret, compact, disabled, fluid, inline, label, linkItem, menuItem, scrolling, selection, single, toCustomHtml, toHtml, toItem, toggleEvent, valueLabel, valueLabelWithDefault)
 
 {-| A [dropdown](https://semantic-ui.com/modules/dropdown.html) with an active selection state. This component is exemplified by Semantic UI's [selection](https://semantic-ui.com/modules/dropdown.html#selection) CSS class rendered in the style of a `<select>` form element, but may never-the-less be used with other dropdown variations like `button` and `inline`.
 
@@ -39,6 +16,8 @@ Example of `Selection.selection`:
             { options = [ Yes, No ], optionLabel = text << toString }
 
 Currently this module only directly supports single selection, but can be extended with multi selection.
+
+@docs Builder, Config, Selection, attributes, button, caret, compact, disabled, fluid, inline, label, linkItem, menuItem, scrolling, selection, single, toCustomHtml, toHtml, toItem, toggleEvent, valueLabel, valueLabelWithDefault
 
 -}
 
@@ -346,6 +325,7 @@ inline config =
             , caret = True
         }
 
+
 {-| A single selection dropdown component that can be used as a menu item.
 -}
 menuItem :
@@ -370,6 +350,8 @@ menuItem config =
         }
 
 
+{-| TODO
+-}
 toHtml : { builder | optionLabel : option -> Html msg, options : List option } -> Selection msg option selection -> Html msg
 toHtml { optionLabel, options } selectionControl =
     let
@@ -383,6 +365,8 @@ toHtml { optionLabel, options } selectionControl =
     toCustomHtml layout selectionControl
 
 
+{-| TODO
+-}
 toCustomHtml : (Builder msg option -> Html msg) -> Selection msg option selection -> Html msg
 toCustomHtml layout (Selection config) =
     let
@@ -423,6 +407,7 @@ toCustomHtml layout (Selection config) =
 {-| Converts a HTML element into a SemanticUI menu item. Often used with `div` or `a`.
 
 Identical to `Dropdown.toItem` and `Select.toItem`
+
 -}
 toItem : Html.Builder msg -> Html.Builder msg
 toItem =
@@ -432,6 +417,7 @@ toItem =
 {-| Create a menu item that goes into the dropdown drawer, styled as if it were an `a` element.
 
 Identical to `Dropdown.linkItem` and `Select.linkItem`
+
 -}
 linkItem : List (Attribute msg) -> List (Html msg) -> Html msg
 linkItem =
