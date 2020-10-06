@@ -1,35 +1,23 @@
-module SemanticUI.Elements.Header
-    exposing
-        ( Config
-        , attached
-        , attributes
-        , block
-        , div
-        , dividing
-        , h1
-        , h2
-        , h3
-        , h4
-        , h5
-        , icon
-        , init
-        , inverted
-        , subheader
-        , text
-        , textAlignment
-        )
+module SemanticUI.Elements.Header exposing
+    ( h1, h2, h3, h4, h5, div
+    , Config, init
+    , attributes, icon, text, subheader, inverted, block, dividing
+    , attached
+    , textAlignment
+    )
 
 {-| A header provides a short summary of content.
 
 
 # Viewing headers
 
-@docs h1, h2, h3, h4, h5
+@docs h1, h2, h3, h4, h5, div
 
 
 # Header properties
 
-@docs Config, init, attributes
+@docs Config, init
+@docs attributes, icon, text, subheader, inverted, block, dividing
 
 
 ## Attachment
@@ -91,36 +79,50 @@ attached a model =
     { model | attached = a }
 
 
+{-| Whether to invert the colours for extra contrast.
+-}
 inverted : Bool -> Config msg -> Config msg
 inverted a model =
     { model | inverted = a }
 
 
+{-| Whether to show the header inside a content block.
+-}
 block : Bool -> Config msg -> Config msg
 block a model =
     { model | block = a }
 
 
+{-| How to align the header text.
+-}
 textAlignment : TextAlignment -> Config msg -> Config msg
 textAlignment a model =
     { model | textAlignment = a }
 
 
+{-| Add an icon.
+-}
 icon : Maybe Icon.Icon -> Config msg -> Config msg
 icon a model =
     { model | icon = a }
 
 
+{-| Set the text contents of the header.
+-}
 text : Html msg -> Config msg -> Config msg
 text a model =
     { model | text = a }
 
 
+{-| Add a subheader, to be displayed underneath the main header text.
+-}
 subheader : Maybe (Html msg) -> Config msg -> Config msg
 subheader a model =
     { model | subheader = a }
 
 
+{-| Whether to show a divider between the header and the content below it.
+-}
 dividing : Bool -> Config msg -> Config msg
 dividing a model =
     { model | dividing = a }

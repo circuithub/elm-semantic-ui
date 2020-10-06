@@ -1,10 +1,10 @@
 module SemanticUI.Collections.Grid exposing
-    ( Column(..), column
+    ( Column(..), mapColumn, column
     , grid
-    , init, Config, attributes
+    , Config, init
+    , attributes, equalWidth, divided, stackable, doubling
     , padded
     , columnsPerRow
-    , divided, doubling, equalWidth, mapColumn, stackable
     )
 
 {-| A grid is used to harmonize negative space in a layout.
@@ -16,7 +16,7 @@ The grid API adds a little more type safety by using the `Column` type.
 A grid can only be viewed as a list of columns. To create a `Column`,
 use the `column` smart constructor.
 
-@docs Column, column
+@docs Column, mapColumn, column
 
 
 # Viewing grids
@@ -26,7 +26,8 @@ use the `column` smart constructor.
 
 # Grid properties
 
-@docs init, Config, attributes
+@docs Config, init
+@docs attributes, equalWidth, divided, stackable, doubling
 
 
 ## Padded grids
@@ -273,6 +274,8 @@ column cfg =
             )
 
 
+{-| Map the message type of a column.
+-}
 mapColumn : (a -> b) -> Column a -> Column b
 mapColumn f (Column html) =
     Column (Html.map f html)

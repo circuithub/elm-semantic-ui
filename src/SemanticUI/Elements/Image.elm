@@ -1,16 +1,11 @@
-module SemanticUI.Elements.Image
-    exposing
-        ( Config
-        , VerticalAlignment(..)
-        , bordered
-        , centered
-        , image
-        , init
-        , inline
-        , rounded
-        , size
-        , spaced
-        )
+module SemanticUI.Elements.Image exposing
+    ( image
+    , init, Config
+    , bordered, rounded, spaced
+    , size
+    , centered
+    , inline, VerticalAlignment(..)
+    )
 
 {-| An image is a graphic representation of something.
 
@@ -23,6 +18,7 @@ module SemanticUI.Elements.Image
 # Image properties
 
 @docs init, Config
+@docs bordered, rounded, spaced
 
 
 ## Size
@@ -109,16 +105,22 @@ inline a model =
     { model | inline = a }
 
 
+{-| Whether to add space around the image to separate it from its surroundings.
+-}
 spaced : Bool -> Config -> Config
 spaced a model =
     { model | spaced = a }
 
 
+{-| Whether to round the corners of the image.
+-}
 rounded : Bool -> Config -> Config
 rounded a model =
     { model | rounded = a }
 
 
+{-| Whether to add a border around the image.
+-}
 bordered : Bool -> Config -> Config
 bordered a model =
     { model | bordered = a }

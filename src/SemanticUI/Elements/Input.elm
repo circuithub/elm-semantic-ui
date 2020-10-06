@@ -1,10 +1,15 @@
-module SemanticUI.Elements.Input exposing (..)
+module SemanticUI.Elements.Input exposing
+    ( input
+    , Config, init
+    )
 
 {-| An input is a field used to elicit a response from a user.
+
 
 # Viewing inputs
 
 @docs input
+
 
 # Input properties
 

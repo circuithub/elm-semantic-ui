@@ -16,6 +16,7 @@
         "SemanticUI.Elements.Input",
         "SemanticUI.Elements.Label",
         "SemanticUI.Elements.List",
+        "SemanticUI.Elements.List.Item",
         "SemanticUI.Elements.Loader",
         "SemanticUI.Elements.Rail",
         "SemanticUI.Elements.Segment",

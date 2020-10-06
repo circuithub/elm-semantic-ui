@@ -1,14 +1,15 @@
 module SemanticUI.Elements.Container exposing (container, textContainer, fluidContainer)
 
-{-|
-A container is an element designed to contain page elements to a reasonable
+{-| A container is an element designed to contain page elements to a reasonable
 maximum width based on the size of a user's screen. This is useful to couple
 with other UI elements like a grid or menu to restrict their width to a
 reasonable size for display.
 
+
 # Viewing containers
 
-@docs container
+@docs container, textContainer, fluidContainer
+
 -}
 
 import Html exposing (..)

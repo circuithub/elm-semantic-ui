@@ -2,10 +2,7 @@ module SemanticUI.Elements.Divider exposing (divider, hidden)
 
 {-| A divider visually segments content into groups.
 
-
-# Viewing dividers
-
-@docs divider
+@docs divider, hidden
 
 -}
 
@@ -30,6 +27,8 @@ divider text =
         )
 
 
+{-| A hidden divider divides content without creating a dividing line.
+-}
 hidden : Html msg
 hidden =
     div [ class "ui hidden divider" ] []

@@ -1,11 +1,15 @@
-module SemanticUI.Collections.Grid.Column exposing (..)
+module SemanticUI.Collections.Grid.Column exposing
+    ( Config, init, attributes
+    , textAlignment
+    , width
+    )
 
 {-| A column in a grid.
 
 
 # Column properties
 
-@docs Config, init
+@docs Config, init, attributes
 
 
 ## Text alignment

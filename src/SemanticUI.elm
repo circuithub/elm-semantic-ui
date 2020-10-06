@@ -1,20 +1,20 @@
 module SemanticUI exposing
-    ( Attached(..), Color(..), ColumnCount(..), Floated(..), Size(..), TextAlignment(..)
-    , attachedClass, floatedClass, sizeClass, textAlignmentClass
-    , colorClass
+    ( Color(..), colorClass
+    , Size(..), sizeClass
+    , Floated(..), floatedClass
+    , TextAlignment(..), textAlignmentClass
+    , Attached(..), attachedClass
+    , ColumnCount(..)
     )
 
-{-|
+{-| Common properties for other SemanticUI components.
 
-
-# Common properties
-
-@docs Attached, Color, ColumnCount, Floated, Size, TextAlignment
-
-
-# Forming Attributes
-
-@docs attachedClass, floatedClass, sizeClass, textAlignmentClass
+@docs Color, colorClass
+@docs Size, sizeClass
+@docs Floated, floatedClass
+@docs TextAlignment, textAlignmentClass
+@docs Attached, attachedClass
+@docs ColumnCount
 
 -}
 
@@ -22,7 +22,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 
 
-{-| Colours from the standard colour pallette in SemanticUI
+{-| Colours from the standard colour palette in SemanticUI.
 -}
 type Color
     = Red
@@ -40,6 +40,8 @@ type Color
     | Black
 
 
+{-| Convert a `Color` into its corresponding `class` `Attribute`.
+-}
 colorClass : Color -> Attribute msg
 colorClass color =
     class <|
@@ -160,7 +162,7 @@ type Attached
     | AttachBottom
 
 
-{-| Convert `Attached` into a correspodning `class` `Attribute`.
+{-| Convert `Attached` into a corresponding `class` `Attribute`.
 -}
 attachedClass : Attached -> Attribute msg
 attachedClass side =
@@ -176,8 +178,8 @@ attachedClass side =
                 "bottom attached"
 
 
-{-| Column counts, used to specify how wide a column is, or how many columns
-a grid contains.
+{-| Column counts specify how wide a column is, or how many columns a grid
+contains.
 -}
 type ColumnCount
     = OneColumn

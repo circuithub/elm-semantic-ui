@@ -1,14 +1,15 @@
 module SemanticUI.Elements.Label exposing
-    ( label
+    ( label, link
     , init, Config
+    , icon, attributes
     , image
     , color
     , detail
     , pointing, Pointing(..)
     , basic
+    , horizontal
     , circular
     , size
-    , attributes, horizontal, icon, link
     )
 
 {-| A label displays content classification.
@@ -16,12 +17,13 @@ module SemanticUI.Elements.Label exposing
 
 # Viewing labels
 
-@docs label
+@docs label, link
 
 
 # Label properties
 
 @docs init, Config
+@docs icon, attributes
 
 
 ## Image
@@ -67,6 +69,8 @@ A label can appear as a tag.
 ## Horizontal
 
 A horizontal label is formatted to label content along-side it horizontally.
+
+@docs horizontal
 
 
 ## Circular
@@ -178,11 +182,15 @@ image a model =
     { model | image = a }
 
 
+{-| Specify whether to format the label horizontally.
+-}
 horizontal : Bool -> Config msg -> Config msg
 horizontal a model =
     { model | horizontal = a }
 
 
+{-| Specify an icon to include in the label.
+-}
 icon : Maybe Icon.Icon -> Config msg -> Config msg
 icon a model =
     { model | icon = a }
@@ -206,11 +214,15 @@ init =
     }
 
 
+{-| View a label as a `<link>`.
+-}
 link : Config msg -> String -> String -> Html msg
 link cfg url =
     viewAs (\attrs -> a (href url :: attrs)) cfg
 
 
+{-| View a label as a `<label>`.
+-}
 label : Config msg -> String -> Html msg
 label =
     viewAs div

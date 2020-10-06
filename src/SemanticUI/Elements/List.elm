@@ -1,23 +1,14 @@
 module SemanticUI.Elements.List exposing
     ( ul
-    , Config, attributes, bulleted, div, divided, horizontal, init, relaxed, size
+    , Config, div, init
+    , relaxed, divided, attributes, horizontal, bulleted, size
     )
 
 {-| A list is used to group related content.
 
-
-# List items
-
-Lists can only contain list items. To enforce this at the type level,
-we use an opaque `ListItem` type, which can contain arbitray Html. Create
-list items with `item`.
-
-@docs ListItem, item
-
-
-# Viewing lists
-
-@docs ul
+@docs ul, div
+@docs Config, init
+@docs relaxed, divided, attributes, horizontal, bulleted, size
 
 -}
 
@@ -27,6 +18,8 @@ import SemanticUI exposing (..)
 import SemanticUI.Elements.List.Item exposing (ListItem, toHtml)
 
 
+{-| All properties of a list.
+-}
 type alias Config msg =
     { relaxed : Bool
     , divided : Bool
@@ -37,6 +30,8 @@ type alias Config msg =
     }
 
 
+{-| A list with the simplest configuration.
+-}
 init : Config msg
 init =
     { relaxed = False
@@ -48,31 +43,44 @@ init =
     }
 
 
+{-| Specify whether to view the list items horizontally.
+-}
 horizontal : Bool -> Config msg -> Config msg
 horizontal a config =
     { config | horizontal = a }
 
 
+{-| Specify whether to mark each item with a bullet.
+-}
 bulleted : Bool -> Config msg -> Config msg
 bulleted a config =
     { config | bulleted = a }
 
 
+{-| Whether to relax the list's padding to provide more negative space.
+-}
 relaxed : Bool -> Config msg -> Config msg
 relaxed a config =
     { config | relaxed = a }
 
 
+{-| Whether to show dividers between the list items.
+-}
 divided : Bool -> Config msg -> Config msg
 divided a config =
     { config | divided = a }
 
 
+{-| Any other custom `Attribute`s to add to this button. Custom attributes
+will be added before `elm-semantic-ui` attributes.
+-}
 attributes : List (Attribute msg) -> Config msg -> Config msg
 attributes a config =
     { config | attributes = a }
 
 
+{-| Specify the size of the list items.
+-}
 size : Size -> Config msg -> Config msg
 size a config =
     { config | size = a }

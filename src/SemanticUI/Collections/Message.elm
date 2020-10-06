@@ -1,9 +1,7 @@
 module SemanticUI.Collections.Message exposing
-    ( message, error, warning
-    , init, Config
-    , header
-    , icon
-    , attached, close, color, info
+    ( message, error, warning, info
+    , Config, init
+    , header, icon, attached, close, color
     )
 
 {-| A message displays information that explains nearby content.
@@ -11,26 +9,13 @@ module SemanticUI.Collections.Message exposing
 
 # Viewing messages
 
-@docs message, error, warning
+@docs message, error, warning, info
 
 
 # Message properties
 
-@docs init, Config
-
-
-## Header
-
-A message can have a header.
-
-@docs header
-
-
-## Icon
-
-A message can contain an icon.
-
-@docs icon
+@docs Config, init
+@docs header, icon, attached, close, color
 
 -}
 
@@ -64,6 +49,8 @@ init =
     }
 
 
+{-| Specify whether a message is attached.
+-}
 attached : Maybe Attached -> Config msg -> Config msg
 attached a model =
     { model | attached = a }
@@ -83,6 +70,8 @@ icon a model =
     { model | icon = Just a }
 
 
+{-| Specify the Elm message to fire when a message's close button is clicked.
+-}
 close : msg -> Config msg -> Config msg
 close msg model =
     { model | close = Just msg }

@@ -113,12 +113,16 @@ type Icon
     | WarningSign
 
 
+{-| How to flip the icon.
+-}
 type Flip
     = NoFlip
     | Vertically
     | Horizontally
 
 
+{-| How to rotate the icon.
+-}
 type Rotate
     = NoRotation
     | Clockwise
@@ -215,6 +219,9 @@ color x cfg =
     { cfg | color = x }
 
 
+{-| Any other custom `Attribute`s to add to this header. Custom attributes
+will be added before `elm-semantic-ui` attributes.
+-}
 attributes : List (Attribute msg) -> Config msg -> Config msg
 attributes attrs model =
     { model | attributes = attrs }
