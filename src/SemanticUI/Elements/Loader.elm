@@ -24,6 +24,8 @@ Loaders are hidden unless active or inside an active dimmer.
 
 @docs active
 
+@docs size, text
+
 -}
 
 import Html exposing (..)
@@ -81,6 +83,8 @@ inline cfg =
         }
 
 
+{-| Specify the text to show with the loader.
+-}
 text : Maybe String -> Config -> Config
 text t model =
     { model | text = t }

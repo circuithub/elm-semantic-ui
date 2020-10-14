@@ -1,4 +1,11 @@
-module SemanticUI.Modules.Modal exposing (..)
+module SemanticUI.Modules.Modal exposing (Config, init, fullscreen, view)
+
+{-| A modal dialog displays content that temporarily blocks interactions with
+the main view of a site.
+
+@docs view, Config, init, fullscreen
+
+-}
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -6,12 +13,16 @@ import Html.Events exposing (..)
 import SemanticUI exposing (Size(..), sizeClass)
 
 
+{-| The configuration of a modal.
+-}
 type alias Config =
     { fullscreen : Bool
     , size : Size
     }
 
 
+{-| The simplest configuration of a modal.
+-}
 init : Config
 init =
     { fullscreen = False
@@ -19,11 +30,15 @@ init =
     }
 
 
+{-| Specify whether the modal should be displayed fullscreen.
+-}
 fullscreen : Bool -> Config -> Config
 fullscreen a config =
     { config | fullscreen = a }
 
 
+{-| View a modal with a particular configuration.
+-}
 view :
     Config
     ->

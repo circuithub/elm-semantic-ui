@@ -1,9 +1,10 @@
 module SemanticUI.Elements.Segment exposing
-    ( segment, raised
+    ( segment
     , init, Config, attributes
+    , clearing, loading
+    , raised
     , attached
     , textAlignment
-    , clearing, loading
     )
 
 {-| A segment is used to create a grouping of related content.
@@ -11,12 +12,13 @@ module SemanticUI.Elements.Segment exposing
 
 # Viewing segments
 
-@docs segment, raised
+@docs segment
 
 
 # Segment properties
 
 @docs init, Config, attributes
+@docs clearing, loading
 
 
 ## Raised
@@ -100,11 +102,15 @@ attributes a model =
     { model | attributes = a }
 
 
+{-| Specify whether the segment clears floated content.
+-}
 clearing : Bool -> Config msg -> Config msg
 clearing c model =
     { model | clearing = c }
 
 
+{-| Specify whether the segment shows a loading spinner.
+-}
 loading : Bool -> Config msg -> Config msg
 loading c model =
     { model | loading = c }

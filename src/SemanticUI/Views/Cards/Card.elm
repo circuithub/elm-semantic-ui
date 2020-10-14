@@ -1,11 +1,15 @@
-module SemanticUI.Views.Cards.Card exposing (..)
+module SemanticUI.Views.Cards.Card exposing
+    ( linkCard, divCard
+    , init, Config, attributes
+    , fluid
+    )
 
 {-| View a single card.
 
 
 # Viewing cards
 
-@docs linkCard
+@docs linkCard, divCard
 
 
 # Card properties
@@ -57,7 +61,7 @@ init =
 
 
 {-| View a card as a link. Cards can contain a variety of content,
-which can be supplied when viewing the card. An empty lists will be
+which can be supplied when viewing the card. An empty list will be
 omitted entirely.
 -}
 linkCard :
@@ -72,6 +76,8 @@ linkCard =
     viewCard a
 
 
+{-| View a card as a div.
+-}
 divCard :
     Config msg
     ->
@@ -94,14 +100,14 @@ viewCard el cfg content =
             ]
         )
         (List.concat
-            [ (case content.image of
+            [ case content.image of
                 Nothing ->
                     []
+
                 Just url ->
                     [ div [ class "image" ]
-                          [ img [ src url ] [] ]
+                        [ img [ src url ] [] ]
                     ]
-              )
             , case content.content of
                 [] ->
                     []
