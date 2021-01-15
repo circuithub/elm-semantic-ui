@@ -102,6 +102,7 @@ type Icon
     | SortDown
     | SortUp
     | Star
+    | StarOutline
     | Stop
     | Stopwatch
     | TimesCircleOutline
@@ -363,6 +364,9 @@ icon cfg theIcon =
 
                         Star ->
                             "star"
+
+                        StarOutline ->
+                            "star outline"
 
                         GitHub ->
                             "github"
