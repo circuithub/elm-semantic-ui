@@ -1,9 +1,9 @@
-module SemanticUI.Modules.Modal exposing (Config, init, fullscreen, view)
+module SemanticUI.Modules.Modal exposing (view, Config, init, fullscreen, size)
 
 {-| A modal dialog displays content that temporarily blocks interactions with
 the main view of a site.
 
-@docs view, Config, init, fullscreen
+@docs view, Config, init, fullscreen, size
 
 -}
 
@@ -35,6 +35,13 @@ init =
 fullscreen : Bool -> Config -> Config
 fullscreen a config =
     { config | fullscreen = a }
+
+
+{-| Specify the size of the modal.
+-}
+size : Size -> Config -> Config
+size s config =
+    { config | size = s }
 
 
 {-| View a modal with a particular configuration.
